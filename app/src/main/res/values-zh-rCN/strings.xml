@@ -610,4 +610,8 @@
     <string name="snell_quic_proxy">QUIC Proxy 模式</string>
     <string name="snell_quic_proxy_summary">仅 v6：旧版 v5 QUIC Proxy 兼容</string>
     <string name="snell_reuse_summary">仅适用于 v4-v6</string>
+    <string name="import_full_sing_box_config">导入完整 sing-box JSON</string>
+    <string name="full_sing_box_config">完整 sing-box 配置</string>
+    <string name="invalid_full_sing_box_config">请选择可读取且包含 inbounds 和 outbounds 数组的 sing-box JSON 文件。</string>
+    <string name="full_sing_box_config_save_failed">无法保存 sing-box 配置。</string>
 </resources>

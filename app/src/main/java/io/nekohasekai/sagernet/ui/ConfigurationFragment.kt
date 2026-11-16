@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.gson.JsonParser
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -83,6 +84,7 @@ import io.nekohasekai.sagernet.ktx.runOnMainDispatcher
 import io.nekohasekai.sagernet.ktx.scrollTo
 import io.nekohasekai.sagernet.ktx.showAllowingStateLoss
 import io.nekohasekai.sagernet.ktx.snackbar
+import io.nekohasekai.sagernet.ktx.applyDefaultValues
 import io.nekohasekai.sagernet.ktx.startFilesForResult
 import io.nekohasekai.sagernet.ktx.tryToShow
 import io.nekohasekai.sagernet.ktx.USER_AGENT
@@ -121,6 +123,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import moe.matsuri.nb4a.Protocols
 import moe.matsuri.nb4a.Protocols.getProtocolColor
 import moe.matsuri.nb4a.proxy.anytls.AnyTLSSettingsActivity
+import moe.matsuri.nb4a.proxy.config.ConfigBean
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSSettingsActivity
 import moe.matsuri.nb4a.ui.ConnectionTestNotification
@@ -443,6 +446,45 @@ class ConfigurationFragment @JvmOverloads constructor(
         return super.onKeyDown(ketCode, event)
     }
 
+    private val importSingBoxConfig =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
+            if (file != null) lifecycleScope.launch {
+                val resolver = requireContext().contentResolver
+                val fallbackName = getString(R.string.full_sing_box_config)
+                val profile = try {
+                    withContext(Dispatchers.IO) {
+                        val config = resolver.openInputStream(file)?.bufferedReader()?.use { it.readText() }
+                            ?: throw IllegalArgumentException()
+                        val root = JsonParser.parseString(config)
+                        require(root.isJsonObject)
+                        val options = root.asJsonObject
+                        require(options.get("inbounds")?.isJsonArray == true)
+                        require(options.get("outbounds")?.isJsonArray == true)
+                        val name = resolver.query(file, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                            ?.use { if (it.moveToFirst()) it.getString(0) else null }
+                            ?.substringBeforeLast('.')
+                        ConfigBean().apply {
+                            this.name = name?.takeIf { it.isNotBlank() } ?: fallbackName
+                            type = 0
+                            this.config = config
+                        }.applyDefaultValues()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    snackbar(getString(R.string.invalid_full_sing_box_config)).show()
+                    return@launch
+                }
+                try {
+                    withContext(Dispatchers.IO) { import(listOf(profile)) }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    snackbar(getString(R.string.full_sing_box_config_save_failed)).show()
+                }
+            }
+        }
+
     private val importFile =
         registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
             if (file != null) runOnDefaultDispatcher {
@@ -617,6 +659,10 @@ class ConfigurationFragment @JvmOverloads constructor(
                         }
                     }
                 }
+            }
+
+            R.id.action_import_sing_box_config -> {
+                startFilesForResult(importSingBoxConfig, "*/*")
             }
 
             R.id.action_import_file -> {

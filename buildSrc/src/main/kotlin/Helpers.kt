@@ -145,8 +145,12 @@ fun Project.setupApp() {
     val verName = requireMetadata().getProperty("VERSION_NAME")
     val verCode = (requireMetadata().getProperty("VERSION_CODE").toInt()) * 5
     android.apply {
+        buildTypes.named("debug") {
+            resValue("string", "shortcut_target_package", "$pkgName.debug")
+        }
         defaultConfig {
             applicationId = pkgName
+            resValue("string", "shortcut_target_package", pkgName)
             versionCode = verCode
             versionName = verName
             buildConfigField("String", "PRE_VERSION_NAME", "\"\"")
