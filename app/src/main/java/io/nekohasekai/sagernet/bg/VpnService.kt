@@ -17,6 +17,7 @@ import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.ui.VpnRequestActivity
 import io.nekohasekai.sagernet.utils.Subnet
 import moe.matsuri.nb4a.hevtun.HevTunRuntime
+import org.json.JSONObject
 import android.net.VpnService as BaseVpnService
 
 class VpnService : BaseVpnService(),
@@ -39,11 +40,14 @@ class VpnService : BaseVpnService(),
 
     override var upstreamInterfaceName: String? = null
 
+    private val fullConfigActive: Boolean
+        get() = data.proxy?.profile?.configBean?.type == 0
+
     override suspend fun startProcesses() {
         DataStore.vpnService = this
         super.startProcesses() // launch proxy instance
 
-        if (DataStore.enableHevTun) {
+        if (DataStore.enableHevTun && !fullConfigActive) {
             val tunFd = establishTun()
             HevTunRuntime.start(this, tunFd)
         }
@@ -94,46 +98,62 @@ class VpnService : BaseVpnService(),
         override fun getLocalizedMessage() = getString(R.string.reboot_required)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun startVpn(tunOptionsJson: String, tunPlatformOptionsJson: String): Int {
-//        Logs.d(tunOptionsJson)
-//        Logs.d(tunPlatformOptionsJson)
-//        val tunOptions = JSONObject(tunOptionsJson)
-
-        return establishTun()
+        return establishTun(if (fullConfigActive) JSONObject(tunOptionsJson) else null)
     }
 
-    fun establishTun(): Int {
+    fun establishTun(): Int = establishTun(null)
+
+    private fun establishTun(fullTun: JSONObject?): Int {
         val builder = Builder().setConfigureIntent(SagerNet.configureIntent(this))
             .setSession(getString(R.string.app_name))
-            .setMtu(DataStore.mtu)
-        val ipv6Mode = DataStore.ipv6Mode
-
-        // address
-        builder.addAddress(PRIVATE_VLAN4_CLIENT, 30)
-        if (ipv6Mode != IPv6Mode.DISABLE) {
-            builder.addAddress(PRIVATE_VLAN6_CLIENT, 126)
-        }
-        builder.addDnsServer(PRIVATE_VLAN4_ROUTER)
-
-        // route
-        if (DataStore.bypassLan) {
-            resources.getStringArray(R.array.bypass_private_route).forEach {
-                val subnet = Subnet.fromString(it)!!
-                builder.addRoute(subnet.address.hostAddress!!, subnet.prefixSize)
+            .setMtu(fullTun?.optInt("mtu")?.takeIf { it > 0 } ?: DataStore.mtu)
+        if (fullTun != null) {
+            val addresses = fullTun.getJSONArray("addresses")
+            for (i in 0 until addresses.length()) {
+                val prefix = addresses.getString(i)
+                builder.addAddress(prefix.substringBefore('/'), prefix.substringAfter('/').toInt())
             }
-            builder.addRoute(PRIVATE_VLAN4_ROUTER, 32)
-            builder.addRoute(FAKEDNS_VLAN4_CLIENT, 15)
-            if (DataStore.enableHevTun && DataStore.enableFakeDns) {
-                builder.addRoute(HEV_MAPDNS_VLAN4, 10)
+            fullTun.optJSONArray("routes")?.let { routes ->
+                for (i in 0 until routes.length()) {
+                    val prefix = routes.getString(i)
+                    builder.addRoute(prefix.substringBefore('/'), prefix.substringAfter('/').toInt())
+                }
             }
-            // https://issuetracker.google.com/issues/149636790
-            if (ipv6Mode != IPv6Mode.DISABLE) {
-                builder.addRoute("2000::", 3)
+            fullTun.optJSONArray("dns")?.let { dns ->
+                for (i in 0 until dns.length()) builder.addDnsServer(dns.getString(i))
             }
         } else {
-            builder.addRoute("0.0.0.0", 0)
+            val ipv6Mode = DataStore.ipv6Mode
+
+            // address
+            builder.addAddress(PRIVATE_VLAN4_CLIENT, 30)
             if (ipv6Mode != IPv6Mode.DISABLE) {
-                builder.addRoute("::", 0)
+                builder.addAddress(PRIVATE_VLAN6_CLIENT, 126)
+            }
+            builder.addDnsServer(PRIVATE_VLAN4_ROUTER)
+
+            // route
+            if (DataStore.bypassLan) {
+                resources.getStringArray(R.array.bypass_private_route).forEach {
+                    val subnet = Subnet.fromString(it)!!
+                    builder.addRoute(subnet.address.hostAddress!!, subnet.prefixSize)
+                }
+                builder.addRoute(PRIVATE_VLAN4_ROUTER, 32)
+                builder.addRoute(FAKEDNS_VLAN4_CLIENT, 15)
+                if (DataStore.enableHevTun && DataStore.enableFakeDns) {
+                    builder.addRoute(HEV_MAPDNS_VLAN4, 10)
+                }
+                // https://issuetracker.google.com/issues/149636790
+                if (ipv6Mode != IPv6Mode.DISABLE) {
+                    builder.addRoute("2000::", 3)
+                }
+            } else {
+                builder.addRoute("0.0.0.0", 0)
+                if (ipv6Mode != IPv6Mode.DISABLE) {
+                    builder.addRoute("::", 0)
+                }
             }
         }
 
