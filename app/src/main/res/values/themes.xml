@@ -232,13 +232,16 @@
         <item name="android:windowBackground">@drawable/bg_dialog</item>
     </style>
 
-    <style name="Theme.SagerNet.Pink_SSR" parent="Theme.SagerNet">
-        <item name="colorPrimary">@color/color_pink_ssr</item>
-        <item name="colorPrimaryDark">@color/color_pink_ssr</item>
-        <item name="colorAccent">@color/material_pink_accent_200</item>
-        <item name="colorMaterial100">@color/material_pink_accent_100</item>
-        <item name="colorMaterial300">@color/color_pink_ssr</item>
-        <item name="cardElevatedSurfaceColor">@color/card_elevated_pink_ssr</item>
+    <style name="Theme.SagerNet.LauritzJC" parent="Theme.SagerNet">
+        <item name="colorPrimary">@color/jc_primary</item>
+        <item name="colorPrimaryDark">@color/jc_primary_dark</item>
+        <item name="colorAccent">@color/jc_accent</item>
+        <item name="colorMaterial100">@color/jc_tint_light</item>
+        <item name="colorMaterial300">@color/jc_tint</item>
+        <item name="cardElevatedSurfaceColor">@color/card_elevated_jc</item>
+        <item name="primaryOrTextSecondary">?colorAccent</item>
+        <item name="primaryOrTextPrimary">?colorAccent</item>
+        <item name="selectedColorPrimary">?colorAccent</item>
     </style>
 
     <style name="Theme.SagerNet.Amber" parent="Theme.SagerNet">
@@ -548,13 +551,16 @@
         <item name="cardElevatedSurfaceColor">@color/card_elevated_red</item>
     </style>
 
-    <style name="Theme.SagerNet.Dialog.Pink_SSR" parent="Theme.SagerNet.Dialog">
-        <item name="colorPrimary">@color/color_pink_ssr</item>
-        <item name="colorPrimaryDark">@color/color_pink_ssr</item>
-        <item name="colorAccent">@color/material_pink_accent_200</item>
-        <item name="colorMaterial100">@color/material_pink_accent_100</item>
-        <item name="colorMaterial300">@color/color_pink_ssr</item>
-        <item name="cardElevatedSurfaceColor">@color/card_elevated_pink_ssr</item>
+    <style name="Theme.SagerNet.Dialog.LauritzJC" parent="Theme.SagerNet.Dialog">
+        <item name="colorPrimary">@color/jc_primary</item>
+        <item name="colorPrimaryDark">@color/jc_primary_dark</item>
+        <item name="colorAccent">@color/jc_accent</item>
+        <item name="colorMaterial100">@color/jc_tint_light</item>
+        <item name="colorMaterial300">@color/jc_tint</item>
+        <item name="cardElevatedSurfaceColor">@color/card_elevated_jc</item>
+        <item name="primaryOrTextSecondary">?colorAccent</item>
+        <item name="primaryOrTextPrimary">?colorAccent</item>
+        <item name="selectedColorPrimary">?colorAccent</item>
     </style>
 
     <style name="Theme.SagerNet.Dialog.Teal" parent="Theme.SagerNet.Dialog">

@@ -10,7 +10,7 @@ import io.nekohasekai.sagernet.ktx.app
 object Theme {
 
     const val RED = 1
-    const val PINK_SSR = 2
+    private const val LAURITZ_JC = 2 // Keep the previous default theme preference ID.
     const val PINK = 3
     const val PURPLE = 4
     const val DEEP_PURPLE = 5
@@ -32,7 +32,7 @@ object Theme {
     const val BLACK = 21
     const val VERDANT_MINT = 22
 
-    private fun defaultTheme() = PINK_SSR
+    private fun defaultTheme() = LAURITZ_JC
 
     fun apply(context: Context) {
         context.setTheme(getTheme())
@@ -54,7 +54,7 @@ object Theme {
         return when (theme) {
             RED -> R.style.Theme_SagerNet_Red
             PINK -> R.style.Theme_SagerNet
-            PINK_SSR -> R.style.Theme_SagerNet_Pink_SSR
+            LAURITZ_JC -> R.style.Theme_SagerNet_LauritzJC
             PURPLE -> R.style.Theme_SagerNet_Purple
             DEEP_PURPLE -> R.style.Theme_SagerNet_DeepPurple
             INDIGO -> R.style.Theme_SagerNet_Indigo
@@ -82,7 +82,7 @@ object Theme {
         return when (theme) {
             RED -> R.style.Theme_SagerNet_Dialog_Red
             PINK -> R.style.Theme_SagerNet_Dialog
-            PINK_SSR -> R.style.Theme_SagerNet_Dialog_Pink_SSR
+            LAURITZ_JC -> R.style.Theme_SagerNet_Dialog_LauritzJC
             PURPLE -> R.style.Theme_SagerNet_Dialog_Purple
             DEEP_PURPLE -> R.style.Theme_SagerNet_Dialog_DeepPurple
             INDIGO -> R.style.Theme_SagerNet_Dialog_Indigo

@@ -3,7 +3,7 @@
 
     <integer-array name="material_colors">
         <item>@color/material_red_500</item>
-        <item>@color/color_pink_ssr</item>
+        <item>@color/jc_primary</item>
         <item>@color/material_pink_500</item>
         <item>@color/material_purple_500</item>
         <item>@color/material_deep_purple_500</item>
@@ -284,7 +284,11 @@
 
     <color name="fab_color_progress">@color/material_light_black</color>
 
-    <color name="color_pink_ssr">#fb7299</color>
+    <color name="jc_primary">#17364D</color>
+    <color name="jc_primary_dark">#102638</color>
+    <color name="jc_accent">#006D68</color>
+    <color name="jc_tint_light">#D9F1EE</color>
+    <color name="jc_tint">#77C8C1</color>
     <color name="color_verdant_mint">#00B96B</color>
     <color name="color_verdant_mint_dark">#00875E</color>
     <color name="color_verdant_mint_accent">#00D685</color>
@@ -307,7 +311,7 @@
 
     <!-- 立体卡片色调提升表面色（浅色，白底 + 各 primary 8% 染色），夜间见 values-night/colors.xml -->
     <color name="card_elevated_pink">#FDEDF3</color>
-    <color name="card_elevated_pink_ssr">#FFF4F7</color>
+    <color name="card_elevated_jc">#EDF5F6</color>
     <color name="card_elevated_amber">#FFFAEB</color>
     <color name="card_elevated_blue">#EDF7FE</color>
     <color name="card_elevated_blue_grey">#F2F5F6</color>
