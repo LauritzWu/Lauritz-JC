@@ -728,4 +728,13 @@
     <string name="diagnostic_active_profile">Active configuration: %1$s</string>
     <string name="diagnostic_selected_node">Selected node: %1$s</string>
     <string name="diagnostic_copy">Copy diagnostic result</string>
+    <string name="full_config_details">Configuration details</string>
+    <string name="full_config_details_unavailable">This configuration could not be read.</string>
+    <string name="full_config_details_automatic">Determined by the core</string>
+    <string name="full_config_details_outbound">Default outbound: %1$s</string>
+    <string name="full_config_details_selectors">Selectors · saved or default selection</string>
+    <string name="full_config_details_selector_row">%1$s → %2$s (%3$d)</string>
+    <string name="full_config_details_dns">DNS · default server: %1$s</string>
+    <string name="full_config_details_route_rules">Routing rules: %1$d</string>
+    <string name="full_config_details_rule_sets">Rule sets</string>
 </resources>

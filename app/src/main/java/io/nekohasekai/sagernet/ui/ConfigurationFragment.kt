@@ -128,6 +128,7 @@ import moe.matsuri.nb4a.proxy.config.ConfigBean
 import moe.matsuri.nb4a.proxy.config.fullSingBoxConfig
 import moe.matsuri.nb4a.proxy.config.fullSingBoxNodeNames
 import moe.matsuri.nb4a.proxy.config.FullSingBoxSelector
+import moe.matsuri.nb4a.proxy.config.fullSingBoxDetails
 import moe.matsuri.nb4a.proxy.config.fullSingBoxSelectors
 import moe.matsuri.nb4a.proxy.config.fullSingBoxSelectorChoices
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
@@ -2473,12 +2474,61 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
             }
 
+            private fun showFullConfigDetails(bean: ConfigBean) {
+                val details = fullSingBoxDetails(bean.config, bean.selectorChoices)
+                if (details == null) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.full_config_details)
+                        .setMessage(R.string.full_config_details_unavailable)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                    return
+                }
+
+                val automatic = getString(R.string.full_config_details_automatic)
+                val sections = buildList {
+                    add(getString(R.string.full_config_details_outbound, details.finalOutbound ?: automatic))
+                    if (details.selectors.isNotEmpty()) {
+                        add(buildString {
+                            appendLine(getString(R.string.full_config_details_selectors))
+                            details.selectors.forEachIndexed { index, (group, choice) ->
+                                if (index > 0) appendLine()
+                                append(getString(R.string.full_config_details_selector_row, group.tag, choice, group.members.size))
+                            }
+                        })
+                    }
+                    if (details.dnsServers.isNotEmpty() || details.finalDnsServer != null) {
+                        add(buildList {
+                            add(getString(R.string.full_config_details_dns, details.finalDnsServer ?: automatic))
+                            addAll(details.dnsServers)
+                        }.joinToString("\n"))
+                    }
+                    add(buildList {
+                        add(getString(R.string.full_config_details_route_rules, details.routeRuleCount))
+                        if (details.ruleSets.isNotEmpty()) {
+                            add(getString(R.string.full_config_details_rule_sets))
+                            addAll(details.ruleSets)
+                        }
+                    }.joinToString("\n"))
+                }
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.full_config_details)
+                    .setMessage(sections.joinToString("\n\n"))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+
             private fun showFullConfigNodes(profileId: Long, bean: ConfigBean, nodes: List<String>) {
                 val selectors = fullSingBoxSelectors(bean.config)
                 if (selectors.isEmpty()) {
+                    if (nodes.isEmpty()) {
+                        showFullConfigDetails(bean)
+                        return
+                    }
                     MaterialAlertDialogBuilder(requireContext())
                         .setTitle(R.string.full_sing_box_node_list)
                         .setItems(nodes.toTypedArray(), null)
+                        .setNeutralButton(R.string.full_config_details) { _, _ -> showFullConfigDetails(bean) }
                         .setPositiveButton(android.R.string.ok, null)
                         .show()
                     return
@@ -2491,6 +2541,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                         .setItems(selectors.map { it.tag }.toTypedArray()) { _, which ->
                             showFullConfigSelector(profileId, bean, selectors[which])
                         }
+                        .setNeutralButton(R.string.full_config_details) { _, _ -> showFullConfigDetails(bean) }
                         .setNegativeButton(android.R.string.cancel, null)
                         .show()
                 }
@@ -2504,6 +2555,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     .setSingleChoiceItems(group.members.toTypedArray(), group.members.indexOf(choice)) { _, which ->
                         choice = group.members[which]
                     }
+                    .setNeutralButton(R.string.full_config_details) { _, _ -> showFullConfigDetails(bean) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         runOnDefaultDispatcher {
@@ -2550,10 +2602,11 @@ class ConfigurationFragment @JvmOverloads constructor(
                     configNodes.isNotEmpty() -> view.resources.getQuantityString(
                         R.plurals.full_sing_box_config_nodes, configNodes.size, configNodes.size,
                     )
+                    fullConfig != null -> getString(R.string.full_config_details)
                     else -> proxyEntity.displayType()
                 }
-                val canOpenNodes = fullConfig != null && (configNodes.isNotEmpty() || selectors.isNotEmpty())
-                profileType.setOnClickListener(if (canOpenNodes && fullConfig != null) View.OnClickListener {
+                val canOpenNodes = fullConfig != null
+                profileType.setOnClickListener(if (fullConfig != null) View.OnClickListener {
                     showFullConfigNodes(proxyEntity.id, fullConfig, configNodes)
                 } else null)
                 profileType.isClickable = canOpenNodes

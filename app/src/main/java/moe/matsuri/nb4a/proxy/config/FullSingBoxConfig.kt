@@ -37,7 +37,11 @@ internal data class FullSingBoxSelector(
 
 internal fun fullSingBoxSelectors(contents: String): List<FullSingBoxSelector> {
     val config = fullSingBoxConfig(contents) ?: return emptyList()
-    return config.get("outbounds")?.takeIf { it.isJsonArray }?.asJsonArray?.mapNotNull { element ->
+    return config.selectors()
+}
+
+private fun JsonObject.selectors(): List<FullSingBoxSelector> =
+    get("outbounds")?.takeIf { it.isJsonArray }?.asJsonArray?.mapNotNull { element ->
         val group = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
         if (group.stringValue("type") != "selector") return@mapNotNull null
         val tag = group.stringValue("tag")?.takeIf(String::isNotBlank) ?: return@mapNotNull null
@@ -47,7 +51,6 @@ internal fun fullSingBoxSelectors(contents: String): List<FullSingBoxSelector> {
         val first = members.firstOrNull() ?: return@mapNotNull null
         FullSingBoxSelector(tag, members, group.stringValue("default")?.takeIf { it in members } ?: first)
     }.orEmpty()
-}
 
 internal fun fullSingBoxSelectorChoices(contents: String, choices: String?): Map<String, String> {
     val saved = choices?.let(::parseJsonObject) ?: return emptyMap()
@@ -55,6 +58,40 @@ internal fun fullSingBoxSelectorChoices(contents: String, choices: String?): Map
         saved.stringValue(group.tag)?.takeIf { it in group.members }?.let { group.tag to it }
     }.toMap()
 }
+
+internal data class FullSingBoxDetails(
+    val finalOutbound: String?,
+    val selectors: List<Pair<FullSingBoxSelector, String>>,
+    val dnsServers: List<String>,
+    val finalDnsServer: String?,
+    val ruleSets: List<String>,
+    val routeRuleCount: Int,
+)
+
+internal fun fullSingBoxDetails(contents: String, choices: String?): FullSingBoxDetails? {
+    val config = fullSingBoxConfig(contents) ?: return null
+    val saved = choices?.let(::parseJsonObject)
+    val route = config.get("route")?.takeIf { it.isJsonObject }?.asJsonObject
+    val dns = config.get("dns")?.takeIf { it.isJsonObject }?.asJsonObject
+    return FullSingBoxDetails(
+        finalOutbound = route?.stringValue("final")?.takeIf(String::isNotBlank),
+        selectors = config.selectors().map { group ->
+            group to (saved?.stringValue(group.tag)?.takeIf { it in group.members } ?: group.default)
+        },
+        dnsServers = dns?.taggedEntries("servers").orEmpty(),
+        finalDnsServer = dns?.stringValue("final")?.takeIf(String::isNotBlank),
+        ruleSets = route?.taggedEntries("rule_set").orEmpty(),
+        routeRuleCount = route?.get("rules")?.takeIf { it.isJsonArray }?.asJsonArray?.size() ?: 0,
+    )
+}
+
+private fun JsonObject.taggedEntries(key: String): List<String> =
+    get(key)?.takeIf { it.isJsonArray }?.asJsonArray?.mapNotNull { element ->
+        val item = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+        val tag = item.stringValue("tag")?.takeIf(String::isNotBlank) ?: return@mapNotNull null
+        val type = item.stringValue("type")?.takeIf(String::isNotBlank)
+        if (type == null) tag else "$tag ($type)"
+    }.orEmpty()
 
 private fun parseJsonObject(contents: String): JsonObject? = try {
     JsonParser.parseString(contents).takeIf { it.isJsonObject }?.asJsonObject

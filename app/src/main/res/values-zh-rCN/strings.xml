@@ -642,4 +642,13 @@
     <string name="diagnostic_active_profile">当前配置：%1$s</string>
     <string name="diagnostic_selected_node">所选节点：%1$s</string>
     <string name="diagnostic_copy">复制诊断结果</string>
+    <string name="full_config_details">配置详情</string>
+    <string name="full_config_details_unavailable">无法读取这份配置。</string>
+    <string name="full_config_details_automatic">由内核决定</string>
+    <string name="full_config_details_outbound">默认出口：%1$s</string>
+    <string name="full_config_details_selectors">选择器 · 已保存或默认选项</string>
+    <string name="full_config_details_selector_row">%1$s → %2$s（%3$d 个选项）</string>
+    <string name="full_config_details_dns">DNS · 默认服务器：%1$s</string>
+    <string name="full_config_details_route_rules">路由规则：%1$d 条</string>
+    <string name="full_config_details_rule_sets">规则集</string>
 </resources>
