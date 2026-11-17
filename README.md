@@ -2,7 +2,7 @@
 
 Lauritz JC 是面向 Android 6.0 及以上的代理客户端，支持 Sub-Store 订阅、多种代理协议和自定义 sing-box 配置。
 
-目前的 ARM64 预览构建可在本仓库的 [GitHub Actions](https://github.com/LauritzWu/NekoBox/actions) 查看。
+目前的 ARM64 预览构建可在本仓库的 [GitHub Actions](https://github.com/LauritzWu/Lauritz-JC/actions) 查看。[5090 首个预览版](https://github.com/LauritzWu/NekoBox/releases/tag/v1.4.2-preview.5090) 可从原发布页下载。
 
 ## 支持的代理协议 / Supported Proxy Protocols
 

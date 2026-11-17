@@ -147,7 +147,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                                 .text(R.string.github)
                                 .setOnClickAction {
                                     requireContext().launchCustomTab(
-                                        "https://github.com/LauritzWu/NekoBox/tree/lauritz/starifly-core-1.14"
+                                        "https://github.com/LauritzWu/Lauritz-JC"
                                     )
                                 }
                                 .build())
