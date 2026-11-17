@@ -285,7 +285,6 @@
     <string name="apply">適用</string>
     <string name="need_reload">変更を適用するにはプロキシサービスを再読み込みしてください</string>
     <string name="license">ライセンス</string>
-    <string name="route_warn">カスタムルールを追加する前にドキュメントを必ずお読みください。さもないとインターネットに接続できなくなる場合があります。</string>
     <string name="lines">%d 行</string>
     <string name="night_mode">ナイトモード</string>
     <string name="language">言語</string>

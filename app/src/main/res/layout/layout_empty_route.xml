@@ -20,7 +20,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary"
             android:lineSpacingExtra="3dp"
-            android:text="@string/route_warn"/>
+            android:text="@string/custom_route_notice"/>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

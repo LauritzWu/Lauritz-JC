@@ -328,8 +328,7 @@
     <string name="apply">Apply</string>
     <string name="need_reload">Reload proxy service to apply changes</string>
     <string name="license">License</string>
-    <string name="route_warn">Make sure you have read the documentation before adding custom rules,
-        otherwise you may not be able to connect to the Internet.</string>
+    <string name="custom_route_notice">Custom routing rules can affect connectivity. Check the rule order and outbound before enabling them.</string>
     <string name="lines">%d Lines</string>
     <string name="night_mode">Night Mode</string>
     <string name="language">Language</string>

@@ -269,7 +269,7 @@
     <string name="ignore_battery_optimizations_sum">移除一些限制</string>
     <string name="ss_cat">Shadowsocks 設定</string>
     <string name="need_reload">重新載入代理服務以套用修改</string>
-    <string name="route_warn">請在新增客製化規則前閱讀文件，否則您可能會無法連線至網際網路。</string>
+    <string name="custom_route_notice">自訂路由規則可能影響網路連線。啟用前請檢查規則順序和出站設定。</string>
     <string name="lines">%d 行</string>
     <string name="night_mode">夜間模式</string>
     <string name="follow_system">跟隨系統</string>

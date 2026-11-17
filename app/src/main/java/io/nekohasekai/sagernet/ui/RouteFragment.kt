@@ -51,7 +51,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             override fun getSwipeDirs(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-            ) = if (viewHolder is RuleAdapter.DocumentHolder) {
+            ) = if (viewHolder is RuleAdapter.NoticeHolder) {
                 0
             } else {
                 super.getSwipeDirs(recyclerView, viewHolder)
@@ -60,7 +60,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             override fun getDragDirs(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-            ) = if (viewHolder is RuleAdapter.DocumentHolder) {
+            ) = if (viewHolder is RuleAdapter.NoticeHolder) {
                 0
             } else {
                 super.getDragDirs(recyclerView, viewHolder)
@@ -76,7 +76,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder,
             ): Boolean {
-                return if (target is RuleAdapter.DocumentHolder) {
+                return if (target is RuleAdapter.NoticeHolder) {
                     false
                 } else {
                     ruleAdapter.move(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
@@ -149,7 +149,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             viewType: Int,
         ): RecyclerView.ViewHolder {
             return if (viewType == 0) {
-                DocumentHolder(LayoutEmptyRouteBinding.inflate(layoutInflater, parent, false))
+                NoticeHolder(LayoutEmptyRouteBinding.inflate(layoutInflater, parent, false))
             } else {
                 RuleHolder(LayoutRouteItemBinding.inflate(layoutInflater, parent, false))
             }
@@ -161,9 +161,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            if (holder is DocumentHolder) {
-                holder.bind()
-            } else if (holder is RuleHolder) {
+            if (holder is RuleHolder) {
                 holder.bind(ruleList[position - 1])
             }
         }
@@ -262,13 +260,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             }
         }
 
-        inner class DocumentHolder(binding: LayoutEmptyRouteBinding) : RecyclerView.ViewHolder(binding.root) {
-            fun bind() {
-                itemView.setOnClickListener {
-                    it.context.launchCustomTab("https://matsuridayo.github.io/nb4a-route/")
-                }
-            }
-        }
+        inner class NoticeHolder(binding: LayoutEmptyRouteBinding) : RecyclerView.ViewHolder(binding.root)
 
         inner class RuleHolder(binding: LayoutRouteItemBinding) : RecyclerView.ViewHolder(binding.root) {
 

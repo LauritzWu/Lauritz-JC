@@ -299,8 +299,6 @@
     <string name="apply">اعمال تغییرات</string>
     <string name="need_reload">برای اعمال تغییرات، سرویس پراکسی را دوباره راه‌اندازی کنید</string>
     <string name="license">مجوز</string>
-    <string name="route_warn">اطمینان حاصل کنید که مستندات فنی را قبل از افزودن قوانین سفارشی مطالعه کرده‌اید،
- در غیر این صورت ممکن است نتوانید به اینترنت وصل شوید.</string>
     <string name="lines">%d خط</string>
     <string name="night_mode">حالت تاریک</string>
     <string name="follow_system">مانند سیستم</string>

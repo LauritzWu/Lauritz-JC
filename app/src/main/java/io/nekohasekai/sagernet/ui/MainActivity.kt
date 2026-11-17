@@ -330,9 +330,6 @@ class MainActivity : ThemedActivity(),
                 showDownloadDialog(pluginEntity)
             }
             .setNeutralButton(android.R.string.cancel, null)
-            .setNeutralButton(R.string.action_learn_more) { _, _ ->
-                launchCustomTab("https://matsuridayo.github.io/nb4a-plugin/")
-            }
             .show()
     }
 
@@ -351,15 +348,20 @@ class MainActivity : ThemedActivity(),
             fdroidIndex = index++
         }
 
-        items.add(getString(R.string.download))
-        val downloadIndex = index
+        val downloadLink = pluginEntry.downloadSource.downloadLink
+        val downloadIndex = if (downloadLink != null) {
+            items.add(getString(R.string.download))
+            index
+        } else {
+            -1
+        }
 
         MaterialAlertDialogBuilder(this).setTitle(pluginEntry.name)
             .setItems(items.toTypedArray()) { _, which ->
                 when (which) {
                     playIndex -> launchCustomTab("https://play.google.com/store/apps/details?id=${pluginEntry.packageName}")
                     fdroidIndex -> launchCustomTab("https://f-droid.org/packages/${pluginEntry.packageName}/")
-                    downloadIndex -> launchCustomTab(pluginEntry.downloadSource.downloadLink)
+                    downloadIndex -> downloadLink?.let { launchCustomTab(it) }
                 }
             }
             .show()
@@ -434,11 +436,6 @@ class MainActivity : ThemedActivity(),
             R.id.nav_traffic -> displayFragment(WebviewFragment())
             R.id.nav_tools -> displayFragment(ToolsFragment())
             R.id.nav_logcat -> displayFragment(LogcatFragment())
-            R.id.nav_faq -> {
-                launchCustomTab("https://matsuridayo.github.io/")
-                return false
-            }
-
             R.id.nav_about -> displayFragment(AboutFragment())
 
             else -> return false
