@@ -185,15 +185,22 @@ object RawUpdater : GroupUpdater() {
             val existingByName = existing.groupBy { it.displayName() }.mapValues { (_, profiles) ->
                 profiles.find { it.id == selectedId } ?: profiles.first()
             }
-            val toDelete = existing.filter {
-                val name = it.displayName()
-                name !in nameMap || existingByName[name]?.id != it.id
+            val existingByConnection = existing.groupBy { it.requireBean().subscriptionConnection() }
+            val incomingByConnection = nameMap.entries.groupBy { it.value.subscriptionConnection() }
+            val matched = existingByName.filterKeys { it in nameMap }.toMutableMap()
+            val matchedIds = matched.values.mapTo(mutableSetOf()) { it.id }
+            for ((connection, entries) in incomingByConnection) {
+                val incoming = entries.singleOrNull() ?: continue
+                if (incoming.key in matched) continue
+                val previous = existingByConnection[connection]?.singleOrNull() ?: continue
+                if (matchedIds.add(previous.id)) matched[incoming.key] = previous
             }
+            val toDelete = existing.filter { it.id !in matchedIds }
             val toUpdate = mutableListOf<ProxyEntity>()
             val toInsert = mutableListOf<ProxyEntity>()
             nameMap.entries.forEachIndexed { index, (name, bean) ->
                 val order = index + 1L
-                val entity = existingByName[name]
+                val entity = matched[name]
                 if (entity == null) {
                     toInsert += ProxyEntity(groupId = latest.id, userOrder = order).apply { putBean(bean) }
                     added += name
@@ -201,10 +208,11 @@ object RawUpdater : GroupUpdater() {
                     val previous = entity.requireBean()
                     bean.customOutboundJson = previous.customOutboundJson
                     bean.customConfigJson = previous.customConfigJson
-                    val changed = previous != bean
+                    val previousName = entity.displayName()
+                    val changed = previousName != name || previous != bean
                     if (changed) {
                         entity.putBean(bean)
-                        updated[name] = name
+                        updated[previousName] = name
                     }
                     if (changed || entity.userOrder != order) {
                         entity.userOrder = order
@@ -234,6 +242,12 @@ object RawUpdater : GroupUpdater() {
         userInterface?.onUpdateSuccess(
             latest, added, updated, removed.map { it.displayName() }, duplicate, byUser, selectedRemoved
         )
+    }
+
+    private fun AbstractBean.subscriptionConnection(): AbstractBean = clone().apply {
+        // Bean equality ignores the display name. Local overrides do not identify a subscription node.
+        customOutboundJson = ""
+        customConfigJson = ""
     }
 
     fun findBodyHeader(content: String, name: String): String? {
