@@ -209,10 +209,10 @@ class MainActivity : ThemedActivity(),
         }
     }
 
-    fun connectionDiagnostic(): Pair<String, JSONObject> {
+    fun connectionDiagnostic(): JSONObject {
         check(DataStore.serviceState.connected) { "not connected" }
         val service = checkNotNull(connection.service)
-        return service.profileName.orEmpty() to JSONObject(service.diagnoseConnection())
+        return JSONObject(service.diagnoseConnection())
     }
 
     suspend fun importSubscription(uri: Uri) {

@@ -317,7 +317,7 @@ class StatsBar @JvmOverloads constructor(
         setStatus(context.getText(R.string.connection_test_testing))
         activity.lifecycleScope.launch {
             try {
-                val (profile, result) = withContext(Dispatchers.IO) { activity.connectionDiagnostic() }
+                val result = withContext(Dispatchers.IO) { activity.connectionDiagnostic() }
                 if (!currentState.connected || activity.isFinishing) return@launch
                 val phase = result.getString("phase")
                 val elapsed = result.getLong("elapsedMs")
@@ -342,8 +342,18 @@ class StatsBar @JvmOverloads constructor(
                     if (tls >= 0) add(context.getString(R.string.diagnostic_tls_time, tls))
                 }.joinToString("\n")
                 setStatus(if (phase == "ok") context.getString(R.string.diagnostic_elapsed, elapsed) else outcome)
-                val message = if (profile.isBlank()) details
-                    else context.getString(R.string.diagnostic_active_profile, profile) + "\n\n" + details
+                val contextLines = buildList {
+                    val profile = result.optString("profile")
+                    if (profile.isNotBlank()) {
+                        add(context.getString(R.string.diagnostic_active_profile, profile))
+                    }
+                    val node = result.optString("selectedNode")
+                    if (node.isNotBlank()) {
+                        add(context.getString(R.string.diagnostic_selected_node, node))
+                    }
+                }
+                val message = (contextLines.takeIf { it.isNotEmpty() }?.joinToString("\n")
+                    ?.plus("\n\n") ?: "") + details
                 MaterialAlertDialogBuilder(activity)
                     .setTitle(R.string.diagnostic_title)
                     .setMessage(message)

@@ -13,24 +13,36 @@ import (
 	"time"
 
 	"github.com/sagernet/sing-box/boxapi"
+	"github.com/sagernet/sing-box/protocol/group"
+	N "github.com/sagernet/sing/common/network"
 )
 
 type diagnosticResult struct {
-	Phase      string `json:"phase"`
-	StatusCode int    `json:"statusCode"`
-	ElapsedMs  int64  `json:"elapsedMs"`
-	DialMs     int64  `json:"dialMs"`
-	TLSMs      int64  `json:"tlsMs"`
+	Phase        string `json:"phase"`
+	StatusCode   int    `json:"statusCode"`
+	ElapsedMs    int64  `json:"elapsedMs"`
+	DialMs       int64  `json:"dialMs"`
+	TLSMs        int64  `json:"tlsMs"`
+	SelectedNode string `json:"selectedNode,omitempty"`
 }
 
-func DiagnoseConnection(instance *BoxInstance, link string, timeout int32) (report string, err error) {
+func DiagnoseConnection(instance *BoxInstance, link string, timeout int32, includeSelectedNode bool) (report string, err error) {
 	defer device.DeferPanicToError("box.DiagnoseConnection", func(cause error) { err = cause })
 	if instance == nil {
 		return "", errors.New("core not started")
 	}
+	var selectedNode string
+	if includeSelectedNode {
+		if selector, ok := instance.Outbound().Default().(*group.Selector); ok {
+			if selected := selector.Selected(N.NetworkTCP); selected != nil {
+				selectedNode = selected.Tag()
+			}
+		}
+	}
 	result := diagnoseHTTP(link, time.Duration(timeout)*time.Millisecond, func(ctx context.Context, network, addr string) (net.Conn, error) {
 		return boxapi.DialContext(ctx, instance.Box, nil, network, addr)
 	})
+	result.SelectedNode = selectedNode
 	data, err := json.Marshal(result)
 	return string(data), err
 }

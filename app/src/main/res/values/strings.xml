@@ -726,5 +726,6 @@
     <string name="diagnostic_dial_time">Outbound connection: %1$d ms</string>
     <string name="diagnostic_tls_time">TLS handshake: %1$d ms</string>
     <string name="diagnostic_active_profile">Active configuration: %1$s</string>
+    <string name="diagnostic_selected_node">Selected node: %1$s</string>
     <string name="diagnostic_copy">Copy diagnostic result</string>
 </resources>

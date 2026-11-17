@@ -1,5 +1,6 @@
 package io.nekohasekai.sagernet.bg
 
+import org.json.JSONObject
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -160,8 +161,14 @@ class BaseService {
         }
 
         override fun diagnoseConnection(): String {
-            val box = checkNotNull(data?.proxy?.box) { "core not started" }
-            return Libcore.diagnoseConnection(box, DataStore.connectionTestURL, DataStore.connectionTestTimeout)
+            val proxy = checkNotNull(data?.proxy) { "core not started" }
+            val result = Libcore.diagnoseConnection(
+                proxy.box,
+                DataStore.connectionTestURL,
+                DataStore.connectionTestTimeout,
+                proxy.profile.configBean?.type == 0
+            )
+            return JSONObject(result).put("profile", proxy.displayProfileName).toString()
         }
 
         fun stateChanged(s: State, msg: String?) = launch {

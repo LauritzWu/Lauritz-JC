@@ -640,5 +640,6 @@
     <string name="diagnostic_dial_time">出口连接：%1$d ms</string>
     <string name="diagnostic_tls_time">TLS 握手：%1$d ms</string>
     <string name="diagnostic_active_profile">当前配置：%1$s</string>
+    <string name="diagnostic_selected_node">所选节点：%1$s</string>
     <string name="diagnostic_copy">复制诊断结果</string>
 </resources>
