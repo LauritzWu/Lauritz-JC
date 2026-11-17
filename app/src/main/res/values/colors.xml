@@ -289,8 +289,9 @@
     <color name="jc_accent">#9B4A31</color>
     <color name="jc_tint_light">#F3E2D8</color>
     <color name="jc_tint">#DA9B83</color>
-    <color name="jc_background">#F8F5EE</color>
-    <color name="jc_surface">#FFFCF6</color>
+    <color name="jc_secondary_text">#68625A</color>
+    <color name="jc_background">#F7F2E7</color>
+    <color name="jc_surface">#FFFDF8</color>
     <color name="jc_button">#A45136</color>
     <color name="jc_launcher_background">#E97956</color>
     <color name="jc_launcher_mark">#BFE1DB</color>

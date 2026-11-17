@@ -1,4 +1,8 @@
 <resources>
+    <style name="TextAppearance.JC.Toolbar" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:fontFamily">serif</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="Theme.SagerNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Solid</item>
@@ -236,6 +240,7 @@
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>
+        <item name="android:textColorSecondary">@color/jc_secondary_text</item>
         <item name="colorSurface">@color/jc_surface</item>
         <item name="android:colorBackground">@color/jc_background</item>
         <item name="fabColorBackground">@color/jc_button</item>
@@ -559,6 +564,7 @@
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>
+        <item name="android:textColorSecondary">@color/jc_secondary_text</item>
         <item name="colorSurface">@color/jc_surface</item>
         <item name="android:colorBackground">@color/jc_background</item>
         <item name="fabColorBackground">@color/jc_button</item>

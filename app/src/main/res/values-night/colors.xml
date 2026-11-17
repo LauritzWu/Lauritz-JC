@@ -15,6 +15,7 @@
     <color name="card_elevated_pink">#2A131B</color>
     <color name="card_elevated_jc">#382C26</color>
     <color name="jc_accent">#E8A68E</color>
+    <color name="jc_secondary_text">#BFB6AB</color>
     <color name="jc_background">#24221F</color>
     <color name="jc_surface">#2E2B27</color>
     <color name="card_elevated_amber">#2C2511</color>

@@ -16,5 +16,6 @@
         android:theme="?actionBarTheme"
         android:touchscreenBlocksFocus="false"
         app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
+        app:titleTextAppearance="@style/TextAppearance.JC.Toolbar"
         app:title="@string/app_name" />
 </com.google.android.material.appbar.AppBarLayout>

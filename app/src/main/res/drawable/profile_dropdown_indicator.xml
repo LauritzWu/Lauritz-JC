@@ -1,0 +1,11 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_hovered="true" android:drawable="@drawable/ic_profile_chevron" />
+    <item android:state_focused="true" android:drawable="@drawable/ic_profile_chevron" />
+    <item android:state_pressed="true" android:drawable="@drawable/ic_profile_chevron" />
+    <item>
+        <shape>
+            <size android:width="16dp" android:height="16dp" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>

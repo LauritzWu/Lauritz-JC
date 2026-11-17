@@ -2249,6 +2249,7 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             val profileName: TextView = view.findViewById(R.id.profile_name)
             val profileType: TextView = view.findViewById(R.id.profile_type)
+            private val profileTypeDefaultColors = profileType.textColors
             val profileAddress: TextView = view.findViewById(R.id.profile_address)
             val profileStatus: TextView = view.findViewById(R.id.profile_status)
 
@@ -2502,7 +2503,15 @@ class ConfigurationFragment @JvmOverloads constructor(
                     showFullConfigNodes(proxyEntity.id, fullConfig, configNodes)
                 } else null)
                 profileType.isClickable = canOpenNodes
-                profileType.setTextColor(requireContext().getProtocolColor(proxyEntity.type))
+                profileType.isFocusable = canOpenNodes
+                profileType.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    0, 0, if (canOpenNodes) R.drawable.profile_dropdown_indicator else 0, 0
+                )
+                if (canOpenNodes) {
+                    profileType.setTextColor(view.context.getColorAttr(R.attr.accentOrTextPrimary))
+                } else {
+                    profileType.setTextColor(profileTypeDefaultColors)
+                }
 
                 val rx = proxyEntity.rx
                 val tx = proxyEntity.tx
