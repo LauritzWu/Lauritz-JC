@@ -12,13 +12,13 @@
         android:translateX="13.2"
         android:translateY="13.2">
         <path
+            android:fillColor="@color/jc_launcher_shadow"
+            android:pathData="M3.2,16.8 C3.6,12.4 6.5,9.5 10.8,9.8 C14.7,10.1 17.7,9.4 19.3,6.2 C19.6,5.5 19.8,4.9 19.9,4.2 C22,9.2 19.5,13.9 15,14.6 C11.3,15.2 8.5,13.3 5.8,15.4 C4.8,16.2 4.1,17.3 3.5,18.6 Q3,18.1 3.2,16.8 Z" />
+        <path
             android:fillColor="@color/jc_launcher_mark"
-            android:pathData="M2.5,8 L12,3 L17,5.6 L7.7,10.8 L7.7,15.2 L2.5,12.5 Z" />
+            android:pathData="M7.4,11.1 C7.9,6.6 11.8,3.4 16,3.7 C17.3,3.8 18.1,4.2 18.7,4.7 C16.9,4.8 15.3,5.7 14.1,7.3 C13.3,8.4 12.9,9.5 12.8,10.5 C14.1,12.1 14.7,13.9 14.2,15.7 C12.9,19.7 8.1,21.4 4.6,20.1 C7,19.2 8.9,17.8 9.6,15.7 C10.2,14 9.3,12.3 7.4,11.1 Z" />
         <path
             android:fillColor="@color/jc_launcher_fold"
-            android:pathData="M9.3,11.7 L18.8,6.4 L21.6,7.9 L21.6,12.4 L12.1,17.7 L9.3,16.2 Z" />
-        <path
-            android:fillColor="@color/jc_launcher_shadow"
-            android:pathData="M12.2,19.6 L21.6,14.3 L21.6,17.2 L15.3,21.2 Z" />
+            android:pathData="M7.4,11.1 C8.4,9.9 10.6,9.6 12.9,10.1 C12.8,10.3 12.8,10.4 12.8,10.5 C13.8,11.7 14.4,13.1 14.4,14.5 C12.6,14.7 11.1,14.1 9.7,13.9 C9.4,12.8 8.6,11.9 7.4,11.1 Z" />
     </group>
 </vector>
