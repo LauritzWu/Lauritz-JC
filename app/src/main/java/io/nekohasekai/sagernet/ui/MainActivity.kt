@@ -81,6 +81,11 @@ class MainActivity : ThemedActivity(),
             navigation = binding.navViewBlack
             binding.drawerLayout.removeView(binding.navView)
         }
+        if (themeResId == R.style.Theme_SagerNet_LauritzJC) {
+            binding.drawerLayout.setScrimColor(
+                ContextCompat.getColor(this, R.color.jc_drawer_scrim)
+            )
+        }
         navigation.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {

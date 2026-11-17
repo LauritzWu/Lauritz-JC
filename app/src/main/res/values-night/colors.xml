@@ -16,8 +16,10 @@
     <color name="card_elevated_jc">#382C26</color>
     <color name="jc_accent">#E8A68E</color>
     <color name="jc_secondary_text">#BFB6AB</color>
-    <color name="jc_background">#24221F</color>
-    <color name="jc_surface">#2E2B27</color>
+    <color name="jc_chrome_foreground">#F2EDE6</color>
+    <color name="jc_drawer_scrim">#73000000</color>
+    <color name="jc_background">#191817</color>
+    <color name="jc_surface">#242220</color>
     <color name="card_elevated_amber">#2C2511</color>
     <color name="card_elevated_blue">#14212B</color>
     <color name="card_elevated_blue_grey">#1B1E1F</color>

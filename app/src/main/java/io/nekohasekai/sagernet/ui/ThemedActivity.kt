@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -37,16 +38,19 @@ abstract class ThemedActivity : AppCompatActivity {
 
         uiMode = resources.configuration.uiMode
 
+        val isNight = (uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        val usesLauritzTheme = themeResId == R.style.Theme_SagerNet_LauritzJC
+        val insetController = WindowCompat.getInsetsController(window, window.decorView)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            val isNight = (uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                Configuration.UI_MODE_NIGHT_YES
-            val insetController = WindowCompat.getInsetsController(window, window.decorView)
-            insetController.isAppearanceLightNavigationBars = false
-            insetController.isAppearanceLightStatusBars =
-                if (DataStore.appTheme == Theme.BLACK) !isNight else false
+            insetController.isAppearanceLightNavigationBars = usesLauritzTheme && !isNight
+            if (usesLauritzTheme) {
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.jc_background)
+            }
         }
+        insetController.isAppearanceLightStatusBars =
+            !isNight && (usesLauritzTheme || DataStore.appTheme == Theme.BLACK)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, insets ->
             val bars = insets.getInsets(

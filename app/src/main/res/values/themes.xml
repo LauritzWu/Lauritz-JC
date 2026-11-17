@@ -3,6 +3,12 @@
         <item name="android:fontFamily">serif</item>
     </style>
 
+    <style name="ThemeOverlay.JC.Toolbar" parent="ThemeOverlay.AppCompat">
+        <item name="android:textColorPrimary">@color/jc_chrome_foreground</item>
+        <item name="android:textColorSecondary">@color/jc_secondary_text</item>
+        <item name="colorControlNormal">@color/jc_chrome_foreground</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="Theme.SagerNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Solid</item>
@@ -27,6 +33,8 @@
         <item name="fabColorBackground">?colorPrimary</item>
         <item name="selectedColorPrimary">?colorPrimary</item>
         <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="chromeSurface">?attr/colorPrimary</item>
+        <item name="chromeForeground">@color/white</item>
         <item name="tabTextColor">#99FFFFFF</item>
         <item name="tabSelectedTextColor">@color/white</item>
         <item name="tabIndicatorColor">@color/white</item>
@@ -251,6 +259,14 @@
         <item name="primaryOrTextPrimary">?colorAccent</item>
         <item name="selectedColorPrimary">?colorAccent</item>
         <item name="android:windowBackground">@color/jc_background</item>
+        <item name="chromeSurface">@color/jc_background</item>
+        <item name="chromeForeground">@color/jc_chrome_foreground</item>
+        <item name="android:statusBarColor">@color/jc_background</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.JC.Toolbar</item>
+        <item name="tabTextColor">@color/jc_secondary_text</item>
+        <item name="tabSelectedTextColor">@color/jc_accent</item>
+        <item name="tabIndicatorColor">@color/jc_accent</item>
+        <item name="tabRippleColor">@color/jc_accent</item>
     </style>
 
     <style name="Theme.SagerNet.Amber" parent="Theme.SagerNet">

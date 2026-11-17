@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:nextFocusUp="@+id/fab"
-            app:backgroundTint="?colorPrimary"
+            app:backgroundTint="?attr/chromeSurface"
             app:contentInsetStart="0dp"
             app:hideOnScroll="true">
 
@@ -69,7 +69,7 @@
                     android:layout_gravity="fill_horizontal"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    android:textColor="@color/white"
+                    android:textColor="?attr/chromeForeground"
                     android:textSize="14sp" />
 
                 <TextView
@@ -80,7 +80,7 @@
                     android:layout_gravity="fill_horizontal"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    android:textColor="@color/white"
+                    android:textColor="?attr/chromeForeground"
                     android:textSize="14sp" />
 
                 <TextView
@@ -90,7 +90,7 @@
                     android:layout_gravity="fill_horizontal"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@color/white"
+                    android:textColor="?attr/chromeForeground"
                     android:textSize="16sp"
                     tools:text="@string/connection_test_available" />
 
