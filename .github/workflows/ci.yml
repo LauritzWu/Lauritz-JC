@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Golang Status
-        run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
+        run: find buildScript libcore/*.sh -type f -print0 | sort -z | xargs -0 cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
@@ -41,9 +41,8 @@ jobs:
       - name: Set up Android SDK tools
         if: steps.cache.outputs.cache-hit != 'true'
         uses: android-actions/setup-android@v3
-      - name: Install Android NDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: sdkmanager "ndk;25.0.8775105"
+        with:
+          packages: ndk;25.0.8775105
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: ./run lib core
@@ -63,7 +62,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Golang Status
-        run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
+        run: find buildScript libcore/*.sh -type f -print0 | sort -z | xargs -0 cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
@@ -89,8 +88,8 @@ jobs:
           key: gradle-oss-${{ hashFiles('**/*.gradle.kts') }}-ci
       - name: Set up Android SDK tools
         uses: android-actions/setup-android@v3
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.1" "ndk;25.0.8775105"
+        with:
+          packages: platforms;android-35 build-tools;35.0.1 ndk;25.0.8775105
       - name: Gradle Build
         env:
           BUILD_PLUGIN: none
