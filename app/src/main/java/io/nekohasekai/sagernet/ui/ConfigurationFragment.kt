@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
@@ -823,7 +824,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     val profiles = SagerDatabase.proxyDao.getByGroup(DataStore.currentGroupId())
                     val toClear = mutableListOf<ProxyEntity>()
                     if (profiles.isNotEmpty()) for (profile in profiles) {
-                        if (profile.status != 0 && profile.status != 1) {
+                        if (!profile.isFullSingBoxConfig() && profile.status != 0 && profile.status != 1) {
                             toClear.add(profile)
                         }
                     }
@@ -1199,7 +1200,13 @@ class ConfigurationFragment @JvmOverloads constructor(
         val group = DataStore.currentGroup()
 
         val mainJob = runOnDefaultDispatcher {
-            val profilesList = SagerDatabase.proxyDao.getByGroup(group.id)
+            val groupProfiles = SagerDatabase.proxyDao.getByGroup(group.id)
+            val profilesList = groupProfiles.filterNot { it.isFullSingBoxConfig() }
+            if (profilesList.size < groupProfiles.size) {
+                onMainDispatcher {
+                    context?.let { Toast.makeText(it, R.string.full_config_live_test_only, Toast.LENGTH_LONG).show() }
+                }
+            }
             test.proxyN = profilesList.size
             val profiles = ConcurrentLinkedQueue(profilesList)
             repeat(DataStore.connectionTestConcurrent) {
@@ -1213,6 +1220,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                             val result = urlTest.doTest(profile)
                             profile.status = 1
                             profile.ping = result
+                            profile.error = null
                         } catch (e: PluginManager.PluginNotFoundException) {
                             profile.status = 2
                             profile.error = e.readableMessage
@@ -1240,12 +1248,12 @@ class ConfigurationFragment @JvmOverloads constructor(
                 testJobs.forEach { it.cancel() }
                 test.results.forEach {
                     try {
-                        ProfileManager.updateProfile(it)
+                        SagerDatabase.proxyDao.updateTestResult(it.id, it.status, it.ping, it.error)
                     } catch (e: Exception) {
                         Logs.w(e)
                     }
                 }
-                GroupManager.postReload(DataStore.currentGroupId())
+                GroupManager.postReload(group.id)
                 DataStore.runningTest = false
             }
         }
@@ -2265,7 +2273,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
                 profileStatus.setOnClickListener {
                     val proxyEntity = entity
-                    if (proxyEntity.status == 3) {
+                    if (!proxyEntity.isFullSingBoxConfig() && proxyEntity.status == 3) {
                         alert(proxyEntity.error ?: "<?>").tryToShow()
                     }
                 }
@@ -2517,8 +2525,9 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
 
                 profileAddress.text = address
+                val testStatus = if (proxyEntity.isFullSingBoxConfig()) 0 else proxyEntity.status
                 val trafficRowEmpty =
-                    (!showTraffic || proxyEntity.status <= 0) && address.isBlank()
+                    (!showTraffic || testStatus <= 0) && address.isBlank()
                 (trafficText.parent as View).visibility = when {
                     !trafficRowEmpty -> View.VISIBLE
                     adapter?.neighbourHasMiddleRow(bindingAdapterPosition) == true -> View.INVISIBLE
@@ -2526,7 +2535,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
                 lastSelfHasMiddleRow = !trafficRowEmpty
 
-                if (proxyEntity.status <= 0) {
+                if (testStatus <= 0) {
                     if (showTraffic) {
                         profileStatus.text = trafficText.text
                         profileStatus.setTextColor(requireContext().getColorAttr(android.R.attr.textColorSecondary))
@@ -2534,17 +2543,17 @@ class ConfigurationFragment @JvmOverloads constructor(
                     } else {
                         profileStatus.text = ""
                     }
-                } else if (proxyEntity.status == 1) {
+                } else if (testStatus == 1) {
                     profileStatus.text = getString(R.string.available, proxyEntity.ping)
                     profileStatus.setTextColor(requireContext().getColour(R.color.material_green_500))
                 } else {
                     profileStatus.setTextColor(requireContext().getColour(R.color.material_red_500))
-                    if (proxyEntity.status == 2) {
+                    if (testStatus == 2) {
                         profileStatus.text = proxyEntity.error
                     }
                 }
 
-                if (proxyEntity.status == 3) {
+                if (testStatus == 3) {
                     val err = proxyEntity.error ?: "<?>"
                     val msg = Protocols.genFriendlyMsg(err)
                     profileStatus.text = if (msg != err) msg else getString(R.string.unavailable)
@@ -2615,7 +2624,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     Formatter.formatFileSize(view.context, proxyEntity.tx),
                     Formatter.formatFileSize(view.context, proxyEntity.rx)
                 )
-                if (proxyEntity.status <= 0) {
+                if (proxyEntity.isFullSingBoxConfig() || proxyEntity.status <= 0) {
                     if (profileStatus.text?.toString() != traffic) {
                         profileStatus.text = traffic
                     }
