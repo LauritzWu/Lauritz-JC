@@ -708,4 +708,7 @@
         <item quantity="one">Full config · View %1$d node</item>
         <item quantity="other">Full config · View %1$d nodes</item>
     </plurals>
+    <string name="full_sing_box_select_group">Select outbound group</string>
+    <string name="full_sing_box_select_node">Select node · %1$s</string>
+    <string name="full_sing_box_current_node">Node selection · %1$s</string>
 </resources>

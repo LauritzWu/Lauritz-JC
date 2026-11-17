@@ -622,4 +622,7 @@
         <item quantity="one">完整配置 · 查看 %1$d 个节点</item>
         <item quantity="other">完整配置 · 查看 %1$d 个节点</item>
     </plurals>
+    <string name="full_sing_box_select_group">选择出站组</string>
+    <string name="full_sing_box_select_node">选择节点 · %1$s</string>
+    <string name="full_sing_box_current_node">选择节点 · %1$s</string>
 </resources>

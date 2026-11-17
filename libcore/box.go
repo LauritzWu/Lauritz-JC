@@ -204,6 +204,16 @@ func (b *BoxInstance) QueryStats(tag, direct string) int64 {
 	return b.v2api.QueryStats(fmt.Sprintf("outbound>>>%s>>>traffic>>>%s", tag, direct))
 }
 
+// SelectOutboundInGroup applies a saved selection after selectors and their cache are initialized.
+func (b *BoxInstance) SelectOutboundInGroup(groupTag string, outboundTag string) bool {
+	outbound, found := b.Outbound().Outbound(groupTag)
+	if !found {
+		return false
+	}
+	selector, found := outbound.(*group.Selector)
+	return found && selector.SelectOutbound(outboundTag)
+}
+
 func (b *BoxInstance) SelectOutbound(tag string) bool {
 	if b.selector != nil {
 		return b.selector.SelectOutbound(tag)

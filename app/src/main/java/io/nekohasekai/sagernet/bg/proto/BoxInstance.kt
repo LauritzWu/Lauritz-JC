@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 import libcore.BoxInstance
 import libcore.Libcore
 import moe.matsuri.nb4a.net.LocalResolverImpl
+import moe.matsuri.nb4a.proxy.config.fullSingBoxSelectorChoices
 import java.io.File
 
 abstract class BoxInstance(
@@ -201,6 +202,11 @@ abstract class BoxInstance(
         }
 
         box.start()
+        profile.configBean?.takeIf { it.type == 0 }?.let { bean ->
+            fullSingBoxSelectorChoices(bean.config, bean.selectorChoices).forEach { (group, outbound) ->
+                check(box.selectOutboundInGroup(group, outbound)) { "Could not select the configured outbound" }
+            }
+        }
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")

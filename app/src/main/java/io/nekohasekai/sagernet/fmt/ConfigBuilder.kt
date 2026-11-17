@@ -1012,17 +1012,6 @@ fun buildConfig(
         }
 
         dns.strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(dns.final_))
-        dns.rules.filterIsInstance<DNSRule_DefaultOptions>().forEach { rule ->
-            val strategy = when (rule.server) {
-                "dns-direct", "dns-remote" -> autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(rule.server))
-                "dns-fake" -> "ipv4_only"
-                else -> if (rule.server?.startsWith("dns-sub-") == true) {
-                    autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy("server"))
-                } else null
-            }
-            if (strategy != null) rule._hack_config_map["strategy"] = strategy
-        }
-
         if (!forTest) _hack_custom_config = DataStore.globalCustomConfig
     }.let {
         val configMap = it.asMap()

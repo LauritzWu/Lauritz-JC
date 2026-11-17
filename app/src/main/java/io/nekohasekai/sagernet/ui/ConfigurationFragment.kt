@@ -42,6 +42,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.JsonObject
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import io.nekohasekai.sagernet.GroupOrder
@@ -125,6 +126,9 @@ import moe.matsuri.nb4a.proxy.anytls.AnyTLSSettingsActivity
 import moe.matsuri.nb4a.proxy.config.ConfigBean
 import moe.matsuri.nb4a.proxy.config.fullSingBoxConfig
 import moe.matsuri.nb4a.proxy.config.fullSingBoxNodeNames
+import moe.matsuri.nb4a.proxy.config.FullSingBoxSelector
+import moe.matsuri.nb4a.proxy.config.fullSingBoxSelectors
+import moe.matsuri.nb4a.proxy.config.fullSingBoxSelectorChoices
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSSettingsActivity
 import moe.matsuri.nb4a.ui.ConnectionTestNotification
@@ -2406,6 +2410,63 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
             }
 
+            private fun showFullConfigNodes(profileId: Long, bean: ConfigBean, nodes: List<String>) {
+                val selectors = fullSingBoxSelectors(bean.config)
+                if (selectors.isEmpty()) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.full_sing_box_node_list)
+                        .setItems(nodes.toTypedArray(), null)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                    return
+                }
+                if (selectors.size == 1) {
+                    showFullConfigSelector(profileId, bean, selectors.single())
+                } else {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.full_sing_box_select_group)
+                        .setItems(selectors.map { it.tag }.toTypedArray()) { _, which ->
+                            showFullConfigSelector(profileId, bean, selectors[which])
+                        }
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show()
+                }
+            }
+
+            private fun showFullConfigSelector(profileId: Long, bean: ConfigBean, group: FullSingBoxSelector) {
+                val choices = fullSingBoxSelectorChoices(bean.config, bean.selectorChoices)
+                var choice = choices[group.tag] ?: group.default
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.full_sing_box_select_node, group.tag))
+                    .setSingleChoiceItems(group.members.toTypedArray(), group.members.indexOf(choice)) { _, which ->
+                        choice = group.members[which]
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        runOnDefaultDispatcher {
+                            profileAccess.withLock {
+                                val latest = SagerDatabase.proxyDao.getById(profileId) ?: return@withLock
+                                val config = latest.configBean?.takeIf { it.type == 0 } ?: return@withLock
+                                if (fullSingBoxSelectors(config.config).none { it.tag == group.tag && choice in it.members }) {
+                                    return@withLock
+                                }
+                                val saved = fullSingBoxSelectorChoices(config.config, config.selectorChoices)
+                                val updated = JsonObject().apply {
+                                    saved.forEach { (tag, node) -> addProperty(tag, node) }
+                                    addProperty(group.tag, choice)
+                                }.toString()
+                                if (updated == config.selectorChoices) return@withLock
+                                config.selectorChoices = updated
+                                ProfileManager.updateProfile(latest)
+                                if (DataStore.selectedProxy == profileId && DataStore.serviceState.canStop) {
+                                    SagerNet.reloadService()
+                                }
+                            }
+                        }
+                    }
+                    .show()
+            }
+
             fun bind(proxyEntity: ProxyEntity) {
                 val pf = parentFragment as? ConfigurationFragment ?: return
 
@@ -2413,22 +2474,26 @@ class ConfigurationFragment @JvmOverloads constructor(
                 val bean = proxyEntity.requireBean()
 
                 profileName.text = bean.displayName()
-                val configNodes = if (!select && bean is ConfigBean && bean.type == 0) {
-                    fullSingBoxNodeNames(bean.config)
-                } else emptyList()
-                profileType.text = if (configNodes.isEmpty()) {
-                    proxyEntity.displayType()
-                } else {
-                    view.resources.getQuantityString(R.plurals.full_sing_box_config_nodes, configNodes.size, configNodes.size)
+                val fullConfig = (bean as? ConfigBean)?.takeIf { !select && it.type == 0 }
+                val configNodes = fullConfig?.let { fullSingBoxNodeNames(it.config) }.orEmpty()
+                val selectors = fullConfig?.let { fullSingBoxSelectors(it.config) }.orEmpty()
+                val group = selectors.singleOrNull()
+                profileType.text = when {
+                    fullConfig != null && group != null -> {
+                        val chosen = fullSingBoxSelectorChoices(fullConfig.config, fullConfig.selectorChoices)[group.tag]
+                        getString(R.string.full_sing_box_current_node, chosen ?: group.default)
+                    }
+                    selectors.isNotEmpty() -> getString(R.string.full_sing_box_select_group)
+                    configNodes.isNotEmpty() -> view.resources.getQuantityString(
+                        R.plurals.full_sing_box_config_nodes, configNodes.size, configNodes.size,
+                    )
+                    else -> proxyEntity.displayType()
                 }
-                profileType.setOnClickListener(if (configNodes.isEmpty()) null else View.OnClickListener {
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.full_sing_box_node_list)
-                        .setItems(configNodes.toTypedArray(), null)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show()
-                })
-                profileType.isClickable = configNodes.isNotEmpty()
+                val canOpenNodes = fullConfig != null && (configNodes.isNotEmpty() || selectors.isNotEmpty())
+                profileType.setOnClickListener(if (canOpenNodes && fullConfig != null) View.OnClickListener {
+                    showFullConfigNodes(proxyEntity.id, fullConfig, configNodes)
+                } else null)
+                profileType.isClickable = canOpenNodes
                 profileType.setTextColor(requireContext().getProtocolColor(proxyEntity.type))
 
                 val rx = proxyEntity.rx
