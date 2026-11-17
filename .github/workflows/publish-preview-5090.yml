@@ -1,0 +1,33 @@
+name: Publish Lauritz JC preview 5090
+on:
+  push:
+    branches:
+      - release/preview-5090
+    paths:
+      - .github/workflows/publish-preview-5090.yml
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download verified preview build
+        run: gh run download 44119518559 --name lauritz-jc-ui-standalone-arm64
+      - name: Publish ARM64 preview
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          printf '%s  %s\n' 8ec2e9cfb02f136c20b4f343f40655d801e68d3d55975e791c086376eb3a2444 "$asset" | sha256sum --check
+          gh release create v1.4.2-preview.5090 "$asset" --target 1df17fe249619c6f3fc86030d619ab4234e981ac --prerelease --title "Lauritz JC Preview 5090" --notes-file - <<'NOTES'
+          Lauritz JC 首个公开预览版（构建号 5090），适用于 Android ARM64-v8a 设备。下载 Assets 中的独立 APK 即可安装。已安装同签名 Lauritz JC 预览版的设备可覆盖安装。
+
+          - 订阅刷新失败时保留原有节点，并显示失败原因。
+          - Sub-Store 节点仅改名且可唯一配对时，保留选中状态、测速结果和流量记录。
+          - 外观支持跟随系统、日间和夜间。「关于」页提供 Lauritz JC 源码入口。
+
+          APK SHA-256: `8ec2e9cfb02f136c20b4f343f40655d801e68d3d55975e791c086376eb3a2444`
+          NOTES
