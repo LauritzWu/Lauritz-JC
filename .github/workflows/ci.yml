@@ -99,7 +99,8 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 ]]; then
-            sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.parallelpreview/' nb4a.properties
+            sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview/' nb4a.properties
+            sed -i 's/>Lauritz JC<\//>Lauritz JC UI<\//' app/src/main/res/values/strings.xml
           fi
           ./gradlew app:assembleOssDebug
       - name: Verify parallel-install ARM64 preview
@@ -109,13 +110,14 @@ jobs:
           test "${#apks[@]}" -eq 1
           tools="$ANDROID_HOME/build-tools/35.0.1"
           "$tools/aapt" dump badging "${apks[0]}" > apk-badging.txt
-          grep -F "package: name='top.lauritz.jc.parallelpreview.debug'" apk-badging.txt
+          grep -F "package: name='top.lauritz.jc.uipreview.debug'" apk-badging.txt
+          grep -Fx "application-label:'Lauritz JC UI'" apk-badging.txt
           "$tools/apksigner" verify "${apks[0]}"
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
-          cp "${apks[0]}" lauritz-jc-parallel-preview-arm64.apk
+          cp "${apks[0]}" lauritz-jc-ui-standalone-arm64.apk
       - uses: actions/upload-artifact@v5
         if: github.event_name == 'push' && github.ref_name == 'lauritz/starifly-core-1.14'
         with:
-          name: lauritz-jc-parallel-preview-arm64
-          path: lauritz-jc-parallel-preview-arm64.apk
+          name: lauritz-jc-ui-standalone-arm64
+          path: lauritz-jc-ui-standalone-arm64.apk
           if-no-files-found: error
