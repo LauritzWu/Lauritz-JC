@@ -185,15 +185,17 @@ object RawUpdater : GroupUpdater() {
             val existingByName = existing.groupBy { it.displayName() }.mapValues { (_, profiles) ->
                 profiles.find { it.id == selectedId } ?: profiles.first()
             }
-            val existingByConnection = existing.groupBy { it.requireBean().subscriptionConnection() }
-            val incomingByConnection = nameMap.entries.groupBy { it.value.subscriptionConnection() }
             val matched = existingByName.filterKeys { it in nameMap }.toMutableMap()
             val matchedIds = matched.values.mapTo(mutableSetOf()) { it.id }
+            val existingByConnection = existing.filterNot { it.id in matchedIds }
+                .groupBy { it.requireBean().subscriptionConnection() }
+            val incomingByConnection = nameMap.entries.filterNot { it.key in matched }
+                .groupBy { it.value.subscriptionConnection() }
             for ((connection, entries) in incomingByConnection) {
                 val incoming = entries.singleOrNull() ?: continue
-                if (incoming.key in matched) continue
                 val previous = existingByConnection[connection]?.singleOrNull() ?: continue
-                if (matchedIds.add(previous.id)) matched[incoming.key] = previous
+                matched[incoming.key] = previous
+                matchedIds.add(previous.id)
             }
             val toDelete = existing.filter { it.id !in matchedIds }
             val toUpdate = mutableListOf<ProxyEntity>()
