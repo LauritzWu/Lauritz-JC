@@ -236,12 +236,16 @@
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>
+        <item name="colorSurface">@color/jc_surface</item>
+        <item name="android:colorBackground">@color/jc_background</item>
+        <item name="fabColorBackground">@color/jc_button</item>
         <item name="colorMaterial100">@color/jc_tint_light</item>
         <item name="colorMaterial300">@color/jc_tint</item>
         <item name="cardElevatedSurfaceColor">@color/card_elevated_jc</item>
         <item name="primaryOrTextSecondary">?colorAccent</item>
         <item name="primaryOrTextPrimary">?colorAccent</item>
         <item name="selectedColorPrimary">?colorAccent</item>
+        <item name="android:windowBackground">@color/jc_background</item>
     </style>
 
     <style name="Theme.SagerNet.Amber" parent="Theme.SagerNet">
@@ -555,6 +559,9 @@
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>
+        <item name="colorSurface">@color/jc_surface</item>
+        <item name="android:colorBackground">@color/jc_background</item>
+        <item name="fabColorBackground">@color/jc_button</item>
         <item name="colorMaterial100">@color/jc_tint_light</item>
         <item name="colorMaterial300">@color/jc_tint</item>
         <item name="cardElevatedSurfaceColor">@color/card_elevated_jc</item>

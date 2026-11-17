@@ -284,11 +284,16 @@
 
     <color name="fab_color_progress">@color/material_light_black</color>
 
-    <color name="jc_primary">#17364D</color>
-    <color name="jc_primary_dark">#102638</color>
-    <color name="jc_accent">#006D68</color>
-    <color name="jc_tint_light">#D9F1EE</color>
-    <color name="jc_tint">#77C8C1</color>
+    <color name="jc_primary">#34312D</color>
+    <color name="jc_primary_dark">#272521</color>
+    <color name="jc_accent">#9B4A31</color>
+    <color name="jc_tint_light">#F3E2D8</color>
+    <color name="jc_tint">#DA9B83</color>
+    <color name="jc_background">#F8F5EE</color>
+    <color name="jc_surface">#FFFCF6</color>
+    <color name="jc_button">#A45136</color>
+    <color name="jc_launcher_background">#BD674B</color>
+    <color name="jc_launcher_mark">#FFF8EB</color>
     <color name="color_verdant_mint">#00B96B</color>
     <color name="color_verdant_mint_dark">#00875E</color>
     <color name="color_verdant_mint_accent">#00D685</color>
@@ -311,7 +316,7 @@
 
     <!-- 立体卡片色调提升表面色（浅色，白底 + 各 primary 8% 染色），夜间见 values-night/colors.xml -->
     <color name="card_elevated_pink">#FDEDF3</color>
-    <color name="card_elevated_jc">#EDF5F6</color>
+    <color name="card_elevated_jc">#EFE5DC</color>
     <color name="card_elevated_amber">#FFFAEB</color>
     <color name="card_elevated_blue">#EDF7FE</color>
     <color name="card_elevated_blue_grey">#F2F5F6</color>
