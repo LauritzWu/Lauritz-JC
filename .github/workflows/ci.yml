@@ -38,6 +38,9 @@ jobs:
         with:
           go-version-file: libcore/go.mod
           cache-dependency-path: libcore/go.sum
+      - name: Set up Android SDK tools
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: android-actions/setup-android@v3
       - name: Install Android NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: sdkmanager "ndk;25.0.8775105"
@@ -84,6 +87,8 @@ jobs:
         with:
           path: ~/.gradle
           key: gradle-oss-${{ hashFiles('**/*.gradle.kts') }}-ci
+      - name: Set up Android SDK tools
+        uses: android-actions/setup-android@v3
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.1" "ndk;25.0.8775105"
       - name: Gradle Build
