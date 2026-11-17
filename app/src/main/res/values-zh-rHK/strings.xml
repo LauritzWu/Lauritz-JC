@@ -98,4 +98,6 @@
     <string name="card_style">卡片</string>
     <string name="card_style_classic">經典</string>
     <string name="card_style_stroke">描邊</string>
+    <string name="profile_list_empty">暫無設定</string>
+    <string name="profile_search_empty">沒有相符的設定</string>
 </resources>

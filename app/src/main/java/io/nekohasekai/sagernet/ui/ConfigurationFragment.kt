@@ -310,8 +310,15 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
     }
 
+    private var profileQuery = ""
+
     override fun onQueryTextChange(query: String): Boolean {
-        getCurrentGroupFragment()?.adapter?.filter(query)
+        profileQuery = query
+        if (::adapter.isInitialized) {
+            adapter.groupFragments.values.forEach { group ->
+                if (group.view != null) group.adapter?.filter(query)
+            }
+        }
         return false
     }
 
@@ -451,6 +458,8 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
         return super.onKeyDown(ketCode, event)
     }
+
+    private fun openProfileFile() = startFilesForResult(importFile, "*/*")
 
     private val importFile =
         registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
@@ -675,7 +684,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
 
             R.id.action_import_file -> {
-                startFilesForResult(importFile, "*/*")
+                openProfileFile()
             }
 
             R.id.action_new_socks -> {
@@ -1438,6 +1447,7 @@ class ConfigurationFragment @JvmOverloads constructor(
 
         lateinit var undoManager: UndoSnackbarManager<ProxyEntity>
         var adapter: ConfigurationAdapter? = null
+        private var emptyStateObserver: RecyclerView.AdapterDataObserver? = null
 
         override fun onSaveInstanceState(outState: Bundle) {
             super.onSaveInstanceState(outState)
@@ -1685,10 +1695,12 @@ class ConfigurationFragment @JvmOverloads constructor(
             configurationListView = view.findViewById(R.id.configuration_list)
             setupLayoutManager()
             configurationListView.layoutManager = layoutManager
+            emptyStateObserver?.let { adapter?.unregisterAdapterDataObserver(it) }
             adapter = ConfigurationAdapter()
             ProfileManager.addListener(adapter!!)
             GroupManager.addListener(adapter!!)
             configurationListView.adapter = adapter
+            bindEmptyState(view, checkNotNull(adapter))
             configurationListView.setItemViewCacheSize(20)
             configurationListView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -1703,6 +1715,38 @@ class ConfigurationFragment @JvmOverloads constructor(
                 setupItemTouchHelper()
                 setupBottomBarScrollDriver()
             }
+        }
+
+        private fun bindEmptyState(view: View, profiles: ConfigurationAdapter) {
+            val empty = view.findViewById<View>(R.id.profile_empty_state)
+            val title = view.findViewById<TextView>(R.id.profile_empty_title)
+            val importButton = view.findViewById<View>(R.id.profile_empty_import)
+            val screen = parentFragment as? ConfigurationFragment
+            importButton.setOnClickListener { screen?.openProfileFile() }
+
+            fun update() {
+                val noProfiles = profiles.profilesLoaded && profiles.itemCount == 0
+                empty.isVisible = noProfiles
+                if (!noProfiles) return
+
+                title.setText(
+                    if (profiles.isFiltering) R.string.profile_search_empty else R.string.profile_list_empty
+                )
+                importButton.isVisible = !profiles.isFiltering && !select && screen != null
+            }
+
+            emptyStateObserver = object : RecyclerView.AdapterDataObserver() {
+                override fun onChanged() = update()
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = update()
+                override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = update()
+            }.also(profiles::registerAdapterDataObserver)
+            profiles.filter(screen?.profileQuery.orEmpty())
+        }
+
+        override fun onDestroyView() {
+            emptyStateObserver?.let { adapter?.unregisterAdapterDataObserver(it) }
+            emptyStateObserver = null
+            super.onDestroyView()
         }
 
         private fun setupBottomBarScrollDriver() {
@@ -1756,7 +1800,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
 
             var configurationIdList: MutableList<Long> = mutableListOf()
-            val configurationList = HashMap<Long, ProxyEntity>()
+            val configurationList = LinkedHashMap<Long, ProxyEntity>()
             private val pendingTrafficUpdates = HashSet<Long>()
             private val profileStatePayload = Any()
 
@@ -1944,19 +1988,29 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             private val updated = HashSet<ProxyEntity>()
 
+            var profilesLoaded = false
+                private set
+            private var filterQuery = ""
+            val isFiltering get() = filterQuery.isNotEmpty()
+
+            private fun ProxyEntity.matchesQuery(): Boolean =
+                !isFiltering ||
+                    displayName().contains(filterQuery, ignoreCase = true) ||
+                    displayType().contains(filterQuery, ignoreCase = true) ||
+                    displayAddress().contains(filterQuery, ignoreCase = true)
+
             fun filter(name: String) {
-                if (name.isEmpty()) {
-                    reloadProfiles()
-                    return
+                val query = name.trim()
+                if (filterQuery == query) return
+                filterQuery = query
+                if (!profilesLoaded) return
+                if (!isFiltering) {
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) { reloadProfiles() }
+                } else {
+                    configurationIdList.clear()
+                    configurationIdList.addAll(configurationList.values.filter { it.matchesQuery() }.map { it.id })
+                    notifyDataSetChanged()
                 }
-                configurationIdList.clear()
-                val lower = name.lowercase()
-                configurationIdList.addAll(configurationList.filter {
-                    it.value.displayName().lowercase().contains(lower) ||
-                            it.value.displayType().lowercase().contains(lower) ||
-                            it.value.displayAddress().lowercase().contains(lower)
-                }.keys)
-                notifyDataSetChanged()
             }
 
             fun move(from: Int, to: Int) {
@@ -2074,6 +2128,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     }
                     val pos = itemCount
                     configurationList[profile.id] = profile
+                    if (!profile.matchesQuery()) return@post
                     configurationIdList.add(profile.id)
                     notifyItemInserted(pos)
                     refreshFromPosition(pos - 1)
@@ -2183,20 +2238,19 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
 
                 val newProfileMap = newProfiles.associateBy { it.id }
-                val newProfileIds = newProfiles.map { it.id }
-
-                var selectedProfileIndex = -1
-
-                if (selected) {
-                    val selectedProxy = selectedItem?.id ?: DataStore.selectedProxy
-                    selectedProfileIndex = newProfileIds.indexOf(selectedProxy)
-                }
 
                 configurationListView.post {
+                    val newProfileIds = newProfiles.filter { it.matchesQuery() }.map { it.id }
+                    val selectedProfileIndex = if (selected) {
+                        newProfileIds.indexOf(selectedItem?.id ?: DataStore.selectedProxy)
+                    } else {
+                        -1
+                    }
                     configurationList.clear()
                     configurationList.putAll(newProfileMap)
                     configurationIdList.clear()
                     configurationIdList.addAll(newProfileIds)
+                    profilesLoaded = true
                     notifyDataSetChanged()
 
                     if (selectedProfileIndex != -1) {
