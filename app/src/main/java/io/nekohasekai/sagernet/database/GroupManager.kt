@@ -19,12 +19,12 @@ object GroupManager {
         suspend fun alert(message: String)
         suspend fun onUpdateSuccess(
             group: ProxyGroup,
-            changed: Int,
             added: List<String>,
             updated: Map<String, String>,
             deleted: List<String>,
             duplicate: List<String>,
-            byUser: Boolean
+            byUser: Boolean,
+            selectedRemoved: Boolean
         )
 
         suspend fun onUpdateFailure(group: ProxyGroup, message: String)

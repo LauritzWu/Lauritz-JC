@@ -737,4 +737,14 @@
     <string name="full_config_details_dns">DNS · default server: %1$s</string>
     <string name="full_config_details_route_rules">Routing rules: %1$d</string>
     <string name="full_config_details_rule_sets">Rule sets</string>
+    <string name="subscription_refresh_http_error">The server returned HTTP %1$s.</string>
+    <string name="subscription_refresh_download_error">Could not read the subscription. Check the link and connection.</string>
+    <string name="subscription_refresh_content_error">The subscription did not contain any supported nodes.</string>
+    <string name="subscription_refresh_filter_error">The subscription filter is invalid.</string>
+    <string name="subscription_refresh_empty_filter">No nodes remain after applying the subscription settings.</string>
+    <string name="subscription_refresh_settings_changed">The subscription settings changed during the update. Try again.</string>
+    <string name="subscription_refresh_storage_error">Could not save the subscription update.</string>
+    <string name="subscription_refresh_failure">%1$s: Update failed. %2$s Existing nodes were kept.</string>
+    <string name="subscription_refresh_summary">%1$s · Added %2$d · Changed %3$d · Removed %4$d</string>
+    <string name="subscription_refresh_selected_removed">The selected node was removed by the subscription. Please choose a node before reconnecting.</string>
 </resources>

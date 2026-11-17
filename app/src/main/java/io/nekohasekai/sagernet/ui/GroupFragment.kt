@@ -527,11 +527,13 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                             groupStatus.text = if (size == 0L) {
                                 getString(R.string.group_status_empty_subscription)
                             } else {
-                                val date = Date(group.subscription!!.lastUpdated * 1000L)
+                                val date = java.text.DateFormat.getDateTimeInstance(
+                                    java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT
+                                ).format(Date(group.subscription!!.lastUpdated * 1000L))
                                 getString(
                                     R.string.group_status_proxies_subscription,
                                     size,
-                                    "${date.month + 1} - ${date.date}"
+                                    date
                                 )
                             }
 

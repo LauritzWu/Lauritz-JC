@@ -651,4 +651,14 @@
     <string name="full_config_details_dns">DNS · 默认服务器：%1$s</string>
     <string name="full_config_details_route_rules">路由规则：%1$d 条</string>
     <string name="full_config_details_rule_sets">规则集</string>
+    <string name="subscription_refresh_http_error">服务器返回 HTTP %1$s。</string>
+    <string name="subscription_refresh_download_error">无法读取订阅，请检查订阅链接和网络。</string>
+    <string name="subscription_refresh_content_error">订阅内容中没有可识别的节点。</string>
+    <string name="subscription_refresh_filter_error">订阅筛选表达式无效。</string>
+    <string name="subscription_refresh_empty_filter">应用订阅筛选等设置后没有剩余节点。</string>
+    <string name="subscription_refresh_settings_changed">更新期间订阅设置发生变化，请重试。</string>
+    <string name="subscription_refresh_storage_error">无法保存订阅更新。</string>
+    <string name="subscription_refresh_failure">%1$s 更新失败。%2$s 已保留原有节点。</string>
+    <string name="subscription_refresh_summary">%1$s · 新增 %2$d · 变更 %3$d · 移除 %4$d</string>
+    <string name="subscription_refresh_selected_removed">订阅已移除所选节点。下次连接前请选择一个节点。</string>
 </resources>

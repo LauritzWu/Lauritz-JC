@@ -7,7 +7,6 @@ import io.nekohasekai.sagernet.database.ProxyGroup
 import io.nekohasekai.sagernet.ktx.onMainDispatcher
 import io.nekohasekai.sagernet.ktx.runOnMainDispatcher
 import io.nekohasekai.sagernet.ui.ThemedActivity
-import kotlinx.coroutines.delay
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -28,62 +27,52 @@ class GroupInterfaceAdapter(val context: ThemedActivity) : GroupManager.Interfac
 
     override suspend fun onUpdateSuccess(
         group: ProxyGroup,
-        changed: Int,
         added: List<String>,
         updated: Map<String, String>,
         deleted: List<String>,
         duplicate: List<String>,
-        byUser: Boolean
+        byUser: Boolean,
+        selectedRemoved: Boolean
     ) {
-        if (changed == 0 && duplicate.isEmpty()) {
-            if (byUser) context.snackbar(
-                    context.getString(
-                            R.string.group_no_difference, group.displayName()
-                    )
-            ).show()
-        } else {
-            context.snackbar(context.getString(R.string.group_updated, group.name, changed)).show()
-
-            var status = ""
-            if (added.isNotEmpty()) {
-                status += context.getString(
-                        R.string.group_added, added.joinToString("\n", postfix = "\n\n")
-                )
-            }
-            if (updated.isNotEmpty()) {
-                status += context.getString(R.string.group_changed,
-                        updated.map { it }.joinToString("\n", postfix = "\n\n") {
-                            if (it.key == it.value) it.key else "${it.key} => ${it.value}"
-                        })
-            }
-            if (deleted.isNotEmpty()) {
-                status += context.getString(
-                        R.string.group_deleted, deleted.joinToString("\n", postfix = "\n\n")
-                )
-            }
-            if (duplicate.isNotEmpty()) {
-                status += context.getString(
-                        R.string.group_duplicate, duplicate.joinToString("\n", postfix = "\n\n")
-                )
-            }
-
-            onMainDispatcher {
-                delay(1000L)
-
-                MaterialAlertDialogBuilder(context).setTitle(
-                        context.getString(
-                                R.string.group_diff, group.displayName()
-                        )
-                ).setMessage(status.trim()).setPositiveButton(android.R.string.ok, null).show()
-            }
-
+        if (!byUser && !selectedRemoved && added.isEmpty() && updated.isEmpty() && deleted.isEmpty() && duplicate.isEmpty()) {
+            return
         }
+        onMainDispatcher {
+            if (context.isFinishing || context.isDestroyed) return@onMainDispatcher
+            val summary = context.getString(
+                R.string.subscription_refresh_summary, group.displayName(), added.size, updated.size, deleted.size
+            )
+            if (!selectedRemoved && added.isEmpty() && updated.isEmpty() && deleted.isEmpty() && duplicate.isEmpty()) {
+                context.snackbar(summary).show()
+                return@onMainDispatcher
+            }
 
+            val details = buildList {
+                add(summary)
+                if (selectedRemoved) add(context.getString(R.string.subscription_refresh_selected_removed))
+                if (added.isNotEmpty()) add(context.getString(R.string.group_added, added.joinToString("\n")))
+                if (updated.isNotEmpty()) {
+                    val names = updated.entries.joinToString("\n") { (before, after) ->
+                        if (before == after) before else "$before → $after"
+                    }
+                    add(context.getString(R.string.group_changed, names))
+                }
+                if (deleted.isNotEmpty()) add(context.getString(R.string.group_deleted, deleted.joinToString("\n")))
+                if (duplicate.isNotEmpty()) add(context.getString(R.string.group_duplicate, duplicate.joinToString("\n")))
+            }
+            MaterialAlertDialogBuilder(context)
+                .setTitle(context.getString(R.string.group_diff, group.displayName()))
+                .setMessage(details.joinToString("\n\n"))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
     }
 
     override suspend fun onUpdateFailure(group: ProxyGroup, message: String) {
         onMainDispatcher {
-            context.snackbar(message).show()
+            if (!context.isFinishing && !context.isDestroyed) {
+                context.snackbar(context.getString(R.string.subscription_refresh_failure, group.displayName(), message)).show()
+            }
         }
     }
 

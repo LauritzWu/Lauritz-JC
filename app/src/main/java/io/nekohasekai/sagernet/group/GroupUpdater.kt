@@ -133,39 +133,39 @@ abstract class GroupUpdater {
         suspend fun executeUpdate(proxyGroup: ProxyGroup, byUser: Boolean): Boolean {
             return coroutineScope {
                 if (!updating.add(proxyGroup.id)) cancel()
-                GroupManager.postReload(proxyGroup.id)
-
-                val subscription = proxyGroup.subscription!!
-                val connected = DataStore.serviceState.connected
                 val userInterface = GroupManager.userInterface
-
-                if (byUser && (subscription.link?.startsWith("http://") == true || subscription.updateWhenConnectedOnly) && !connected) {
-                    if (userInterface == null || !userInterface.confirm(app.getString(R.string.update_subscription_warning))) {
-                        finishUpdate(proxyGroup)
-                        cancel()
-                        return@coroutineScope true
-                    }
-                }
-
                 try {
+                    GroupManager.postReload(proxyGroup.id)
+                    val subscription = checkNotNull(proxyGroup.subscription)
+                    val requiresConfirmation = subscription.link?.startsWith("http://") == true ||
+                        subscription.updateWhenConnectedOnly
+                    if (byUser && requiresConfirmation && !DataStore.serviceState.connected &&
+                        userInterface?.confirm(app.getString(R.string.update_subscription_warning)) != true
+                    ) {
+                        return@coroutineScope false
+                    }
+
                     RawUpdater.doUpdate(proxyGroup, subscription, userInterface, byUser)
                     true
-                } catch (e: Throwable) {
-                    Logs.w(e)
-                    userInterface?.onUpdateFailure(proxyGroup, e.readableMessage)
-                    finishUpdate(proxyGroup)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    val reason = (e as? SubscriptionUpdateException)?.message
+                        ?: app.getString(R.string.subscription_refresh_storage_error)
+                    Logs.w("Subscription refresh failed: ${e.javaClass.simpleName}")
+                    userInterface?.onUpdateFailure(proxyGroup, reason)
                     false
+                } finally {
+                    withContext(NonCancellable) {
+                        updating.remove(proxyGroup.id)
+                        progress.remove(proxyGroup.id)
+                        GroupManager.postUpdate(proxyGroup.id)
+                    }
                 }
             }
-        }
-
-
-        suspend fun finishUpdate(proxyGroup: ProxyGroup) {
-            updating.remove(proxyGroup.id)
-            progress.remove(proxyGroup.id)
-            GroupManager.postUpdate(proxyGroup)
         }
 
     }
 
 }
+internal class SubscriptionUpdateException(message: String) : Exception(message)
