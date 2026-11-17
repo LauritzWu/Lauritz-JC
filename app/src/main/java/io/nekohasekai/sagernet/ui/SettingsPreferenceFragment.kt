@@ -35,7 +35,14 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        listView.layoutManager = FixedLinearLayoutManager(listView)
+        listView.apply {
+            layoutManager = FixedLinearLayoutManager(this)
+            val verticalPadding = resources.getDimensionPixelSize(R.dimen.card_list_padding_vertical)
+            setPaddingRelative(paddingStart, paddingTop + verticalPadding, paddingEnd, paddingBottom + verticalPadding)
+            clipToPadding = false
+            isVerticalFadingEdgeEnabled = true
+            setFadingEdgeLength(resources.getDimensionPixelSize(R.dimen.card_list_fade_length))
+        }
     }
 
     private val reloadListener = Preference.OnPreferenceChangeListener { _, _ ->

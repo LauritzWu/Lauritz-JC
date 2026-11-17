@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory app:title="@string/general_settings">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/general_settings">
         <SwitchPreference
             app:defaultValue="false"
             app:icon="@drawable/ic_communication_phonelink_ring"
@@ -118,7 +118,7 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/cag_route">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/cag_route">
         <SwitchPreference
             app:icon="@drawable/ic_navigation_apps"
             app:key="proxyApps"
@@ -183,7 +183,7 @@
             app:summary="@string/ruleset_update_interval_summary" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/fragment_settings">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/fragment_settings">
         <SwitchPreference
             app:key="enableTLSFragment"
             app:title="@string/enable_tls_fragment" />
@@ -199,7 +199,7 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/cag_dns">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/cag_dns">
         <EditTextPreference
       app:defaultValue="https://dns.google/dns-query"
             app:icon="@drawable/ic_action_dns"
@@ -254,7 +254,7 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/inbound_settings">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/inbound_settings">
         <Preference
             app:icon="@drawable/ic_hardware_router"
             app:key="localProxySettings"
@@ -278,7 +278,7 @@
             app:title="@string/strict_route" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/cag_misc">
+    <PreferenceCategory android:layout="@layout/preference_settings_category" app:title="@string/cag_misc">
         <moe.matsuri.nb4a.ui.UrlTestPreference
             app:defaultValue="http://www.gstatic.com/generate_204"
             app:icon="@drawable/ic_baseline_cast_connected_24"
