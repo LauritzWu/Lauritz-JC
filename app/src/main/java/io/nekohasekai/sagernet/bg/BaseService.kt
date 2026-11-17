@@ -159,6 +159,11 @@ class BaseService {
             }
         }
 
+        override fun diagnoseConnection(): String {
+            val box = checkNotNull(data?.proxy?.box) { "core not started" }
+            return Libcore.diagnoseConnection(box, DataStore.connectionTestURL, DataStore.connectionTestTimeout)
+        }
+
         fun stateChanged(s: State, msg: String?) = launch {
             val profileName = profileName
             broadcast { it.stateChanged(s.ordinal, profileName, msg) }

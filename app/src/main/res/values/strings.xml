@@ -714,4 +714,17 @@
     <string name="full_config_live_test_only">To test a full configuration, connect to it and tap the connection status at the bottom.</string>
     <string name="profile_list_empty">No profiles yet</string>
     <string name="profile_search_empty">No matching profiles</string>
+    <string name="diagnostic_title">Connection diagnostics</string>
+    <string name="diagnostic_success">The test request succeeded.</string>
+    <string name="diagnostic_dns_failed">DNS resolution failed.</string>
+    <string name="diagnostic_dial_failed">Could not establish a connection through the default outbound.</string>
+    <string name="diagnostic_tls_failed">TLS handshake failed.</string>
+    <string name="diagnostic_http_failed">The HTTP request did not succeed.</string>
+    <string name="diagnostic_invalid_url">Check the connection test URL in Settings.</string>
+    <string name="diagnostic_http_status">HTTP status: %1$d</string>
+    <string name="diagnostic_elapsed">Total time: %1$d ms</string>
+    <string name="diagnostic_dial_time">Outbound connection: %1$d ms</string>
+    <string name="diagnostic_tls_time">TLS handshake: %1$d ms</string>
+    <string name="diagnostic_active_profile">Active configuration: %1$s</string>
+    <string name="diagnostic_copy">Copy diagnostic result</string>
 </resources>

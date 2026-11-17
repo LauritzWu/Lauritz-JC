@@ -54,6 +54,7 @@ import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import io.nekohasekai.sagernet.ui.MessageStore
 import io.nekohasekai.sagernet.ktx.Logs
 import moe.matsuri.nb4a.utils.Util
+import org.json.JSONObject
 
 class MainActivity : ThemedActivity(),
     SagerConnection.Callback,
@@ -208,11 +209,10 @@ class MainActivity : ThemedActivity(),
         }
     }
 
-    fun urlTest(): Int {
-        if (!DataStore.serviceState.connected || connection.service == null) {
-            error("not started")
-        }
-        return connection.service!!.urlTest()
+    fun connectionDiagnostic(): Pair<String, JSONObject> {
+        check(DataStore.serviceState.connected) { "not connected" }
+        val service = checkNotNull(connection.service)
+        return service.profileName.orEmpty() to JSONObject(service.diagnoseConnection())
     }
 
     suspend fun importSubscription(uri: Uri) {

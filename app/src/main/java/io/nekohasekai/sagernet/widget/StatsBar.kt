@@ -11,9 +11,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenStarted
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.bg.BaseService
-import io.nekohasekai.sagernet.database.DataStore
+import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.ui.MainActivity
 import kotlin.math.abs
@@ -21,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 
 class StatsBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
@@ -309,38 +312,53 @@ class StatsBar @JvmOverloads constructor(
 
     fun testConnection() {
         val activity = context as MainActivity
+        if (!isEnabled) return
         isEnabled = false
-        setStatus(app.getText(R.string.connection_test_testing))
-        runOnDefaultDispatcher {
+        setStatus(context.getText(R.string.connection_test_testing))
+        activity.lifecycleScope.launch {
             try {
-                val elapsed = activity.urlTest()
-                onMainDispatcher {
-                    isEnabled = true
-                    setStatus(
-                        app.getString(
-                            if (DataStore.connectionTestURL.startsWith("https://")) {
-                                R.string.connection_test_available
-                            } else {
-                                R.string.connection_test_available_http
-                            }, elapsed
-                        )
-                    )
-                }
-
-            } catch (e: Exception) {
-                Logs.w(e.toString())
-                onMainDispatcher {
-                    isEnabled = true
-                    setStatus(app.getText(R.string.connection_test_testing))
-
-                    activity.snackbar(
-                        app.getString(
-                            R.string.connection_test_error, e.readableMessage
-                        )
-                    ).show()
-                }
+                val (profile, result) = withContext(Dispatchers.IO) { activity.connectionDiagnostic() }
+                if (!currentState.connected || activity.isFinishing) return@launch
+                val phase = result.getString("phase")
+                val elapsed = result.getLong("elapsedMs")
+                val outcome = context.getString(
+                    when (phase) {
+                        "ok" -> R.string.diagnostic_success
+                        "dns" -> R.string.diagnostic_dns_failed
+                        "dial" -> R.string.diagnostic_dial_failed
+                        "tls" -> R.string.diagnostic_tls_failed
+                        "http" -> R.string.diagnostic_http_failed
+                        else -> R.string.diagnostic_invalid_url
+                    }
+                )
+                val details = buildList {
+                    add(outcome)
+                    val status = result.optInt("statusCode")
+                    if (status != 0) add(context.getString(R.string.diagnostic_http_status, status))
+                    if (phase != "url") add(context.getString(R.string.diagnostic_elapsed, elapsed))
+                    val dial = result.optLong("dialMs", -1)
+                    if (dial >= 0) add(context.getString(R.string.diagnostic_dial_time, dial))
+                    val tls = result.optLong("tlsMs", -1)
+                    if (tls >= 0) add(context.getString(R.string.diagnostic_tls_time, tls))
+                }.joinToString("\n")
+                setStatus(if (phase == "ok") context.getString(R.string.diagnostic_elapsed, elapsed) else outcome)
+                val message = if (profile.isBlank()) details
+                    else context.getString(R.string.diagnostic_active_profile, profile) + "\n\n" + details
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.diagnostic_title)
+                    .setMessage(message)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.diagnostic_copy) { _, _ ->
+                        SagerNet.trySetPrimaryClip(details)
+                    }
+                    .show()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                if (currentState.connected) setStatus(context.getText(R.string.connection_test_fail))
+            } finally {
+                isEnabled = true
             }
         }
     }
-
 }

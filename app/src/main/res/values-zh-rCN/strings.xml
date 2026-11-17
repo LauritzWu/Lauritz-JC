@@ -628,4 +628,17 @@
     <string name="full_config_live_test_only">完整配置请连接后，点击底栏的连接状态测速。</string>
     <string name="profile_list_empty">暂无配置</string>
     <string name="profile_search_empty">没有匹配的配置</string>
+    <string name="diagnostic_title">连接诊断</string>
+    <string name="diagnostic_success">测试请求成功。</string>
+    <string name="diagnostic_dns_failed">DNS 解析失败。</string>
+    <string name="diagnostic_dial_failed">未能通过默认出口建立连接。</string>
+    <string name="diagnostic_tls_failed">TLS 握手失败。</string>
+    <string name="diagnostic_http_failed">HTTP 请求未成功。</string>
+    <string name="diagnostic_invalid_url">请检查设置中的连接测试链接。</string>
+    <string name="diagnostic_http_status">HTTP 状态码：%1$d</string>
+    <string name="diagnostic_elapsed">总耗时：%1$d ms</string>
+    <string name="diagnostic_dial_time">出口连接：%1$d ms</string>
+    <string name="diagnostic_tls_time">TLS 握手：%1$d ms</string>
+    <string name="diagnostic_active_profile">当前配置：%1$s</string>
+    <string name="diagnostic_copy">复制诊断结果</string>
 </resources>

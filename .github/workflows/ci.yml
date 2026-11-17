@@ -93,12 +93,30 @@ jobs:
       - name: Gradle Build
         env:
           BUILD_PLUGIN: none
+          JC_PREVIEW_KEYSTORE: ${{ secrets.JC_PREVIEW_KEYSTORE }}
+          JC_PREVIEW_KEYSTORE_PASS: ${{ secrets.JC_PREVIEW_KEYSTORE_PASS }}
+          JC_PREVIEW_KEY_ALIAS: ${{ secrets.JC_PREVIEW_KEY_ALIAS }}
+          JC_PREVIEW_KEY_PASS: ${{ secrets.JC_PREVIEW_KEY_PASS }}
         run: |
           echo "sdk.dir=${ANDROID_HOME}" > local.properties
           echo "ndk.dir=${ANDROID_HOME}/ndk/25.0.8775105" >> local.properties
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 ]]; then
+            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))/" nb4a.properties
+            if [[ -n "${JC_PREVIEW_KEYSTORE}${JC_PREVIEW_KEYSTORE_PASS}${JC_PREVIEW_KEY_ALIAS}${JC_PREVIEW_KEY_PASS}" ]]; then
+              : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
+              : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
+              : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
+              : "${JC_PREVIEW_KEY_PASS:?Missing preview key password}"
+              umask 077
+              printf '%s' "$JC_PREVIEW_KEYSTORE" | base64 --decode > release.keystore
+              trap 'rm -f release.keystore' EXIT
+              unset LOCAL_PROPERTIES
+              export KEYSTORE_PASS="$JC_PREVIEW_KEYSTORE_PASS"
+              export ALIAS_NAME="$JC_PREVIEW_KEY_ALIAS"
+              export ALIAS_PASS="$JC_PREVIEW_KEY_PASS"
+            fi
             sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview/' nb4a.properties
             sed -i 's/>Lauritz JC<\//>Lauritz JC UI<\//' app/src/main/res/values/strings.xml
           fi
