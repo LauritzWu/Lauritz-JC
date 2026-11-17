@@ -40,7 +40,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.google.gson.JsonParser
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -124,6 +123,8 @@ import moe.matsuri.nb4a.Protocols
 import moe.matsuri.nb4a.Protocols.getProtocolColor
 import moe.matsuri.nb4a.proxy.anytls.AnyTLSSettingsActivity
 import moe.matsuri.nb4a.proxy.config.ConfigBean
+import moe.matsuri.nb4a.proxy.config.fullSingBoxConfig
+import moe.matsuri.nb4a.proxy.config.fullSingBoxNodeNames
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSSettingsActivity
 import moe.matsuri.nb4a.ui.ConnectionTestNotification
@@ -446,91 +447,98 @@ class ConfigurationFragment @JvmOverloads constructor(
         return super.onKeyDown(ketCode, event)
     }
 
-    private val importSingBoxConfig =
+    private val importFile =
         registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
             if (file != null) lifecycleScope.launch {
-                val resolver = requireContext().contentResolver
-                val fallbackName = getString(R.string.full_sing_box_config)
-                val profile = try {
-                    withContext(Dispatchers.IO) {
-                        val config = resolver.openInputStream(file)?.bufferedReader()?.use { it.readText() }
-                            ?: throw IllegalArgumentException()
-                        val root = JsonParser.parseString(config)
-                        require(root.isJsonObject)
-                        val options = root.asJsonObject
-                        require(options.get("inbounds")?.isJsonArray == true)
-                        require(options.get("outbounds")?.isJsonArray == true)
-                        val name = resolver.query(file, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                try {
+                    val resolver = requireContext().contentResolver
+                    val fileName = withContext(Dispatchers.IO) {
+                        resolver.query(file, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
                             ?.use { if (it.moveToFirst()) it.getString(0) else null }
-                            ?.substringBeforeLast('.')
-                        ConfigBean().apply {
-                            this.name = name?.takeIf { it.isNotBlank() } ?: fallbackName
-                            type = 0
-                            this.config = config
-                        }.applyDefaultValues()
+                    }.orEmpty()
+                    if (fileName.endsWith(".zip", ignoreCase = true)) {
+                        val profiles = withContext(Dispatchers.IO) {
+                            val input = requireNotNull(resolver.openInputStream(file))
+                            ZipInputStream(input).use { zip ->
+                                val nodes = mutableListOf<AbstractBean>()
+                                while (true) {
+                                    val entry = zip.nextEntry ?: break
+                                    if (!entry.isDirectory) {
+                                        RawUpdater.parseRaw(zip.bufferedReader().readText(), entry.name)
+                                            ?.let(nodes::addAll)
+                                    }
+                                    zip.closeEntry()
+                                }
+                                nodes
+                            }
+                        }
+                        saveImportedFileProfiles(profiles)
+                    } else {
+                        val contents = withContext(Dispatchers.IO) {
+                            requireNotNull(resolver.openInputStream(file)).bufferedReader().use { it.readText() }
+                        }
+                        val fullConfig = withContext(Dispatchers.Default) { fullSingBoxConfig(contents) }
+                        if (fullConfig != null) {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.sing_box_import_title)
+                                .setMessage(R.string.sing_box_import_message)
+                                .setPositiveButton(R.string.import_full_sing_box_config) { _, _ ->
+                                    lifecycleScope.launch {
+                                        val profile = ConfigBean().apply {
+                                            name = fileName.substringBeforeLast('.').ifBlank {
+                                                getString(R.string.full_sing_box_config)
+                                            }
+                                            type = 0
+                                            config = contents
+                                        }.applyDefaultValues()
+                                        try {
+                                            saveImportedFileProfiles(listOf(profile))
+                                        } catch (e: CancellationException) {
+                                            throw e
+                                        } catch (_: Exception) {
+                                            snackbar(getString(R.string.full_sing_box_config_save_failed)).show()
+                                        }
+                                    }
+                                }
+                                .setNegativeButton(R.string.import_sing_box_nodes) { _, _ ->
+                                    lifecycleScope.launch { importFileNodes(contents, fileName) }
+                                }
+                                .setNeutralButton(android.R.string.cancel, null)
+                                .show()
+                        } else {
+                            importFileNodes(contents, fileName)
+                        }
                     }
                 } catch (e: CancellationException) {
                     throw e
+                } catch (e: SubscriptionFoundException) {
+                    (requireActivity() as MainActivity).importSubscription(e.link.toUri())
                 } catch (_: Exception) {
-                    snackbar(getString(R.string.invalid_full_sing_box_config)).show()
-                    return@launch
-                }
-                try {
-                    withContext(Dispatchers.IO) { import(listOf(profile)) }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    snackbar(getString(R.string.full_sing_box_config_save_failed)).show()
+                    snackbar(R.string.file_import_failed).show()
                 }
             }
         }
 
-    private val importFile =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
-            if (file != null) runOnDefaultDispatcher {
-                try {
-                    val fileName =
-                        requireContext().contentResolver.query(file, null, null, null, null)
-                            ?.use { cursor ->
-                                cursor.moveToFirst()
-                                cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
-                                    .let(cursor::getString)
-                            }
-                    val proxies = mutableListOf<AbstractBean>()
-                    if (fileName != null && fileName.endsWith(".zip")) {
-                        // try parse wireguard zip
-                        val zip =
-                            ZipInputStream(requireContext().contentResolver.openInputStream(file)!!)
-                        while (true) {
-                            val entry = zip.nextEntry ?: break
-                            if (entry.isDirectory) continue
-                            val fileText = zip.bufferedReader().readText()
-                            RawUpdater.parseRaw(fileText, entry.name)
-                                ?.let { pl -> proxies.addAll(pl) }
-                            zip.closeEntry()
-                        }
-                        zip.closeQuietly()
-                    } else {
-                        val fileText =
-                            requireContext().contentResolver.openInputStream(file)!!.use {
-                                it.bufferedReader().readText()
-                            }
-                        RawUpdater.parseRaw(fileText, fileName ?: "")
-                            ?.let { pl -> proxies.addAll(pl) }
-                    }
-                    if (proxies.isEmpty()) onMainDispatcher {
-                        snackbar(getString(R.string.no_proxies_found_in_file)).show()
-                    } else import(proxies)
-                } catch (e: SubscriptionFoundException) {
-                    (requireActivity() as MainActivity).importSubscription(e.link.toUri())
-                } catch (e: Exception) {
-                    Logs.w(e)
-                    onMainDispatcher {
-                        snackbar(e.readableMessage).show()
-                    }
-                }
-            }
+    private suspend fun importFileNodes(contents: String, fileName: String) {
+        try {
+            val profiles = withContext(Dispatchers.IO) { RawUpdater.parseRaw(contents, fileName) }.orEmpty()
+            saveImportedFileProfiles(profiles)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SubscriptionFoundException) {
+            (requireActivity() as MainActivity).importSubscription(e.link.toUri())
+        } catch (_: Exception) {
+            snackbar(R.string.file_import_failed).show()
         }
+    }
+
+    private suspend fun saveImportedFileProfiles(profiles: List<AbstractBean>) {
+        if (profiles.isEmpty()) {
+            snackbar(R.string.no_proxies_found_in_file).show()
+        } else {
+            withContext(Dispatchers.IO) { import(profiles) }
+        }
+    }
 
     suspend fun import(proxies: List<AbstractBean>) {
         val targetId = DataStore.selectedGroupForImport()
@@ -659,10 +667,6 @@ class ConfigurationFragment @JvmOverloads constructor(
                         }
                     }
                 }
-            }
-
-            R.id.action_import_sing_box_config -> {
-                startFilesForResult(importSingBoxConfig, "*/*")
             }
 
             R.id.action_import_file -> {
@@ -2409,7 +2413,22 @@ class ConfigurationFragment @JvmOverloads constructor(
                 val bean = proxyEntity.requireBean()
 
                 profileName.text = bean.displayName()
-                profileType.text = proxyEntity.displayType()
+                val configNodes = if (!select && bean is ConfigBean && bean.type == 0) {
+                    fullSingBoxNodeNames(bean.config)
+                } else emptyList()
+                profileType.text = if (configNodes.isEmpty()) {
+                    proxyEntity.displayType()
+                } else {
+                    view.resources.getQuantityString(R.plurals.full_sing_box_config_nodes, configNodes.size, configNodes.size)
+                }
+                profileType.setOnClickListener(if (configNodes.isEmpty()) null else View.OnClickListener {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.full_sing_box_node_list)
+                        .setItems(configNodes.toTypedArray(), null)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                })
+                profileType.isClickable = configNodes.isNotEmpty()
                 profileType.setTextColor(requireContext().getProtocolColor(proxyEntity.type))
 
                 val rx = proxyEntity.rx

@@ -696,8 +696,16 @@
     <string name="snell_quic_proxy_summary">v6 only: legacy v5 QUIC Proxy compatibility</string>
     <string name="snell_reuse_summary">v4-v6 only</string>
 
-    <string name="import_full_sing_box_config">Import full sing-box JSON</string>
+    <string name="import_full_sing_box_config">Keep full configuration</string>
     <string name="full_sing_box_config">Full sing-box config</string>
-    <string name="invalid_full_sing_box_config">Choose a readable sing-box JSON file with inbounds and outbounds arrays.</string>
     <string name="full_sing_box_config_save_failed">Could not save the sing-box configuration.</string>
+    <string name="sing_box_import_title">Import sing-box file</string>
+    <string name="sing_box_import_message">Import nodes to use the app’s routing settings, or keep the complete configuration to use the file’s routing and DNS.</string>
+    <string name="import_sing_box_nodes">Import nodes</string>
+    <string name="full_sing_box_node_list">Nodes in this configuration</string>
+    <string name="file_import_failed">Could not import this file.</string>
+    <plurals name="full_sing_box_config_nodes">
+        <item quantity="one">Full config · View %1$d node</item>
+        <item quantity="other">Full config · View %1$d nodes</item>
+    </plurals>
 </resources>
