@@ -22,7 +22,7 @@ git fetch origin "$COMMIT_GOMOBILE"
 git checkout "$COMMIT_GOMOBILE"
 
 # Install the matching gomobile tools once per GOPATH.
-if [ ! -f "$GOPATH/bin/gomobile-matsuri" ]; then
+if [ ! -x "$GOPATH/bin/gomobile-matsuri" ] || [ ! -x "$GOPATH/bin/gobind-matsuri" ]; then
     pushd cmd/gomobile
     go install -v
     popd
@@ -34,4 +34,6 @@ if [ ! -f "$GOPATH/bin/gomobile-matsuri" ]; then
 fi
 popd
 
-GOBIND="$GOPATH/bin/gobind-matsuri" "$GOPATH/bin/gomobile-matsuri" init
+# gomobile init downloads an unpinned upstream gobind. The pinned fork is
+# already installed above, so only prepare the workspace used by bind.
+mkdir -p "$GOPATH/pkg/gomobile" .build
