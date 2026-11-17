@@ -331,6 +331,8 @@
     <string name="custom_route_notice">Custom routing rules can affect connectivity. Check the rule order and outbound before enabling them.</string>
     <string name="lines">%d Lines</string>
     <string name="night_mode">Night Mode</string>
+    <string name="appearance_dark">Dark</string>
+    <string name="appearance_light">Light</string>
     <string name="language">Language</string>
     <string name="follow_system">Follow System</string>
     <string name="enable">Enable</string>

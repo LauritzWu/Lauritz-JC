@@ -15,14 +15,12 @@ import androidx.core.view.updatePadding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import io.nekohasekai.sagernet.R
-import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.utils.Theme
 
 abstract class ThemedActivity : AppCompatActivity {
     constructor() : super()
     constructor(contentLayoutId: Int) : super(contentLayoutId)
 
-    var themeResId = 0
     var uiMode = 0
     open val isDialog = false
 
@@ -40,17 +38,15 @@ abstract class ThemedActivity : AppCompatActivity {
 
         val isNight = (uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
-        val usesLauritzTheme = themeResId == R.style.Theme_SagerNet_LauritzJC
         val insetController = WindowCompat.getInsetsController(window, window.decorView)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            insetController.isAppearanceLightNavigationBars = usesLauritzTheme && !isNight
-            if (usesLauritzTheme) {
+            insetController.isAppearanceLightNavigationBars = !isDialog && !isNight
+            if (!isDialog) {
                 window.navigationBarColor = ContextCompat.getColor(this, R.color.jc_background)
             }
         }
-        insetController.isAppearanceLightStatusBars =
-            !isNight && (usesLauritzTheme || DataStore.appTheme == Theme.BLACK)
+        insetController.isAppearanceLightStatusBars = !isDialog && !isNight
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, insets ->
             val bars = insets.getInsets(
@@ -61,12 +57,6 @@ abstract class ThemedActivity : AppCompatActivity {
             }
             insets
         }
-    }
-
-    override fun setTheme(resId: Int) {
-        super.setTheme(resId)
-
-        themeResId = resId
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

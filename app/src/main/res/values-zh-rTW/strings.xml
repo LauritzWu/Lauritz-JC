@@ -272,6 +272,8 @@
     <string name="custom_route_notice">自訂路由規則可能影響網路連線。啟用前請檢查規則順序和出站設定。</string>
     <string name="lines">%d 行</string>
     <string name="night_mode">夜間模式</string>
+    <string name="appearance_dark">夜間</string>
+    <string name="appearance_light">日間</string>
     <string name="follow_system">跟隨系統</string>
     <string name="enable">啟用</string>
     <string name="disable">停用</string>

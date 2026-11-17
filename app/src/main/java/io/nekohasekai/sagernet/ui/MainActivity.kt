@@ -72,21 +72,8 @@ class MainActivity : ThemedActivity(),
 
         binding = LayoutMainBinding.inflate(layoutInflater)
         binding.fab.initProgress(binding.fabProgress)
-        if (themeResId !in intArrayOf(
-                R.style.Theme_SagerNet_Black
-            )
-        ) {
-            navigation = binding.navView
-            binding.drawerLayout.removeView(binding.navViewBlack)
-        } else {
-            navigation = binding.navViewBlack
-            binding.drawerLayout.removeView(binding.navView)
-        }
-        if (themeResId == R.style.Theme_SagerNet_LauritzJC) {
-            binding.drawerLayout.setScrimColor(
-                ContextCompat.getColor(this, R.color.jc_drawer_scrim)
-            )
-        }
+        navigation = binding.navView
+        binding.drawerLayout.setScrimColor(ContextCompat.getColor(this, R.color.jc_drawer_scrim))
         navigation.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {

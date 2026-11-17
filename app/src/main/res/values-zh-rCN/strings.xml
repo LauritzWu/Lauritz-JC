@@ -262,6 +262,8 @@
     <string name="config_settings">配置设置</string>
     <string name="custom_config">自定义配置</string>
     <string name="night_mode">夜间模式</string>
+    <string name="appearance_dark">夜间</string>
+    <string name="appearance_light">日间</string>
     <string name="language">语言</string>
     <string name="enable">启用</string>
     <string name="auto">自动</string>
