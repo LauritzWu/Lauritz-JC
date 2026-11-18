@@ -153,7 +153,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
                 }
             }
 
-            R.id.action_refresh -> {
+            R.id.action_logcat_latest -> {
                 viewLifecycleOwner.lifecycleScope.launch { reloadSession(force = true) }
             }
         }

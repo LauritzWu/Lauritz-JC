@@ -781,4 +781,5 @@
     <string name="route_rule_set_remove">Remove from saved sources</string>
     <string name="route_rule_set_reachable">The source is reachable.</string>
     <string name="route_rule_set_unreachable">Could not read the source.</string>
+    <string name="logcat_latest">Jump to latest</string>
 </resources>
