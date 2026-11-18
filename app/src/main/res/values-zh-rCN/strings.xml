@@ -233,6 +233,11 @@
     <string name="empty_route">空路由</string>
     <string name="empty_route_notice">在保存前设置一些规则</string>
     <string name="custom_route_notice">自定义路由规则可能影响网络连接。启用前请检查规则顺序和出站设置。</string>
+    <string name="route_builtin_block_udp_443">阻断 UDP 443</string>
+    <string name="route_builtin_play_china">Google Play 中国域名走代理</string>
+    <string name="route_builtin_udp_443_summary">阻断发往 UDP 443 端口的流量，包括使用此端口的 QUIC。</string>
+    <string name="route_builtin_ads_summary">拦截广告规则集命中的域名。</string>
+    <string name="route_builtin_play_china_summary">规则中列出的三个域名后缀走代理。</string>
     <string name="route_mainland_china_domains">中国大陆域名直连</string>
     <string name="route_bypass_domain">%s 域名规则</string>
     <string name="route_bypass_ip">%s IP 规则</string>

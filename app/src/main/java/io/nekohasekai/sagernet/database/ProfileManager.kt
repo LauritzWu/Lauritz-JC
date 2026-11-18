@@ -198,7 +198,7 @@ object ProfileManager {
             DataStore.rulesFirstCreate = true
             createRule(
                 RuleEntity(
-                    name = app.getString(R.string.route_opt_block_quic),
+                    name = app.getString(R.string.route_builtin_block_udp_443),
                     port = "443",
                     network = "udp",
                     outbound = -2
@@ -213,8 +213,8 @@ object ProfileManager {
             )
             createRule(
                 RuleEntity(
-                    name = app.getString(R.string.route_play_store, "中国"),
-                    domains = "domain:googleapis.cn\ndomain:xn--ngstr-lra8j.com\ndomain:xn--ngstr-cn-8za9o.com",
+                    name = app.getString(R.string.route_builtin_play_china),
+                    domains = RuleEntity.PLAY_CHINA_DOMAINS,
                 ), false
             )
             createRule(

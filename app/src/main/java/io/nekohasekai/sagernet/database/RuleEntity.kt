@@ -34,6 +34,15 @@ data class RuleEntity(
     }
 
     fun mkSummary(): String {
+        val match = copy(id = 0L, name = "", userOrder = 0L, enabled = false)
+        val description = when (match) {
+            RuleEntity(port = "443", network = "udp", outbound = -2) -> R.string.route_builtin_udp_443_summary
+            RuleEntity(domains = "geosite:category-ads-all", outbound = -2) -> R.string.route_builtin_ads_summary
+            RuleEntity(domains = PLAY_CHINA_DOMAINS) -> R.string.route_builtin_play_china_summary
+            else -> null
+        }
+        if (description != null) return app.getString(description)
+
         var summary = ""
         if (config.isNotBlank()) summary += "[config]\n"
         if (domains.isNotBlank()) summary += "$domains\n"
@@ -63,6 +72,11 @@ data class RuleEntity(
             else -> ProfileManager.getProfile(outbound)?.displayName()
                 ?: app.getString(R.string.error_title)
         }
+    }
+
+    companion object {
+        internal const val PLAY_CHINA_DOMAINS =
+            "domain:googleapis.cn\ndomain:xn--ngstr-lra8j.com\ndomain:xn--ngstr-cn-8za9o.com"
     }
 
     @androidx.room.Dao
