@@ -1,0 +1,159 @@
+name: Build and publish Beta 25495
+on:
+  push:
+    branches: [release/preview-25495]
+permissions:
+  contents: read
+jobs:
+  libcore:
+    name: Native Build (LibCore)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Golang Status
+        run: find buildScript libcore/*.sh -type f -print0 | sort -z | xargs -0 cat | sha1sum > golang_status
+      - name: Libcore Status
+        run: git ls-files libcore | xargs cat | sha1sum > libcore_status
+      - name: LibCore Cache
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            app/libs/libcore.aar
+          key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}-ci
+      - name: Install Golang
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: libcore/go.mod
+          cache-dependency-path: libcore/go.sum
+      - name: Set up Android SDK tools
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ndk;25.0.8775105
+      - name: Native Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: ./run lib core
+  build:
+    name: Build OSS APK
+    runs-on: ubuntu-latest
+    needs:
+      - libcore
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Golang Status
+        run: find buildScript libcore/*.sh -type f -print0 | sort -z | xargs -0 cat | sha1sum > golang_status
+      - name: Libcore Status
+        run: git ls-files libcore | xargs cat | sha1sum > libcore_status
+      - name: LibCore Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            app/libs/libcore.aar
+          key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}-ci
+      - name: HevTun Status
+        run: |
+          git submodule status hev-socks5-tunnel > hev_status
+          cat buildScript/compile-hevtun.sh | sha1sum >> hev_status
+      - name: HevTun Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            app/src/main/jniLibs
+          key: hevtun-${{ hashFiles('.github/workflows/*', 'hev_status') }}-ci
+      - name: Gradle cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.gradle
+          key: gradle-oss-${{ hashFiles('**/*.gradle.kts') }}-ci
+      - name: Set up Android SDK tools
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platforms;android-35 build-tools;35.0.1 ndk;25.0.8775105
+      - name: Gradle Build
+        env:
+          BUILD_PLUGIN: none
+          JC_PREVIEW_KEYSTORE: ${{ secrets.JC_PREVIEW_KEYSTORE }}
+          JC_PREVIEW_KEYSTORE_PASS: ${{ secrets.JC_PREVIEW_KEYSTORE_PASS }}
+          JC_PREVIEW_KEY_ALIAS: ${{ secrets.JC_PREVIEW_KEY_ALIAS }}
+          JC_PREVIEW_KEY_PASS: ${{ secrets.JC_PREVIEW_KEY_PASS }}
+        run: |
+          echo "sdk.dir=${ANDROID_HOME}" > local.properties
+          echo "ndk.dir=${ANDROID_HOME}/ndk/25.0.8775105" >> local.properties
+          export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
+          ./run init action gradle
+          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == release/preview-25495 ]]; then
+            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=5099/" nb4a.properties
+            : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
+            : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
+            : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
+            : "${JC_PREVIEW_KEY_PASS:?Missing preview key password}"
+            umask 077
+            printf '%s' "$JC_PREVIEW_KEYSTORE" | base64 --decode > release.keystore
+            trap 'rm -f release.keystore' EXIT
+            unset LOCAL_PROPERTIES
+            export KEYSTORE_PASS="$JC_PREVIEW_KEYSTORE_PASS"
+            export ALIAS_NAME="$JC_PREVIEW_KEY_ALIAS"
+            export ALIAS_PASS="$JC_PREVIEW_KEY_PASS"
+            sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview/' nb4a.properties
+            sed -i 's/>Lauritz JC<\//>Lauritz JC UI<\//' app/src/main/res/values/strings.xml
+          fi
+          ./gradlew app:assembleOssDebug
+      - name: Verify parallel-install ARM64 preview
+        if: github.event_name == 'push' && github.ref_name == 'release/preview-25495'
+        run: |
+          mapfile -t apks < <(find app/build/outputs/apk/oss/debug -name '*arm64-v8a*.apk')
+          test "${#apks[@]}" -eq 1
+          tools="$ANDROID_HOME/build-tools/35.0.1"
+          "$tools/aapt" dump badging "${apks[0]}" > apk-badging.txt
+          grep -F "package: name='top.lauritz.jc.uipreview.debug'" apk-badging.txt
+          grep -F "versionCode='25495'" apk-badging.txt
+          grep -Fx "application-label:'Lauritz JC UI'" apk-badging.txt
+          "$tools/apksigner" verify --print-certs "${apks[0]}" > apk-signing.txt
+          grep -Fiqx "Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56" apk-signing.txt
+          "$tools/zipalign" -c -P 16 4 "${apks[0]}"
+          cp "${apks[0]}" lauritz-jc-ui-standalone-arm64.apk
+      - uses: actions/upload-artifact@v5
+        if: github.event_name == 'push' && github.ref_name == 'release/preview-25495'
+        with:
+          name: lauritz-jc-ui-standalone-arm64
+          path: lauritz-jc-ui-standalone-arm64.apk
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: lauritz-jc-ui-standalone-arm64
+      - name: Publish and verify APK
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          digest=$(sha256sum "$asset" | cut -d ' ' -f 1)
+          gh release create v1.4.2-preview.25495 "$asset" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Lauritz JC 1.4.2 Beta 25495' --notes '此版本用于验证从 Beta 25490 检查更新和覆盖安装。应用功能与 25490 相同，提供 ARM64-v8a APK。'
+          gh release view v1.4.2-preview.25495 --json url,isPrerelease,assets
+          curl --fail --silent --show-error --location "https://github.com/$GH_REPO/releases/download/v1.4.2-preview.25495/$asset" --output verified.apk
+          echo "$digest  verified.apk" | sha256sum --check
