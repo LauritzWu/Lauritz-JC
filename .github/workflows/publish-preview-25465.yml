@@ -1,0 +1,31 @@
+name: Publish Lauritz JC preview 25465
+on:
+  push:
+    branches: [release/preview-25465]
+    paths: [.github/workflows/publish-preview-25465.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download tested signed build
+        run: gh run download 44235935709 --name lauritz-jc-ui-standalone-arm64
+      - name: Publish preview APK
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          printf '%s  %s\n' 7c7c9596a428cd75d03950f88a05d9e994dea8343e54147347343d9c770c40b0 "$asset" | sha256sum --check
+          gh release create v1.4.2-preview.25465 "$asset" --target 0e83ba4cd6f74acfa65cfe4a7dd2470e7569ecab --prerelease --title "Lauritz JC Preview 25465" --notes-file - <<'NOTES'
+          后台自动刷新订阅时，如果节点将被移除，App 会暂缓应用整次更新，并在分组页显示「有待确认的更新」。
+
+          点提示会重新获取订阅并列出待移除的节点。「取消」会保留节点，「应用更新」会提交变更并清除提示。后台拦截、取消和应用更新均已通过真机验收。
+
+          在 Assets 中下载 ARM64-v8a APK。已安装同签名预览版的用户可以直接覆盖安装。
+
+          SHA-256: 7c7c9596a428cd75d03950f88a05d9e994dea8343e54147347343d9c770c40b0
+          NOTES
