@@ -171,70 +171,97 @@ object RawUpdater : GroupUpdater() {
 
         val added = mutableListOf<String>()
         val updated = mutableMapOf<String, String>()
-        val removed = SagerDatabase.instance.withTransaction {
-            val latest = SagerDatabase.groupDao.getById(proxyGroup.id)
-            val latestSubscription = latest?.subscription
-            if (latest == null || latestSubscription == null ||
-                !KryoConverters.serialize(latestSubscription).contentEquals(subscriptionSnapshot)
-            ) {
-                throw SubscriptionUpdateException(app.getString(R.string.subscription_refresh_settings_changed))
-            }
+        var pendingRemoval: RemovalPreview? = null
+        suspend fun applyChanges(approved: RemovalPreview?): List<ProxyEntity> =
+            SagerDatabase.instance.withTransaction {
+                val latest = SagerDatabase.groupDao.getById(proxyGroup.id)
+                val latestSubscription = latest?.subscription
+                if (latest == null || latestSubscription == null ||
+                    !KryoConverters.serialize(latestSubscription).contentEquals(subscriptionSnapshot)
+                ) {
+                    throw SubscriptionUpdateException(app.getString(R.string.subscription_refresh_settings_changed))
+                }
 
-            val existing = SagerDatabase.proxyDao.getByGroup(latest.id)
-            val selectedId = DataStore.selectedProxy
-            val existingByName = existing.groupBy { it.displayName() }.mapValues { (_, profiles) ->
-                profiles.find { it.id == selectedId } ?: profiles.first()
-            }
-            val matched = existingByName.filterKeys { it in nameMap }.toMutableMap()
-            val matchedIds = matched.values.mapTo(mutableSetOf()) { it.id }
-            val existingByConnection = existing.filterNot { it.id in matchedIds }
-                .groupBy { it.requireBean().subscriptionConnection() }
-            val incomingByConnection = nameMap.entries.filterNot { it.key in matched }
-                .groupBy { it.value.subscriptionConnection() }
-            for ((connection, entries) in incomingByConnection) {
-                val incoming = entries.singleOrNull() ?: continue
-                val previous = existingByConnection[connection]?.singleOrNull() ?: continue
-                matched[incoming.key] = previous
-                matchedIds.add(previous.id)
-            }
-            val toDelete = existing.filter { it.id !in matchedIds }
-            val toUpdate = mutableListOf<ProxyEntity>()
-            val toInsert = mutableListOf<ProxyEntity>()
-            nameMap.entries.forEachIndexed { index, (name, bean) ->
-                val order = index + 1L
-                val entity = matched[name]
-                if (entity == null) {
-                    toInsert += ProxyEntity(groupId = latest.id, userOrder = order).apply { putBean(bean) }
-                    added += name
-                } else {
-                    val previous = entity.requireBean()
-                    bean.customOutboundJson = previous.customOutboundJson
-                    bean.customConfigJson = previous.customConfigJson
-                    val previousName = entity.displayName()
-                    val changed = previousName != name || previous != bean
-                    if (changed) {
-                        entity.putBean(bean)
-                        updated[previousName] = name
+                val existing = SagerDatabase.proxyDao.getByGroup(latest.id)
+                val selectedId = DataStore.selectedProxy
+                val existingByName = existing.groupBy { it.displayName() }.mapValues { (_, profiles) ->
+                    profiles.find { it.id == selectedId } ?: profiles.first()
+                }
+                val matched = existingByName.filterKeys { it in nameMap }.toMutableMap()
+                val matchedIds = matched.values.mapTo(mutableSetOf()) { it.id }
+                val existingByConnection = existing.filterNot { it.id in matchedIds }
+                    .groupBy { it.requireBean().subscriptionConnection() }
+                val incomingByConnection = nameMap.entries.filterNot { it.key in matched }
+                    .groupBy { it.value.subscriptionConnection() }
+                for ((connection, entries) in incomingByConnection) {
+                    val incoming = entries.singleOrNull() ?: continue
+                    val previous = existingByConnection[connection]?.singleOrNull() ?: continue
+                    matched[incoming.key] = previous
+                    matchedIds.add(previous.id)
+                }
+                val toDelete = existing.filter { it.id !in matchedIds }
+                if (byUser && (toDelete.isNotEmpty() || approved != null)) {
+                    val preview = RemovalPreview(
+                        latest.displayName(),
+                        toDelete.associate { it.id to it.displayName() },
+                        selectedId.takeIf { id -> toDelete.any { it.id == id } }
+                    )
+                    if (approved == null) {
+                        pendingRemoval = preview
+                        return@withTransaction emptyList()
                     }
-                    if (changed || entity.userOrder != order) {
-                        entity.userOrder = order
-                        toUpdate += entity
+                    if (preview != approved) {
+                        throw SubscriptionUpdateException(app.getString(R.string.subscription_refresh_settings_changed))
                     }
                 }
-            }
+                val toUpdate = mutableListOf<ProxyEntity>()
+                val toInsert = mutableListOf<ProxyEntity>()
+                nameMap.entries.forEachIndexed { index, (name, bean) ->
+                    val order = index + 1L
+                    val entity = matched[name]
+                    if (entity == null) {
+                        toInsert += ProxyEntity(groupId = latest.id, userOrder = order).apply { putBean(bean) }
+                        added += name
+                    } else {
+                        val previous = entity.requireBean()
+                        bean.customOutboundJson = previous.customOutboundJson
+                        bean.customConfigJson = previous.customConfigJson
+                        val previousName = entity.displayName()
+                        val changed = previousName != name || previous != bean
+                        if (changed) {
+                            entity.putBean(bean)
+                            updated[previousName] = name
+                        }
+                        if (changed || entity.userOrder != order) {
+                            entity.userOrder = order
+                            toUpdate += entity
+                        }
+                    }
+                }
 
-            SagerDatabase.proxyDao.insert(toInsert)
-            SagerDatabase.proxyDao.updateProxy(toUpdate)
-            SagerDatabase.proxyDao.deleteProxy(toDelete)
-            check(SagerDatabase.proxyDao.countByGroup(latest.id) == nameMap.size.toLong())
+                SagerDatabase.proxyDao.insert(toInsert)
+                SagerDatabase.proxyDao.updateProxy(toUpdate)
+                SagerDatabase.proxyDao.deleteProxy(toDelete)
+                check(SagerDatabase.proxyDao.countByGroup(latest.id) == nameMap.size.toLong())
 
-            if (updatedName != null && latest.name?.startsWith("Subscription #") == true) {
-                latest.name = updatedName
+                if (updatedName != null && latest.name?.startsWith("Subscription #") == true) {
+                    latest.name = updatedName
+                }
+                updatedUserInfo?.let { latestSubscription.subscriptionUserinfo = it }
+                latestSubscription.lastUpdated = (System.currentTimeMillis() / 1000).toInt()
+                SagerDatabase.groupDao.updateGroup(latest)
+                toDelete
             }
-            updatedUserInfo?.let { latestSubscription.subscriptionUserinfo = it }
-            latestSubscription.lastUpdated = (System.currentTimeMillis() / 1000).toInt()
-            SagerDatabase.groupDao.updateGroup(latest)
-            toDelete
+        val firstResult = applyChanges(null)
+        val preview = pendingRemoval
+        val removed = if (preview == null) {
+            firstResult
+        } else {
+            val nodes = preview.nodes
+            val group = SagerDatabase.groupDao.getById(proxyGroup.id) ?: return
+            val selectedIndex = nodes.keys.indexOfFirst { it == preview.selectedId }
+            if (userInterface?.confirmSubscriptionRemoval(group, nodes.values.toList(), selectedIndex) != true) return
+            applyChanges(preview)
         }
 
         val selected = DataStore.selectedProxy
@@ -245,6 +272,12 @@ object RawUpdater : GroupUpdater() {
             latest, added, updated, removed.map { it.displayName() }, duplicate, byUser, selectedRemoved
         )
     }
+
+    private data class RemovalPreview(
+        val groupName: String,
+        val nodes: Map<Long, String>,
+        val selectedId: Long?
+    )
 
     private fun AbstractBean.subscriptionConnection(): AbstractBean = clone().apply {
         // Bean equality ignores the display name. Local overrides do not identify a subscription node.

@@ -746,6 +746,9 @@
     <string name="subscription_refresh_settings_changed">The subscription settings changed during the update. Try again.</string>
     <string name="subscription_refresh_storage_error">Could not save the subscription update.</string>
     <string name="subscription_refresh_failure">%1$s: Update failed. %2$s Existing nodes were kept.</string>
+    <string name="subscription_refresh_remove_preview">Nodes to remove:\n%1$s</string>
+    <string name="subscription_refresh_current_node">%1$s (currently selected)</string>
+    <string name="subscription_refresh_apply">Apply update</string>
     <string name="subscription_refresh_summary">%1$s · Added %2$d · Changed %3$d · Removed %4$d</string>
     <string name="subscription_refresh_selected_removed">The selected node was removed by the subscription. Please choose a node before reconnecting.</string>
 </resources>

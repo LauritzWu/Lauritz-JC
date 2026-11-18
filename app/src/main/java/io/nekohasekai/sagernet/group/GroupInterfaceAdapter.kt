@@ -1,5 +1,8 @@
 package io.nekohasekai.sagernet.group
 
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.suspendCancellableCoroutine
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.database.GroupManager
@@ -22,6 +25,40 @@ class GroupInterfaceAdapter(val context: ThemedActivity) : GroupManager.Interfac
                     .setOnCancelListener { _ -> it.resume(false) }
                     .show()
             }
+        }
+    }
+
+    override suspend fun confirmSubscriptionRemoval(
+        group: ProxyGroup, nodes: List<String>, selectedIndex: Int
+    ): Boolean = onMainDispatcher {
+        if (context.isFinishing || context.isDestroyed) return@onMainDispatcher false
+        suspendCancellableCoroutine { continuation ->
+            val names = nodes.mapIndexed { index, name ->
+                if (index == selectedIndex) {
+                    context.getString(R.string.subscription_refresh_current_node, name)
+                } else {
+                    name
+                }
+            }.joinToString("\n")
+            var approved = false
+            val dialog = MaterialAlertDialogBuilder(context)
+                .setTitle(context.getString(R.string.group_diff, group.displayName()))
+                .setMessage(context.getString(R.string.subscription_refresh_remove_preview, names))
+                .setPositiveButton(R.string.subscription_refresh_apply) { _, _ -> approved = true }
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+            val observer = object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    dialog.dismiss()
+                }
+            }
+            dialog.setOnDismissListener {
+                context.lifecycle.removeObserver(observer)
+                if (continuation.isActive) continuation.resume(approved)
+            }
+            context.lifecycle.addObserver(observer)
+            continuation.invokeOnCancellation { runOnMainDispatcher { dialog.dismiss() } }
+            dialog.show()
         }
     }
 
