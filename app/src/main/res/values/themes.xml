@@ -244,7 +244,7 @@
         <item name="android:windowBackground">@drawable/bg_dialog</item>
     </style>
 
-    <style name="Theme.SagerNet.LauritzJC" parent="Theme.SagerNet">
+    <style name="Theme.SagerNet.Veyr" parent="Theme.SagerNet">
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>
@@ -576,7 +576,7 @@
         <item name="cardElevatedSurfaceColor">@color/card_elevated_red</item>
     </style>
 
-    <style name="Theme.SagerNet.Dialog.LauritzJC" parent="Theme.SagerNet.Dialog">
+    <style name="Theme.SagerNet.Dialog.Veyr" parent="Theme.SagerNet.Dialog">
         <item name="colorPrimary">@color/jc_primary</item>
         <item name="colorPrimaryDark">@color/jc_primary_dark</item>
         <item name="colorAccent">@color/jc_accent</item>

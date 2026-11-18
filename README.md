@@ -1,8 +1,8 @@
-# Lauritz JC for Android
+# Veyr for Android
 
-Lauritz JC 是面向 Android 6.0 及以上的代理客户端，支持 Sub-Store 订阅、多种代理协议和自定义 sing-box 配置。
+Veyr 是面向 Android 6.0 及以上的代理客户端，支持 Sub-Store 订阅、多种代理协议和自定义 sing-box 配置。
 
-目前的 ARM64 预览构建可在本仓库的 [GitHub Actions](https://github.com/LauritzWu/Lauritz-JC/actions) 查看。[5090 首个预览版](https://github.com/LauritzWu/NekoBox/releases/tag/v1.4.2-preview.5090) 可从原发布页下载。
+目前的 ARM64 预览构建可在本仓库的 [GitHub Actions](https://github.com/LauritzWu/Veyr/actions) 查看。[5090 首个预览版](https://github.com/LauritzWu/NekoBox/releases/tag/v1.4.2-preview.5090) 可从原发布页下载。
 
 ## 支持的代理协议 / Supported Proxy Protocols
 
@@ -224,7 +224,7 @@ Web Dashboard:
 
 ## 来源与许可
 
-Lauritz JC 基于 NekoBox for Android 及其上游 SagerNet 持续开发。原项目和贡献者的版权声明见 [AUTHORS](AUTHORS) 和 [LICENSE](LICENSE)。
+Veyr 基于 NekoBox for Android 及其上游 SagerNet 持续开发。原项目和贡献者的版权声明见 [AUTHORS](AUTHORS) 和 [LICENSE](LICENSE)。
 
 - [MatsuriDayo/NekoBoxForAndroid](https://github.com/MatsuriDayo/NekoBoxForAndroid)
 - [starifly/NekoBoxForAndroid](https://github.com/starifly/NekoBoxForAndroid)

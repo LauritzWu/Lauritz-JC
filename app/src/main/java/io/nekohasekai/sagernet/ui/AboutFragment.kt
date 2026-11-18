@@ -116,7 +116,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         dialog.setMessage(getString(R.string.github_update_available, release.tag, installed, release.notes))
                         if ("arm64-v8a" in Build.SUPPORTED_ABIS) {
                             dialog.setPositiveButton(R.string.github_update_download) { _, _ ->
-                                context.launchCustomTab("$PROJECT_URL/releases/download/${release.tag}/$ARM64_APK")
+                                context.launchCustomTab("$PROJECT_URL/releases/download/${release.tag}/${release.apkName}")
                             }
                         } else {
                             dialog.setMessage(getString(R.string.github_update_unsupported, release.tag))
@@ -136,7 +136,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             }
         }
 
-        private data class Release(val tag: String, val code: Long, val notes: String)
+        private data class Release(val tag: String, val code: Long, val notes: String, val apkName: String)
 
         private fun latestRelease(beta: Boolean): Release? {
             var latest: Release? = null
@@ -157,11 +157,12 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     val code = RELEASE_TAG.matchEntire(tag)?.groupValues?.get(1)?.toLongOrNull() ?: continue
                     if (code <= (latest?.code ?: 0)) continue
                     val assets = item.getJSONArray("assets")
-                    val hasApk = (0 until assets.length()).any {
-                        val asset = assets.getJSONObject(it)
-                        asset.optString("name") == ARM64_APK && asset.optString("state") == "uploaded"
-                    }
-                    if (hasApk) latest = Release(tag, code, item.optString("body").take(4000))
+                    val uploadedNames = (0 until assets.length())
+                        .map(assets::getJSONObject)
+                        .filter { it.optString("state") == "uploaded" }
+                        .map { it.optString("name") }
+                    val apkName = ARM64_APKS.firstOrNull { it in uploadedNames } ?: continue
+                    latest = Release(tag, code, item.optString("body").take(4000), apkName)
                 }
                 page++
             } while (releases.length() == 100)
@@ -169,9 +170,9 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         }
 
         private companion object {
-            const val PROJECT_URL = "https://github.com/LauritzWu/Lauritz-JC"
-            const val RELEASES_API = "https://api.github.com/repos/LauritzWu/Lauritz-JC/releases"
-            const val ARM64_APK = "lauritz-jc-preview-arm64-v8a.apk"
+            const val PROJECT_URL = "https://github.com/LauritzWu/Veyr"
+            const val RELEASES_API = "https://api.github.com/repos/LauritzWu/Veyr/releases"
+            val ARM64_APKS = listOf("veyr-preview-arm64-v8a.apk", "lauritz-jc-preview-arm64-v8a.apk")
             val RELEASE_TAG = Regex("""v[0-9]+\.[0-9]+\.[0-9]+-(?:preview|stable)\.([0-9]+)""")
             val updateClient = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
         }

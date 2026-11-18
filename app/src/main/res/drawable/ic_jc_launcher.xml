@@ -1,25 +1,3 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="@color/jc_launcher_background"
-        android:pathData="M24,4 H84 Q104,4 104,24 V84 Q104,104 84,104 H24 Q4,104 4,84 V24 Q4,4 24,4 Z" />
-    <group
-        android:scaleX="3.4"
-        android:scaleY="3.4"
-        android:translateX="13.2"
-        android:translateY="13.2">
-        <path
-            android:fillColor="@color/jc_launcher_fold"
-            android:pathData="M2,16.1 C6,14.5 11.1,12.6 15,12.6 C18.1,12.6 20.3,13.6 22,16.1 C19.1,19 15.6,20.1 12,20.1 C8.1,20.1 4.7,18.7 2,16.1 Z" />
-        <path
-            android:fillColor="@color/jc_launcher_mark"
-            android:fillAlpha="0.84"
-            android:pathData="M12,3.8 L18.9,11.5 L12,19.2 L5.1,11.5 Z" />
-        <path
-            android:fillColor="#FFF9E9"
-            android:pathData="M13.24,11.5 A1.24,1.24 0,1 1,10.76 11.5 A1.24,1.24 0,1 1,13.24 11.5 Z" />
-    </group>
-</vector>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_jc_launcher_artwork"
+    android:inset="0dp" />

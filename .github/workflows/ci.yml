@@ -103,7 +103,7 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 ]]; then
-            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5090 + GITHUB_RUN_NUMBER))/" nb4a.properties
+            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5095 + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
             : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
@@ -116,7 +116,6 @@ jobs:
             export ALIAS_NAME="$JC_PREVIEW_KEY_ALIAS"
             export ALIAS_PASS="$JC_PREVIEW_KEY_PASS"
             sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview/' nb4a.properties
-            sed -i 's/>Lauritz JC<\//>Lauritz JC UI<\//' app/src/main/res/values/strings.xml
           fi
           ./gradlew app:assembleOssDebug
       - name: Verify parallel-install ARM64 preview
@@ -127,14 +126,14 @@ jobs:
           tools="$ANDROID_HOME/build-tools/35.0.1"
           "$tools/aapt" dump badging "${apks[0]}" > apk-badging.txt
           grep -F "package: name='top.lauritz.jc.uipreview.debug'" apk-badging.txt
-          grep -Fx "application-label:'Lauritz JC UI'" apk-badging.txt
+          grep -Fx "application-label:'Veyr'" apk-badging.txt
           "$tools/apksigner" verify --print-certs "${apks[0]}" > apk-signing.txt
           grep -Fiqx "Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56" apk-signing.txt
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
-          cp "${apks[0]}" lauritz-jc-ui-standalone-arm64.apk
+          cp "${apks[0]}" veyr-preview-arm64-v8a.apk
       - uses: actions/upload-artifact@v5
         if: github.event_name == 'push' && github.ref_name == 'lauritz/starifly-core-1.14'
         with:
-          name: lauritz-jc-ui-standalone-arm64
-          path: lauritz-jc-ui-standalone-arm64.apk
+          name: veyr-preview-arm64-v8a
+          path: veyr-preview-arm64-v8a.apk
           if-no-files-found: error

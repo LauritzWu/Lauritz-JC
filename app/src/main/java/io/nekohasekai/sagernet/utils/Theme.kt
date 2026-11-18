@@ -8,11 +8,11 @@ import io.nekohasekai.sagernet.database.DataStore
 object Theme {
 
     fun apply(context: Context) {
-        context.setTheme(R.style.Theme_SagerNet_LauritzJC)
+        context.setTheme(R.style.Theme_SagerNet_Veyr)
     }
 
     fun applyDialog(context: Context) {
-        context.setTheme(R.style.Theme_SagerNet_Dialog_LauritzJC)
+        context.setTheme(R.style.Theme_SagerNet_Dialog_Veyr)
     }
 
     var currentNightMode = -1
