@@ -1,0 +1,30 @@
+name: Publish Lauritz JC preview 25485
+on:
+  push:
+    branches: [release/preview-25485]
+    paths: [.github/workflows/publish-preview-25485.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download signed build
+        run: gh run download 44282533006 --name lauritz-jc-ui-standalone-arm64
+      - name: Publish preview APK
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          printf '%s  %s\n' 50aed9ae1ea1eb66b1fb68c440ab06343ed6135146611ad02d09de7feeeea12a "$asset" | sha256sum --check
+          gh release create v1.4.2-preview.25485 "$asset" --target 845d86b7e6a71b3f061110ac488b688d79162f96 --prerelease --title "Lauritz JC Preview 25485" --notes-file - <<'NOTES'
+          - 日志页打开时每秒检查一次新日志，停在底部时自动跟随，向上翻阅时暂停，离开页面后停止检查。
+          - 日志界面会清理颜色控制码。每次读取最近 50 KiB，文件读取和文本处理在后台执行。
+
+          在 Assets 中下载 ARM64-v8a APK。同签名且构建号较低的预览版可以覆盖安装。
+
+          SHA-256: 50aed9ae1ea1eb66b1fb68c440ab06343ed6135146611ad02d09de7feeeea12a
+          NOTES
