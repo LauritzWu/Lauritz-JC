@@ -49,6 +49,38 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         true
     }
 
+    private fun bindDnsPresets(
+        preference: EditTextPreference,
+        presets: List<Pair<Int, String>>
+    ) {
+        preference.onPreferenceChangeListener = reloadListener
+        preference.setOnPreferenceClickListener {
+            val choices = presets.map { (label, address) ->
+                "${getString(label)}\n$address"
+            } + getString(R.string.dns_preset_custom)
+            val selected = presets.indexOfFirst { (_, address) -> address == preference.text }
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(preference.title)
+                .setSingleChoiceItems(
+                    choices.toTypedArray(), if (selected >= 0) selected else presets.size
+                ) { dialog, index ->
+                    dialog.dismiss()
+                    if (index == presets.size) {
+                        onDisplayPreferenceDialog(preference)
+                    } else {
+                        val address = presets[index].second
+                        if (address != preference.text) {
+                            preference.text = address
+                            needReload()
+                        }
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = DataStore.configurationStore
         DataStore.initGlobal()
@@ -216,8 +248,17 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         concurrentDial.onPreferenceChangeListener = reloadListener
 
         enableFakeDns.onPreferenceChangeListener = reloadListener
-        remoteDns.onPreferenceChangeListener = reloadListener
-        directDns.onPreferenceChangeListener = reloadListener
+        bindDnsPresets(
+            remoteDns,
+            listOf(
+                R.string.dns_preset_quad9 to "https://dns.quad9.net/dns-query",
+                R.string.dns_preset_google to "https://dns.google/dns-query"
+            )
+        )
+        bindDnsPresets(
+            directDns,
+            listOf(R.string.dns_preset_ali to "https://223.5.5.5/dns-query")
+        )
         enableDnsRouting.onPreferenceChangeListener = reloadListener
 
         ipv6Mode.onPreferenceChangeListener = reloadListener

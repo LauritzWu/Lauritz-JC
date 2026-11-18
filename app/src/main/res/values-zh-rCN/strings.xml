@@ -667,4 +667,8 @@
     <string name="subscription_refresh_apply">应用更新</string>
     <string name="subscription_refresh_summary">%1$s · 新增 %2$d · 变更 %3$d · 移除 %4$d</string>
     <string name="subscription_refresh_selected_removed">订阅已移除所选节点。下次连接前请选择一个节点。</string>
+    <string name="dns_preset_quad9">Quad9 DoH</string>
+    <string name="dns_preset_google">Google 公共 DNS（DoH）</string>
+    <string name="dns_preset_ali">阿里公共 DNS（DoH）</string>
+    <string name="dns_preset_custom">自定义地址</string>
 </resources>
