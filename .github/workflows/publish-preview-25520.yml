@@ -1,0 +1,27 @@
+name: Publish Veyr Beta 25520
+on:
+  push:
+    branches: [release/preview-25520]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publish and verify the tested APK
+        run: |
+          gh run download 44329834488 --name veyr-preview-arm64-v8a
+          asset=veyr-preview-arm64-v8a.apk
+          legacy=lauritz-jc-preview-arm64-v8a.apk
+          cp "$asset" "$legacy"
+          digest=$(sha256sum "$asset" | cut -d ' ' -f 1)
+          gh release create v1.4.2-preview.25520 "$asset" "$legacy" --target bd3c3f0d4dd46a9e76c196ad24575acb7324e9cb --prerelease --latest=false --title 'Veyr 1.4.2 Beta 25520' --notes 'Lauritz JC 现已更名为 Veyr，并启用渡鸦桌面图标。ARM64-v8a 可覆盖安装 25495。两个 APK 文件内容相同，旧文件名用于兼容旧版 App 的更新检查。'
+          gh release view v1.4.2-preview.25520 --json url,isPrerelease,assets
+          for apk in "$asset" "$legacy"; do
+            curl -fsSL "https://github.com/$GH_REPO/releases/download/v1.4.2-preview.25520/$apk" -o verified.apk
+            echo "$digest  verified.apk" | sha256sum --check
+          done
