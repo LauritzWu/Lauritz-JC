@@ -1,0 +1,23 @@
+name: Publish Beta 25490
+on:
+  push:
+    branches: [release/preview-25490]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and publish the tested APK
+        run: |
+          gh run download 44293433660 --name lauritz-jc-ui-standalone-arm64
+          mv lauritz-jc-ui-standalone-arm64.apk lauritz-jc-preview-arm64-v8a.apk
+          echo 'a96e9947af070da86f4e5e7003ecd50d3a18758f0bf66cb4cebb77f43f7b28d4  lauritz-jc-preview-arm64-v8a.apk' | sha256sum --check
+          gh release create v1.4.2-preview.25490 "lauritz-jc-preview-arm64-v8a.apk" --target 6a8c7de0b20bfb782868bef06eb0f22b06656725 --prerelease --latest=false --title 'Lauritz JC 1.4.2 Beta 25490' --notes '日志页新增「回到最新」。上滑查看旧日志时保留阅读位置，点向下箭头后跳到最新日志并恢复自动跟随。此版本提供 ARM64-v8a APK。'
+          gh release view v1.4.2-preview.25490 --json url,isPrerelease,assets
+          curl --fail --silent --show-error --location "https://github.com/$GH_REPO/releases/download/v1.4.2-preview.25490/lauritz-jc-preview-arm64-v8a.apk" --output verified.apk
+          echo 'a96e9947af070da86f4e5e7003ecd50d3a18758f0bf66cb4cebb77f43f7b28d4  verified.apk' | sha256sum --check
