@@ -1,0 +1,31 @@
+name: Publish Lauritz JC preview 25480
+on:
+  push:
+    branches: [release/preview-25480]
+    paths: [.github/workflows/publish-preview-25480.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download tested signed build
+        run: gh run download 44245880225 --name lauritz-jc-ui-standalone-arm64
+      - name: Publish preview APK
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          printf '%s  %s\n' 28464cb1458d2862570eaee52ee80d5c5441801de7c546d86aaad9b412a56713 "$asset" | sha256sum --check
+          gh release create v1.4.2-preview.25480 "$asset" --target 03be351fcbc0715b5b88e4d3a54fb7fd0a3a639a --prerelease --title "Lauritz JC Preview 25480" --notes-file - <<'NOTES'
+          - 路由页支持按名称保存和选择远程域名规则集，并可检查来源是否可访问。已在真机验证 YouTube 规则命中指定出站。
+          - 「关于」新增 GitHub 更新检查，可选择稳定版或 Beta 频道。
+          - DNS 设置新增 Quad9、Google 和阿里公共 DNS 的 DoH 预设。
+
+          在 Assets 中下载 ARM64-v8a APK。已安装同签名且构建号较低的预览版可以覆盖安装。
+
+          SHA-256: 28464cb1458d2862570eaee52ee80d5c5441801de7c546d86aaad9b412a56713
+          NOTES
