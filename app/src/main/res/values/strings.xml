@@ -165,6 +165,7 @@
     <string name="route_profile">Select Profile…</string>
     <string name="empty_route">Empty Route</string>
     <string name="empty_route_notice">Set some rules before saving</string>
+    <string name="route_mainland_china_domains">Mainland China domain bypass</string>
     <string name="route_bypass_domain">Domain rule for %s</string>
     <string name="route_play_store">Play store rule for %s</string>
     <string name="route_bypass_ip">IP rule for %s</string>

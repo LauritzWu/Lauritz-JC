@@ -211,22 +211,26 @@ object ProfileManager {
                     outbound = -2
                 )
             )
-            val fuckedCountry = mutableListOf("cn:中国")
-            if (Locale.getDefault().country != Locale.CHINA.country) {
-                // 非中文用户
-                fuckedCountry += "ir:Iran"
-                fuckedCountry += "ru:Russia"
+            createRule(
+                RuleEntity(
+                    name = app.getString(R.string.route_play_store, "中国"),
+                    domains = "domain:googleapis.cn\ndomain:xn--ngstr-lra8j.com\ndomain:xn--ngstr-cn-8za9o.com",
+                ), false
+            )
+            createRule(
+                RuleEntity(
+                    name = app.getString(R.string.route_mainland_china_domains),
+                    domains = "rssite:https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs",
+                    outbound = -1,
+                    enabled = false,
+                ), false
+            )
+            val additionalRegions = if (Locale.getDefault().country == Locale.CHINA.country) {
+                emptyList()
+            } else {
+                listOf("ir" to "Iran", "ru" to "Russia")
             }
-            for (c in fuckedCountry) {
-                val country = c.substringBefore(":")
-                val displayCountry = c.substringAfter(":")
-                //
-                if (country == "cn") createRule(
-                    RuleEntity(
-                        name = app.getString(R.string.route_play_store, displayCountry),
-                        domains = "domain:googleapis.cn\ndomain:xn--ngstr-lra8j.com\ndomain:xn--ngstr-cn-8za9o.com",
-                    ), false
-                )
+            for ((country, displayCountry) in additionalRegions) {
                 createRule(
                     RuleEntity(
                         name = app.getString(R.string.route_bypass_domain, displayCountry),

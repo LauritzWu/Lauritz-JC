@@ -233,6 +233,7 @@
     <string name="empty_route">空路由</string>
     <string name="empty_route_notice">在保存前设置一些规则</string>
     <string name="custom_route_notice">自定义路由规则可能影响网络连接。启用前请检查规则顺序和出站设置。</string>
+    <string name="route_mainland_china_domains">中国大陆域名直连</string>
     <string name="route_bypass_domain">%s 域名规则</string>
     <string name="route_bypass_ip">%s IP 规则</string>
     <string name="no_proxies_found_in_file">未在此文件内找到服务器配置</string>
