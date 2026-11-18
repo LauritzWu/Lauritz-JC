@@ -22,6 +22,7 @@ public class SubscriptionBean extends Serializable {
     public Boolean autoUpdate;
     public Integer autoUpdateDelay;
     public Integer lastUpdated;
+    public boolean pendingRemoval;
     public Integer filterMode;
     public String filterRegex;
     public String serverDnsResolver;
@@ -47,7 +48,7 @@ public class SubscriptionBean extends Serializable {
 
     @Override
     public void serializeToBuffer(ByteBufferOutput output) {
-        output.writeInt(3);
+        output.writeInt(4);
 
         output.writeInt(type);
 
@@ -69,6 +70,9 @@ public class SubscriptionBean extends Serializable {
 
         // v3
         output.writeString(serverDnsResolver);
+
+        // v4
+        output.writeBoolean(pendingRemoval);
     }
 
     public void serializeForShare(ByteBufferOutput output) {
@@ -108,6 +112,7 @@ public class SubscriptionBean extends Serializable {
         if (version >= 3) {
             serverDnsResolver = input.readString();
         }
+        pendingRemoval = version >= 4 && input.readBoolean();
     }
 
     public void deserializeFromShare(ByteBufferInput input) {

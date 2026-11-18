@@ -397,6 +397,14 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                 GroupUpdater.startUpdate(proxyGroup, true)
             }
 
+            groupStatus.setOnClickListener(
+                if (proxyGroup.subscription?.pendingRemoval == true) {
+                    View.OnClickListener { updateButton.performClick() }
+                } else {
+                    null
+                }
+            )
+
             optionsButton.setOnClickListener {
                 selectedGroup = proxyGroup
 
@@ -535,6 +543,9 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                                     size,
                                     date
                                 )
+                            }
+                            if (group.subscription?.pendingRemoval == true) {
+                                groupStatus.append("\n" + getString(R.string.subscription_refresh_pending_removal))
                             }
 
                         }

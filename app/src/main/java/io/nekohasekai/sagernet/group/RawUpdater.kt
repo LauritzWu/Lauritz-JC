@@ -172,7 +172,7 @@ object RawUpdater : GroupUpdater() {
         val added = mutableListOf<String>()
         val updated = mutableMapOf<String, String>()
         var pendingRemoval: RemovalPreview? = null
-        suspend fun applyChanges(approved: RemovalPreview?): List<ProxyEntity> =
+        suspend fun applyChanges(approved: RemovalPreview?): List<ProxyEntity>? =
             SagerDatabase.instance.withTransaction {
                 val latest = SagerDatabase.groupDao.getById(proxyGroup.id)
                 val latestSubscription = latest?.subscription
@@ -200,6 +200,13 @@ object RawUpdater : GroupUpdater() {
                     matchedIds.add(previous.id)
                 }
                 val toDelete = existing.filter { it.id !in matchedIds }
+                if (!byUser && toDelete.isNotEmpty()) {
+                    if (!latestSubscription.pendingRemoval) {
+                        latestSubscription.pendingRemoval = true
+                        SagerDatabase.groupDao.updateGroup(latest)
+                    }
+                    return@withTransaction null
+                }
                 if (byUser && (toDelete.isNotEmpty() || approved != null)) {
                     val preview = RemovalPreview(
                         latest.displayName(),
@@ -248,11 +255,12 @@ object RawUpdater : GroupUpdater() {
                     latest.name = updatedName
                 }
                 updatedUserInfo?.let { latestSubscription.subscriptionUserinfo = it }
+                latestSubscription.pendingRemoval = false
                 latestSubscription.lastUpdated = (System.currentTimeMillis() / 1000).toInt()
                 SagerDatabase.groupDao.updateGroup(latest)
                 toDelete
             }
-        val firstResult = applyChanges(null)
+        val firstResult = applyChanges(null) ?: return
         val preview = pendingRemoval
         val removed = if (preview == null) {
             firstResult
@@ -261,7 +269,7 @@ object RawUpdater : GroupUpdater() {
             val group = SagerDatabase.groupDao.getById(proxyGroup.id) ?: return
             val selectedIndex = nodes.keys.indexOfFirst { it == preview.selectedId }
             if (userInterface?.confirmSubscriptionRemoval(group, nodes.values.toList(), selectedIndex) != true) return
-            applyChanges(preview)
+            applyChanges(preview) ?: return
         }
 
         val selected = DataStore.selectedProxy

@@ -661,6 +661,7 @@
     <string name="subscription_refresh_settings_changed">更新期间订阅设置发生变化，请重试。</string>
     <string name="subscription_refresh_storage_error">无法保存订阅更新。</string>
     <string name="subscription_refresh_failure">%1$s 更新失败。%2$s 已保留原有节点。</string>
+    <string name="subscription_refresh_pending_removal">有待确认的更新</string>
     <string name="subscription_refresh_remove_preview">将移除以下节点：\n%1$s</string>
     <string name="subscription_refresh_current_node">%1$s（当前选中）</string>
     <string name="subscription_refresh_apply">应用更新</string>
