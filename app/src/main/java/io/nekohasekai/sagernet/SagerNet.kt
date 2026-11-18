@@ -163,16 +163,29 @@ class SagerNet : Application(),
             false
         }
 
+        fun vpnNotificationChannel(): String {
+            val visibleChannel = "service-vpn-status"
+            if (Build.VERSION.SDK_INT < 26) return visibleChannel
+            if (notification.getNotificationChannel(visibleChannel) != null) return visibleChannel
+            // Android keeps the importance of existing channels, including user overrides.
+            val previous = notification.getNotificationChannel("service-vpn") ?: return visibleChannel
+            val userSetImportance = Build.VERSION.SDK_INT >= 29 && previous.hasUserSetImportance()
+            return if (previous.importance != NotificationManager.IMPORTANCE_MIN || userSetImportance) {
+                previous.id
+            } else {
+                visibleChannel
+            }
+        }
+
         fun updateNotificationChannels() {
             if (Build.VERSION.SDK_INT >= 26) @RequiresApi(26) {
                 notification.createNotificationChannels(
                     listOf(
                         NotificationChannel(
-                            "service-vpn",
+                            vpnNotificationChannel(),
                             application.getText(R.string.service_vpn),
-                            if (Build.VERSION.SDK_INT >= 28) NotificationManager.IMPORTANCE_MIN
-                            else NotificationManager.IMPORTANCE_LOW
-                        ),   // #1355
+                            NotificationManager.IMPORTANCE_LOW
+                        ),
                         NotificationChannel(
                             "service-proxy",
                             application.getText(R.string.service_proxy),

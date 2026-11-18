@@ -27,19 +27,9 @@ import io.nekohasekai.sagernet.utils.Theme
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * User can customize visibility of notification since Android 8.
- * The default visibility:
- *
- * Android 8.x: always visible due to system limitations
- * VPN:         always invisible because of VPN notification/icon
- * Other:       always visible
- *
- * See also: https://github.com/aosp-mirror/platform_frameworks_base/commit/070d142993403cc2c42eca808ff3fafcee220ac4
- */
 class ServiceNotification(
     private val service: BaseService.Interface, title: String,
-    channel: String, visible: Boolean = false,
+    channel: String,
 ) : BroadcastReceiver() {
     companion object {
         const val notificationId = 1
@@ -118,9 +108,9 @@ class ServiceNotification(
         .setContentTitle(title)
         .setOnlyAlertOnce(true)
         .setContentIntent(SagerNet.configureIntent(service))
-        .setSmallIcon(R.drawable.ic_service_active)
+        .setSmallIcon(R.drawable.ic_veyr_notification)
         .setCategory(NotificationCompat.CATEGORY_SERVICE)
-        .setPriority(if (visible) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_MIN)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
 
     private val buildLock = Mutex()
 
