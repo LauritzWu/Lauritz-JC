@@ -1,0 +1,38 @@
+name: Publish standalone preview
+on:
+  push:
+    branches:
+      - release/standalone-preview-25455
+    paths:
+      - .github/workflows/publish-standalone-preview.yml
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download tested signed build
+        run: gh run download 44132020386 --name lauritz-jc-ui-standalone-arm64
+      - name: Publish preview APK
+        run: |
+          asset=lauritz-jc-preview-arm64-v8a.apk
+          mv lauritz-jc-ui-standalone-arm64.apk "$asset"
+          printf '%s  %s\n' ec76f334311a44d2ae0799ebc4968eaddfeb9afb69da1608aaf29209d1d2824e "$asset" | sha256sum --check
+          gh release create v1.4.2-preview.25455 "$asset" --target 3048d190d659ec1ff020368828b762b40fe20bfe --prerelease --title "Lauritz JC Preview 25455" --notes-file - <<'NOTES'
+          Lauritz-JC 独立仓库首个预览版。Android 内部版本号为 25455，适用于 ARM64-v8a 设备。
+
+          下载 Assets 中的 lauritz-jc-preview-arm64-v8a.apk 安装。
+
+          已通过真机覆盖升级验收，订阅、节点和设置保留，联网与订阅刷新正常。沿用原 5090 预览版的包名和签名，支持直接覆盖安装。
+
+          - 订阅刷新失败时保留旧节点并显示原因。
+          - 节点改名且能唯一匹配时保留选择、测速和流量记录。
+          - 提供跟随系统、日间、夜间三种外观模式。
+          - 源代码入口已指向 LauritzWu/Lauritz-JC。
+
+          SHA-256: ec76f334311a44d2ae0799ebc4968eaddfeb9afb69da1608aaf29209d1d2824e
+          NOTES
