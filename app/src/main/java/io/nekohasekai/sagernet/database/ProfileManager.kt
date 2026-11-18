@@ -220,7 +220,15 @@ object ProfileManager {
             createRule(
                 RuleEntity(
                     name = app.getString(R.string.route_mainland_china_domains),
-                    domains = "rssite:https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs",
+                    ruleset = "rssite:https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs",
+                    outbound = -1,
+                    enabled = false,
+                ), false
+            )
+            createRule(
+                RuleEntity(
+                    name = app.getString(R.string.route_bypass_ip, "中国"),
+                    ruleset = "rsip:https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs",
                     outbound = -1,
                     enabled = false,
                 ), false
