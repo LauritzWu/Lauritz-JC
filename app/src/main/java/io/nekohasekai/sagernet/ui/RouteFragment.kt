@@ -119,6 +119,9 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                     .setNegativeButton(R.string.no, null)
                     .show()
             }
+            R.id.action_manage_rule_sets -> {
+                RouteRuleSets(requireContext(), viewLifecycleOwner).manage()
+            }
             R.id.action_manage_assets -> {
                 startActivity(Intent(requireContext(), AssetsActivity::class.java))
             }

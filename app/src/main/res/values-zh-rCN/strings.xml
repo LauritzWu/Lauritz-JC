@@ -685,4 +685,15 @@
     <string name="github_update_download">下载 APK</string>
     <string name="github_update_failed">检查更新失败，请稍后重试。</string>
     <string name="github_update_build">%1$s · 构建号 %2$d</string>
+    <string name="route_rule_sets">规则集</string>
+    <string name="route_rule_set_add">添加规则集</string>
+    <string name="route_rule_set_empty">暂无已保存的规则集。</string>
+    <string name="route_rule_set_choose">选择已保存的域名规则集</string>
+    <string name="route_rule_set_name">规则集名称</string>
+    <string name="route_rule_set_duplicate">该名称已存在。</string>
+    <string name="route_rule_set_invalid_url">请输入以 .srs 结尾的 HTTPS 地址。</string>
+    <string name="route_rule_set_check">检查来源</string>
+    <string name="route_rule_set_remove">从已保存的来源中移除</string>
+    <string name="route_rule_set_reachable">来源可以访问。</string>
+    <string name="route_rule_set_unreachable">无法读取规则集来源。</string>
 </resources>

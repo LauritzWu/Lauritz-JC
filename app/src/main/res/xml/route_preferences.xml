@@ -43,6 +43,9 @@
             app:key="routeSourcePort"
             app:title="src port"
             app:useSimpleSummaryProvider="true" />
+        <Preference
+            app:key="chooseRouteRuleSet"
+            app:title="@string/route_rule_set_choose" />
         <EditTextPreference
             app:icon="@drawable/ic_baseline_rule_folder_24"
             app:key="routeRuleset"

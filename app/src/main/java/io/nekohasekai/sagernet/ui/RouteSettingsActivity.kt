@@ -40,6 +40,7 @@ import io.nekohasekai.sagernet.widget.ListListener
 import io.nekohasekai.sagernet.widget.OutboundPreference
 import kotlinx.parcelize.Parcelize
 import moe.matsuri.nb4a.ui.EditConfigPreference
+import moe.matsuri.nb4a.utils.listByLineOrComma
 
 @Suppress("UNCHECKED_CAST")
 class RouteSettingsActivity(
@@ -114,6 +115,17 @@ class RouteSettingsActivity(
         addPreferencesFromResource(R.xml.route_preferences)
 
         editConfigPreference = findPreference(Key.SERVER_CONFIG)!!
+        val ruleset = findPreference<EditTextPreference>(Key.ROUTE_RULESET)!!
+        findPreference<Preference>("chooseRouteRuleSet")!!.setOnPreferenceClickListener {
+            RouteRuleSets(requireContext(), viewLifecycleOwner).choose { url ->
+                val reference = "rssite:$url"
+                val current = ruleset.text.orEmpty()
+                if (reference !in current.listByLineOrComma()) {
+                    ruleset.text = listOf(current, reference).filter { it.isNotBlank() }.joinToString("\n")
+                }
+            }
+            true
+        }
     }
 
     override fun onResume() {
