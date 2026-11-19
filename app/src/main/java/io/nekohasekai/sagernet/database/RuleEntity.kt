@@ -30,7 +30,25 @@ data class RuleEntity(
 ) : Parcelable {
 
     fun displayName(): String {
-        return name.takeIf { it.isNotBlank() } ?: "Rule $id"
+        val match = copy(id = 0L, name = "", userOrder = 0L, enabled = false)
+        return when {
+            match == RuleEntity(port = "443", network = "udp", outbound = -2) &&
+                name in setOf("Block UDP 443", "阻断 UDP 443", "阻擋 UDP 443") ->
+                app.getString(R.string.route_builtin_block_udp_443)
+            match == RuleEntity(domains = "geosite:category-ads-all", outbound = -2) &&
+                name in setOf("Block ADs", "屏蔽广告", "封鎖廣告") ->
+                app.getString(R.string.route_opt_block_ads)
+            match == RuleEntity(domains = PLAY_CHINA_DOMAINS) &&
+                name in setOf("Proxy Google Play domains for China", "Google Play 中国域名走代理", "Google Play 中國網域走代理") ->
+                app.getString(R.string.route_builtin_play_china)
+            match == RuleEntity(ruleset = MAINLAND_CHINA_DOMAINS, outbound = -1) &&
+                name in setOf("Mainland China domain bypass", "中国大陆域名直连", "中國大陸網域直連") ->
+                app.getString(R.string.route_mainland_china_domains)
+            match == RuleEntity(ruleset = CHINA_IP_RULE_SET, outbound = -1) &&
+                name in setOf("IP rule for 中国", "中国 IP 规则", "中国 IP 規則", "中國 IP 規則") ->
+                app.getString(R.string.route_bypass_ip, app.getString(R.string.route_region_china))
+            else -> name.takeIf { it.isNotBlank() } ?: "Rule $id"
+        }
     }
 
     fun mkSummary(): String {
@@ -75,6 +93,11 @@ data class RuleEntity(
     }
 
     companion object {
+        private const val MAINLAND_CHINA_DOMAINS =
+            "rssite:https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs"
+        private const val CHINA_IP_RULE_SET =
+            "rsip:https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs"
+
         internal const val PLAY_CHINA_DOMAINS =
             "domain:googleapis.cn\ndomain:xn--ngstr-lra8j.com\ndomain:xn--ngstr-cn-8za9o.com"
     }
