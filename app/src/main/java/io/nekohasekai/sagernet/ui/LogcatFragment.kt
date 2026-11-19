@@ -172,34 +172,66 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
             }
             dialog.dismiss()
             viewLifecycleOwner.lifecycleScope.launch {
-                val report = withContext(Dispatchers.IO) {
+                val events = withContext(Dispatchers.IO) {
                     val raw = readLogTail(context.cacheDir).orEmpty()
                     domainEvents(colorCodes.replace(raw, ""), domain)
                 }
+                val report = if (events.isEmpty()) {
+                    context.getString(R.string.logcat_domain_empty)
+                } else {
+                    val summary = buildList {
+                        events.lastOrNull { it.groupValues[3].startsWith("dns: selected ") }?.let {
+                            add(context.getString(R.string.logcat_domain_dns, it.groupValues[3].removePrefix("dns: selected ")))
+                        }
+                        events.lastOrNull {
+                            it.groupValues[3].startsWith("router: match[") && it.groupValues[3].contains("=> route(")
+                        }?.let {
+                            add(context.getString(R.string.logcat_domain_route, it.groupValues[3].substringAfter("] ")))
+                        }
+                        events.lastOrNull { it.groupValues[3].startsWith("outbound/") }?.let {
+                            val outbound = it.groupValues[3]
+                            val name = outbound.substringAfter('[').substringBefore("]: outbound", outbound)
+                            add(context.getString(R.string.logcat_domain_outbound, name))
+                        }
+                    }
+                    buildString {
+                        if (summary.isNotEmpty()) {
+                            appendLine(context.getString(R.string.logcat_domain_summary))
+                            appendLine(summary.joinToString("\n"))
+                            appendLine()
+                        }
+                        appendLine(context.getString(R.string.logcat_domain_details))
+                        append(events.takeLast(80).joinToString("\n\n") { event ->
+                            "[%s] [%s] %s".format(event.groupValues[1], event.groupValues[2], event.groupValues[3])
+                        })
+                    }
+                }
                 MaterialAlertDialogBuilder(context)
                     .setTitle(domain)
-                    .setMessage(report.ifEmpty { context.getString(R.string.logcat_domain_empty) })
+                    .setMessage(report)
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
             }
         }
     }
 
-    private fun domainEvents(log: String, domain: String): String {
+    private fun domainEvents(log: String, domain: String): List<MatchResult> {
         val events = log.lineSequence().mapNotNull { eventPattern.matchEntire(it) }.toList()
         val matchingIds = events.mapNotNull { event ->
             val host = domainEventPattern.find(event.groupValues[3])
                 ?.groupValues?.get(1)?.trimEnd('.')?.lowercase()
             event.groupValues[2].takeIf { host == domain || host?.endsWith(".$domain") == true }
         }.toSet()
-        return events.asSequence()
+        val seenOutbound = mutableSetOf<Pair<String, String>>()
+        return events.asReversed().asSequence()
             .filter { it.groupValues[2] in matchingIds }
             .filter { diagnosticEventPattern.containsMatchIn(it.groupValues[3]) }
-            .toList()
-            .takeLast(80)
-            .joinToString("\n\n") { event ->
-                "[%s] [%s] %s".format(event.groupValues[1], event.groupValues[2], event.groupValues[3])
+            .filter { event ->
+                val message = event.groupValues[3]
+                !message.startsWith("outbound/") || seenOutbound.add(event.groupValues[2] to message)
             }
+            .toList()
+            .asReversed()
     }
 
     private companion object {
