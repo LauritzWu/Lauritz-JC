@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: ['release/1.0.2-candidate']
+    branches: ['feature/app-diagnostics']
 jobs:
   libcore:
     name: Native Build (LibCore)
@@ -99,9 +99,9 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           unset GH_TOKEN
-          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == release/1.0.2-candidate ]]; then
-            sed -i 's/^VERSION_NAME=.*/VERSION_NAME=1.0.2/' nb4a.properties
-            sed -i 's/^VERSION_CODE=.*/VERSION_CODE=5137/' nb4a.properties
+          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == feature/app-diagnostics ]]; then
+            sed -i 's/^VERSION_NAME=.*/VERSION_NAME=1.0.3-beta.1/' nb4a.properties
+            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5100 + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
             : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
@@ -117,7 +117,7 @@ jobs:
           fi
           ./gradlew app:assembleOssDebug
       - name: Verify signed ARM64 upgrade candidate
-        if: github.event_name == 'push' && github.ref_name == 'release/1.0.2-candidate'
+        if: github.event_name == 'push' && github.ref_name == 'feature/app-diagnostics'
         run: |
           mapfile -t apks < <(find app/build/outputs/apk/oss/debug -name '*arm64-v8a*.apk')
           test "${#apks[@]}" -eq 1
@@ -125,16 +125,17 @@ jobs:
           "$tools/aapt" dump badging "${apks[0]}" > apk-badging.txt
           grep -F "package: name='top.lauritz.jc.uipreview.debug'" apk-badging.txt
           grep -Fx "application-label:'Veyr'" apk-badging.txt
-          grep -F "versionName='1.0.2'" apk-badging.txt
+          grep -F "versionName='1.0.3-beta.1'" apk-badging.txt
           build_code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" apk-badging.txt)
-          test "$build_code" -eq 25685
+          test "$build_code" -eq "$((5 * (5100 + GITHUB_RUN_NUMBER)))"
+          test "$build_code" -gt 25685
           "$tools/apksigner" verify --print-certs "${apks[0]}" > apk-signing.txt
           grep -Fiqx "Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56" apk-signing.txt
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
-          cp "${apks[0]}" veyr-1.0.2-candidate-arm64-v8a.apk
+          cp "${apks[0]}" veyr-1.0.3-beta.1-candidate-arm64-v8a.apk
       - uses: actions/upload-artifact@v5
-        if: github.event_name == 'push' && github.ref_name == 'release/1.0.2-candidate'
+        if: github.event_name == 'push' && github.ref_name == 'feature/app-diagnostics'
         with:
-          name: veyr-1.0.2-candidate-arm64-v8a
-          path: veyr-1.0.2-candidate-arm64-v8a.apk
+          name: veyr-1.0.3-beta.1-candidate-arm64-v8a
+          path: veyr-1.0.3-beta.1-candidate-arm64-v8a.apk
           if-no-files-found: error
