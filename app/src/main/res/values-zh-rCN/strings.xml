@@ -703,6 +703,7 @@
     <string name="route_rule_set_unreachable">无法读取规则集来源。</string>
     <string name="logcat_latest">回到最新</string>
     <string name="route_rule_set_choose">选择已保存的规则集</string>
-    <string name="route_rule_set_domain_type">域名集</string>
-    <string name="route_rule_set_ip_type">IP 集</string>
+    <string name="route_rule_set_include_dns">同时参与 DNS 分流</string>
+    <string name="route_rule_set_route_only">仅流量路由</string>
+    <string name="route_rule_set_route_and_dns">流量路由与 DNS 分流</string>
 </resources>

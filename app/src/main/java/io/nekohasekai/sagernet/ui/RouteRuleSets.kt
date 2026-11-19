@@ -3,13 +3,11 @@ package io.nekohasekai.sagernet.ui
 import android.content.Context
 import android.text.InputType
 import android.widget.EditText
-import android.view.View
 import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.ktx.dp2px
 import kotlinx.coroutines.CancellationException
@@ -46,7 +44,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
         if (sources.isEmpty()) {
             dialog.setMessage(R.string.route_rule_set_empty)
         } else {
-            dialog.setItems(sources.map { (name, reference) -> "$name · ${typeLabel(reference)}" }.toTypedArray()) { _, index ->
+            dialog.setItems(sources.map { (name, reference) -> "$name · ${routingLabel(reference)}" }.toTypedArray()) { _, index ->
                 val (name, reference) = sources[index]
                 details(name, reference)
             }
@@ -63,7 +61,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             dialog.setMessage(R.string.route_rule_set_empty)
                 .setPositiveButton(R.string.route_rule_set_add) { _, _ -> add(onSelected) }
         } else {
-            dialog.setItems(sources.map { (name, reference) -> "$name · ${typeLabel(reference)}" }.toTypedArray()) { _, index ->
+            dialog.setItems(sources.map { (name, reference) -> "$name · ${routingLabel(reference)}" }.toTypedArray()) { _, index ->
                 onSelected(sources[index].value)
             }
         }
@@ -80,26 +78,16 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
             isSingleLine = true
         }
-        val domains = RadioButton(context).apply {
-            id = View.generateViewId()
-            setText(R.string.route_rule_set_domain_type)
-        }
-        val ips = RadioButton(context).apply {
-            id = View.generateViewId()
-            setText(R.string.route_rule_set_ip_type)
-        }
-        val type = RadioGroup(context).apply {
-            orientation = RadioGroup.HORIZONTAL
-            addView(domains)
-            addView(ips)
-            check(domains.id)
+        val dnsRouting = MaterialSwitch(context).apply {
+            setText(R.string.route_rule_set_include_dns)
+            isChecked = true
         }
         val fields = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp2px(24), 0, dp2px(24), 0)
             addView(name)
             addView(source)
-            addView(type)
+            addView(dnsRouting)
         }
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.route_rule_set_add)
@@ -118,7 +106,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
                     url.username.isNotEmpty() || url.password.isNotEmpty() || url.fragment != null || ',' in url.toString() ->
                     source.error = context.getString(R.string.route_rule_set_invalid_url)
                 else -> {
-                    val prefix = if (type.checkedRadioButtonId == ips.id) "rsip" else "rssite"
+                    val prefix = if (dnsRouting.isChecked) "rssite" else "rsip"
                     val reference = "$prefix:$url"
                     save(sources + (label to reference))
                     dialog.dismiss()
@@ -128,15 +116,15 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
         }
     }
 
-    private fun typeLabel(reference: String) = context.getString(
-        if (reference.startsWith("rsip:")) R.string.route_rule_set_ip_type
-        else R.string.route_rule_set_domain_type
+    private fun routingLabel(reference: String) = context.getString(
+        if (reference.startsWith("rsip:")) R.string.route_rule_set_route_only
+        else R.string.route_rule_set_route_and_dns
     )
 
     private fun details(name: String, reference: String) {
         MaterialAlertDialogBuilder(context)
             .setTitle(name)
-            .setMessage("${typeLabel(reference)}\n${reference.substringAfter(':')}")
+            .setMessage("${routingLabel(reference)}\n${reference.substringAfter(':')}")
             .setPositiveButton(R.string.route_rule_set_check) { _, _ -> checkSource(name, reference) }
             .setNeutralButton(R.string.route_rule_set_remove) { _, _ ->
                 save(entries() - name)

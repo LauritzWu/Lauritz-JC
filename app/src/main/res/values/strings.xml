@@ -788,6 +788,7 @@
     <string name="route_rule_set_unreachable">Could not read the source.</string>
     <string name="logcat_latest">Jump to latest</string>
     <string name="route_rule_set_choose">Choose a saved rule set</string>
-    <string name="route_rule_set_domain_type">Domain set</string>
-    <string name="route_rule_set_ip_type">IP set</string>
+    <string name="route_rule_set_include_dns">Also use for DNS routing</string>
+    <string name="route_rule_set_route_only">Traffic routing only</string>
+    <string name="route_rule_set_route_and_dns">Traffic and DNS routing</string>
 </resources>
