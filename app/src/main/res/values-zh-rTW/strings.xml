@@ -634,4 +634,9 @@
     <string name="logcat_domain_hint">輸入網域，例如 baidu.com</string>
     <string name="logcat_domain_invalid">請輸入有效網域</string>
     <string name="logcat_domain_empty">近期日誌中沒有這個網域的 DNS 或連線記錄。請造訪該網域後再試。</string>
+    <string name="logcat_domain_summary">最近紀錄</string>
+    <string name="logcat_domain_dns">DNS 選擇：%1$s</string>
+    <string name="logcat_domain_route">路由命中：%1$s</string>
+    <string name="logcat_domain_outbound">實際出站：%1$s</string>
+    <string name="logcat_domain_details">日誌詳細資料</string>
 </resources>
