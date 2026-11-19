@@ -49,9 +49,9 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 ## 5. 已知 Bug 与待修复问题
 
-**P1 · Beta 更新渠道识别不到已发布的 25715。** `AboutFragment.kt` 仅接受以 `-preview.<build>` 或 `-stable.<build>` 结尾的标签，当前预发布标签为 `v1.0.3-beta.2.25715`。预发布 APK 的文件名也不在更新器的 ARM64 资产白名单中。两项筛选都会导致该发布被跳过。稳定渠道排除预发布版符合本次预期。当前修复状态为待开发。
+**P1 · Beta 更新渠道识别不到已发布的 25715。** `AboutFragment.kt` 仅接受以 `-preview.<build>` 或 `-stable.<build>` 结尾的标签，当前预发布标签为 `v1.0.3-beta.2.25715`。预发布 APK 的文件名也不在更新器的 ARM64 资产白名单中。两项筛选都会导致该发布被跳过。稳定渠道排除预发布版符合本次预期。修复已提交至诊断分支 [396b98e](https://github.com/LauritzWu/Veyr/commit/396b98ef2462ff1ce949dcc636486158857b79ed)，保留旧标签和 APK 名称，并按 Beta 标签识别版本对应的 ARM64 安装包。根据 GitHub Release 数据核对筛选结果，Beta 选中 25715，稳定渠道选中 25685。Android 实机验证待完成。
 
-- [ ] 核对更新器与发布流程的标签、资产命名约定，确定兼容历史版本的修复方案。
+- [x] 核对标签和资产命名约定，并提交兼容历史版本的修复。
 - [ ] 回归旧构建发现较新 Beta、当前构建不提示降级，以及稳定渠道排除预发布版。
 - [ ] 校验 Beta 下载入口指向正确的 ARM64 APK。
 
@@ -59,12 +59,13 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 优先级 | 尚未交付项 | 验收标准 |
 | --- | --- | --- |
-| P1 | 识别当前 Beta 标签与资产 | Beta 渠道选中符合约定且更新的版本；历史稳定／预览发布仍可识别 |
+| P1 | 识别当前 Beta 标签与资产（修复已提交，待实机验收） | Beta 渠道选中符合约定且更新的版本；历史稳定／预览发布仍可识别 |
 | P2 | 更新候选筛选的自动化回归 | 覆盖渠道、标签、资产名称和 versionCode 比较 |
 
 ## 7. 下一阶段开发路线图
 
-- [ ] 先复现和修复更新候选筛选，并回归已通过的应用诊断与覆盖安装。
+- [x] 复现并修复更新候选筛选。
+- [ ] 用新候选回归更新检查、应用诊断及覆盖安装。
 - [ ] 补测域名诊断、日志搜索／高亮、清除日志后采集新连接，以及订阅刷新。
 - [ ] 准备 1.0.3 稳定候选；验证与 25715 的 applicationId 和签名兼容，且 versionCode 大于 25715。
 - [ ] 用稳定候选实机覆盖安装，核对配置保留与更新渠道，再发布同一份已验证的 APK。
@@ -73,6 +74,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
+| [CI #45](https://github.com/LauritzWu/Veyr/actions/runs/44556469063) | 更新修复候选，构建结果待确认 | 待实机验收 |
 | [CI #43](https://github.com/LauritzWu/Veyr/actions/runs/44546508392) | 成功。LibCore、OSS APK、ARM64 签名和对齐检查通过 | [原始候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44546508392/artifacts/14540883341) |
 | [Beta 发布](https://github.com/LauritzWu/Veyr/actions/runs/44554631626) | 成功。重新下载的 APK 与候选 APK 的 SHA-256 一致 | [v1.0.3-beta.2.25715](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-beta.2.25715) |
 | [稳定版发布](https://github.com/LauritzWu/Veyr/actions/runs/44541336712) | 成功 | [v1.0.2-stable.25685](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.2-stable.25685) |
@@ -81,6 +83,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | Commit | 内容 |
 | --- | --- |
+| [`396b98e`](https://github.com/LauritzWu/Veyr/commit/396b98ef2462ff1ce949dcc636486158857b79ed) | 修复 Beta 标签和对应 ARM64 APK 的筛选 |
 | [`4158559`](https://github.com/LauritzWu/Veyr/commit/4158559d3a7a1a1e32d75bd2c5468649083a462e) | 在 release/beta-25715 增加预发布工作流程 |
 | [`712445f`](https://github.com/LauritzWu/Veyr/commit/712445fa7f4ad8aae5ace0e2def9a605b644f0f7) | 配置 1.0.3-beta.2 签章构建 |
 | [`bd480e1`](https://github.com/LauritzWu/Veyr/commit/bd480e1) | 更新路由与连接诊断的繁中资源 |
