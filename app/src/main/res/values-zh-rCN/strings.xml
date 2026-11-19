@@ -706,4 +706,8 @@
     <string name="route_rule_set_include_dns">同时参与 DNS 分流</string>
     <string name="route_rule_set_route_only">仅流量路由</string>
     <string name="route_rule_set_route_and_dns">流量路由与 DNS 分流</string>
+    <string name="logcat_search">搜索日志</string>
+    <string name="logcat_search_hint">域名、IP 地址或关键词</string>
+    <string name="logcat_search_clear">清除筛选</string>
+    <string name="logcat_search_empty">最近的日志中没有匹配项。</string>
 </resources>

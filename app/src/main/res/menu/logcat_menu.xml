@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_search_logcat"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/logcat_search"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_logcat_latest"
         android:icon="@drawable/ic_logcat_latest_24"
         android:title="@string/logcat_latest"

@@ -6,10 +6,13 @@ import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.view.ViewCompat
 import androidx.core.view.doOnLayout
 import androidx.lifecycle.Lifecycle
@@ -36,6 +39,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     private lateinit var binding: LayoutLogcatBinding
     private val logAccess = Mutex()
     private var displayedLog: String? = null
+    private var searchQuery = ""
     private val colorCodes = Regex("""(?:\u001B\[|\[(?=[0-9;]+m))[0-9;]*m""")
 
     @SuppressLint("RestrictedApi", "WrongConstant")
@@ -87,6 +91,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         val current = binding
         if (!force && current.scroolview.canScrollVertically(1)) return@withLock
         val previous = displayedLog
+        val query = searchQuery
         val rendered = withContext(Dispatchers.IO) {
             val file = File(current.root.context.cacheDir, "neko.log")
             val raw = try {
@@ -102,20 +107,36 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
             } catch (_: java.io.IOException) {
                 return@withContext null
             }
-            val clean = colorCodes.replace(raw, "")
+            val clean = colorCodes.replace(raw, "").let { log ->
+                if (query.isEmpty()) log
+                else log.lineSequence().filter { it.contains(query, ignoreCase = true) }.joinToString("\n")
+            }
             if (!force && clean == previous) return@withContext null
 
-            val span = SpannableString(clean)
+            val span = SpannableString(
+                if (query.isNotEmpty() && clean.isEmpty()) current.root.context.getString(R.string.logcat_search_empty)
+                else clean
+            )
             var offset = 0
             for (line in clean.lineSequence()) {
                 if (line.isNotEmpty()) {
                     span.setSpan(getColorForLine(line), offset, offset + line.length, SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
+                if (query.isNotEmpty()) {
+                    var match = line.indexOf(query, ignoreCase = true)
+                    while (match >= 0) {
+                        val start = offset + match
+                        val end = start + query.length
+                        span.setSpan(BackgroundColorSpan(0xFFFFDB80.toInt()), start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
+                        span.setSpan(ForegroundColorSpan(Color.BLACK), start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
+                        match = line.indexOf(query, startIndex = match + query.length, ignoreCase = true)
+                    }
+                }
                 offset += line.length + 1
             }
             clean to span
         } ?: return@withLock
-        if (!force && current.scroolview.canScrollVertically(1)) return@withLock
+        if (query != searchQuery || (!force && current.scroolview.canScrollVertically(1))) return@withLock
 
         displayedLog = rendered.first
         current.textview.text = rendered.second
@@ -124,8 +145,32 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         }
     }
 
+    private fun showSearch() {
+        val input = EditText(requireContext()).apply {
+            setSingleLine()
+            setHint(R.string.logcat_search_hint)
+            setText(searchQuery)
+            selectAll()
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.logcat_search)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                searchQuery = input.text.toString().trim()
+                viewLifecycleOwner.lifecycleScope.launch { reloadSession(force = true) }
+            }
+            .setNeutralButton(R.string.logcat_search_clear) { _, _ ->
+                searchQuery = ""
+                viewLifecycleOwner.lifecycleScope.launch { reloadSession(force = true) }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_search_logcat -> showSearch()
+
             R.id.action_clear_logcat -> {
                 viewLifecycleOwner.lifecycleScope.launch {
                     logAccess.withLock {
