@@ -714,4 +714,9 @@
     <string name="logcat_domain_hint">输入域名，例如 baidu.com</string>
     <string name="logcat_domain_invalid">请输入有效域名</string>
     <string name="logcat_domain_empty">近期日志中没有该域名的 DNS 或连接记录。访问该域名后再试。</string>
+    <string name="logcat_domain_summary">最近记录</string>
+    <string name="logcat_domain_dns">DNS 选择：%1$s</string>
+    <string name="logcat_domain_route">路由命中：%1$s</string>
+    <string name="logcat_domain_outbound">实际出站：%1$s</string>
+    <string name="logcat_domain_details">日志详情</string>
 </resources>
