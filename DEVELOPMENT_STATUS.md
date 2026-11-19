@@ -1,0 +1,96 @@
+# Veyr Android 开发状态与路线图
+
+最近核对：2026-11-19。本文记录 GitHub 仓库、构建产物和可复核的测试证据。
+
+## 1. 项目基本信息
+
+Veyr 是基于 NekoBox for Android、SagerNet 和 sing-box 的 Android 代理客户端。功能覆盖 Sub-Store 订阅、路由规则、DNS 分流和连接日志。[仓库 README](README.md) · [许可证](LICENSE)
+
+| 路径 | 用途 |
+| --- | --- |
+| `app/` | Kotlin Android 客户端、UI、语言资源和 APK 打包 |
+| `libcore/`、`hev-socks5-tunnel/` | Go 原生核心、sing-box 集成和 TUN 实现 |
+| `buildSrc/`、`buildScript/`、`gradle/` | 构建约定、脚本与 Gradle Wrapper |
+| `nb4a.properties` | 基础版本和包名；CI 对候选构建覆盖这些值 |
+| `.github/workflows/` | 构建、产物校验和发布流程 |
+
+GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊断开发分支为 `feature/app-diagnostics`（候选源码 `712445f`）。`main` 也是现存分支。核对时仓库没有可见的 Pull Requests 或 Issues；下文的问题来自实机反馈与代码核对。[分支](https://github.com/LauritzWu/Veyr/branches) · [Pull Requests](https://github.com/LauritzWu/Veyr/pulls) · [Issues](https://github.com/LauritzWu/Veyr/issues)
+
+## 2. 当前版本与构建状态
+
+| 渠道 | 显示版本 | Android versionCode | 构建与源码 |
+| --- | --- | ---: | --- |
+| GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
+| GitHub 预发布版 | 1.0.3-beta.2 DEBUG | 25715 | ARM64，`712445f`，applicationId 为 `top.lauritz.jc.uipreview.debug` |
+
+开发分支的 `nb4a.properties` 基础值为 `VERSION_NAME=1.0.1-beta.1`、`VERSION_CODE=46`。CI #43 覆盖版本与包名，再执行 `app:assembleOssDebug`。ARM64 APK 的版本号、签名与对齐均由 CI 校验。该流程使用 JDK 17、Android SDK Platform 35、Build Tools 35.0.1 和 NDK 25.0.8775105。实机“关于”页显示 sing-box `1.14.4-neko-1`。
+
+## 3. 已实现功能清单
+
+| 功能 | 当前证据 |
+| --- | --- |
+| 按应用查看近期连接、繁中诊断界面 | 代码已实现，25715 的 YouTube 和 Chrome Beta 用例已通过 |
+| 按域名查看近期 DNS、规则命中与出站 | 稳定版发布说明已记录；25715 的独立域名诊断入口待专门回归 |
+| 日志搜索和高亮 | 提交 `7bd0d1a` 已实现；25715 的专项测试待补 |
+| 订阅、节点、DNS、路由规则 | README 与源码已有对应功能；覆盖安装已核对已有资料，订阅刷新及完整 DNS／规则矩阵待验证 |
+| GitHub 稳定／Beta 更新检查 | 代码已实现；本轮已复现 Beta 无法识别 25715，见第 5 节 |
+
+## 4. 已验证的测试结果
+
+| 用例 | 版本 | 结果与证据 |
+| --- | --- | --- |
+| 繁中诊断与版本显示 | 25715 | 通过。截图显示繁中“关于”与“记录档”，版本为 1.0.3-beta.2 DEBUG |
+| YouTube 应用归属与代理出站 | 25715 | 通过。应用包名 `com.google.android.youtube`，`i.ytimg.com`、`googlevideo.com` 相关流量显示经洛杉矶 VLESS 出站 |
+| Chrome Beta 应用归属 | 25715 | 通过。日志归属 `com.android.chrome`，含 `example.com`；`example.org` 记录显示洛杉矶 VLESS 出站 |
+| Wi-Fi ↔ 行动网络双向切换 | 25715 | 通过。维护者确认两次切换后均能打开网页，且有新连接日志 |
+| 覆盖安装与资料保留 | 25685 → 25715 | 通过。维护者确认直接覆盖安装后，原有订阅、节点、路由规则均保留 |
+| 已装新版本时检查稳定渠道 | 25715 | 通过该用例。界面显示已安装 25715、可用 25685、当前渠道没有更新 |
+| Beta 渠道发现预发布版 | 25715 | 失败。维护者确认 Beta 也显示可用 25685；截图记录对应提示，源码核对确认 25715 会被筛掉 |
+
+## 5. 已知 Bug 与待修复问题
+
+**P1 · Beta 更新渠道识别不到已发布的 25715。** `AboutFragment.kt` 仅接受以 `-preview.<build>` 或 `-stable.<build>` 结尾的标签，当前预发布标签为 `v1.0.3-beta.2.25715`。预发布 APK 的文件名也不在更新器的 ARM64 资产白名单中。两项筛选都会导致该发布被跳过。稳定渠道排除预发布版符合本次预期。当前修复状态为待开发。
+
+- [ ] 核对更新器与发布流程的标签、资产命名约定，确定兼容历史版本的修复方案。
+- [ ] 回归旧构建发现较新 Beta、当前构建不提示降级，以及稳定渠道排除预发布版。
+- [ ] 校验 Beta 下载入口指向正确的 ARM64 APK。
+
+## 6. 待开发功能与优先级
+
+| 优先级 | 尚未交付项 | 验收标准 |
+| --- | --- | --- |
+| P1 | 识别当前 Beta 标签与资产 | Beta 渠道选中符合约定且更新的版本；历史稳定／预览发布仍可识别 |
+| P2 | 更新候选筛选的自动化回归 | 覆盖渠道、标签、资产名称和 versionCode 比较 |
+
+## 7. 下一阶段开发路线图
+
+- [ ] 先复现和修复更新候选筛选，并回归已通过的应用诊断与覆盖安装。
+- [ ] 补测域名诊断、日志搜索／高亮、清除日志后采集新连接，以及订阅刷新。
+- [ ] 准备 1.0.3 稳定候选；验证与 25715 的 applicationId 和签名兼容，且 versionCode 大于 25715。
+- [ ] 用稳定候选实机覆盖安装，核对配置保留与更新渠道，再发布同一份已验证的 APK。
+
+## 8. GitHub Actions 与 Release 状态
+
+| 工作流程 | 结果 | 发布 |
+| --- | --- | --- |
+| [CI #43](https://github.com/LauritzWu/Veyr/actions/runs/44546508392) | 成功。LibCore、OSS APK、ARM64 签名和对齐检查通过 | [原始候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44546508392/artifacts/14540883341) |
+| [Beta 发布](https://github.com/LauritzWu/Veyr/actions/runs/44554631626) | 成功。重新下载的 APK 与候选 APK 的 SHA-256 一致 | [v1.0.3-beta.2.25715](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-beta.2.25715) |
+| [稳定版发布](https://github.com/LauritzWu/Veyr/actions/runs/44541336712) | 成功 | [v1.0.2-stable.25685](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.2-stable.25685) |
+
+## 9. 最近开发记录及相关 Commit
+
+| Commit | 内容 |
+| --- | --- |
+| [`4158559`](https://github.com/LauritzWu/Veyr/commit/4158559d3a7a1a1e32d75bd2c5468649083a462e) | 在 release/beta-25715 增加预发布工作流程 |
+| [`712445f`](https://github.com/LauritzWu/Veyr/commit/712445fa7f4ad8aae5ace0e2def9a605b644f0f7) | 配置 1.0.3-beta.2 签章构建 |
+| [`bd480e1`](https://github.com/LauritzWu/Veyr/commit/bd480e1) | 更新路由与连接诊断的繁中资源 |
+| [`4787083`](https://github.com/LauritzWu/Veyr/commit/4787083) | 添加按应用的连接诊断 |
+| [`62731eb`](https://github.com/LauritzWu/Veyr/commit/62731eb177122d52a809ff2e72e8801aeef15921) | 默认分支恢复 README 致谢 |
+
+## 10. 新 Work 对话交接与长期维护规则
+
+1. 先读仓库默认分支根目录的 `DEVELOPMENT_STATUS.md`，再核对目标分支 HEAD、最近的 Actions，以及 GitHub 最新稳定版和预发布版。
+2. 确认要修改的分支与 APK 的源码提交。已通过的应用连接诊断和覆盖安装用例作为回归基线。
+3. 每次完成开发、修复 Bug、通过测试或发布版本时，同步更新本文。记录分支、Commit、Actions run、Release、versionCode、测试环境与结果。
+4. 分开记录源码已实现、CI 验证、实机通过、失败及待验证。每项通过结果标明所测构建和证据，更新路线图与已知问题，保留相关历史链接。
+5. 新 Work 对话可从这里开始：“请读取 LauritzWu/Veyr 默认分支的 DEVELOPMENT_STATUS.md，核对当前分支和发布状态，从最高优先级未完成项继续。”
