@@ -1,8 +1,10 @@
 # Veyr for Android
 
-Veyr 是面向 Android 6.0 及以上的代理客户端，支持 Sub-Store 订阅、多种代理协议和自定义 sing-box 配置。
+Veyr 是基于 sing-box 的 Android 代理客户端，支持 Sub-Store 订阅、规则集与 DNS 分流，以及可搜索的连接日志。
 
-目前的 ARM64 预览构建可在本仓库的 [GitHub Actions](https://github.com/LauritzWu/Veyr/actions) 查看。[5090 首个预览版](https://github.com/LauritzWu/NekoBox/releases/tag/v1.4.2-preview.5090) 可从原发布页下载。
+**[下载稳定版 · ARM64](https://github.com/LauritzWu/Veyr/releases/latest)** · [查看测试版](https://github.com/LauritzWu/Veyr/releases?q=prerelease%3Atrue)
+
+打开稳定版发布页，在 **Assets** 中下载 `veyr-preview-arm64-v8a.apk`。
 
 ## 支持的代理协议 / Supported Proxy Protocols
 
