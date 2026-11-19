@@ -117,8 +117,7 @@ class RouteSettingsActivity(
         editConfigPreference = findPreference(Key.SERVER_CONFIG)!!
         val ruleset = findPreference<EditTextPreference>(Key.ROUTE_RULESET)!!
         findPreference<Preference>("chooseRouteRuleSet")!!.setOnPreferenceClickListener {
-            RouteRuleSets(requireContext(), viewLifecycleOwner).choose { url ->
-                val reference = "rssite:$url"
+            RouteRuleSets(requireContext(), viewLifecycleOwner).choose { reference ->
                 val current = ruleset.text.orEmpty()
                 if (reference !in current.listByLineOrComma()) {
                     ruleset.text = listOf(current, reference).filter { it.isNotBlank() }.joinToString("\n")

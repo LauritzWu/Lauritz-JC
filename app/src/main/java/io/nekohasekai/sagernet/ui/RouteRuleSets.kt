@@ -3,7 +3,10 @@ package io.nekohasekai.sagernet.ui
 import android.content.Context
 import android.text.InputType
 import android.widget.EditText
+import android.view.View
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,7 +27,10 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
 
     private fun entries(): Map<String, String> {
         val stored = JSONObject(preferences.getString("sources", "{}") ?: "{}")
-        return stored.keys().asSequence().associateWith { stored.getString(it) }.toSortedMap()
+        return stored.keys().asSequence().associateWith {
+            val reference = stored.getString(it)
+            if (reference.startsWith("https://", ignoreCase = true)) "rssite:$reference" else reference
+        }.toSortedMap()
     }
 
     private fun save(entries: Map<String, String>) {
@@ -40,9 +46,9 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
         if (sources.isEmpty()) {
             dialog.setMessage(R.string.route_rule_set_empty)
         } else {
-            dialog.setItems(sources.map { it.key }.toTypedArray()) { _, index ->
-                val (name, url) = sources[index]
-                details(name, url)
+            dialog.setItems(sources.map { (name, reference) -> "$name · ${typeLabel(reference)}" }.toTypedArray()) { _, index ->
+                val (name, reference) = sources[index]
+                details(name, reference)
             }
         }
         dialog.show()
@@ -57,7 +63,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             dialog.setMessage(R.string.route_rule_set_empty)
                 .setPositiveButton(R.string.route_rule_set_add) { _, _ -> add(onSelected) }
         } else {
-            dialog.setItems(sources.map { it.key }.toTypedArray()) { _, index ->
+            dialog.setItems(sources.map { (name, reference) -> "$name · ${typeLabel(reference)}" }.toTypedArray()) { _, index ->
                 onSelected(sources[index].value)
             }
         }
@@ -74,11 +80,26 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
             isSingleLine = true
         }
+        val domains = RadioButton(context).apply {
+            id = View.generateViewId()
+            setText(R.string.route_rule_set_domain_type)
+        }
+        val ips = RadioButton(context).apply {
+            id = View.generateViewId()
+            setText(R.string.route_rule_set_ip_type)
+        }
+        val type = RadioGroup(context).apply {
+            orientation = RadioGroup.HORIZONTAL
+            addView(domains)
+            addView(ips)
+            check(domains.id)
+        }
         val fields = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp2px(24), 0, dp2px(24), 0)
             addView(name)
             addView(source)
+            addView(type)
         }
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.route_rule_set_add)
@@ -97,19 +118,26 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
                     url.username.isNotEmpty() || url.password.isNotEmpty() || url.fragment != null || ',' in url.toString() ->
                     source.error = context.getString(R.string.route_rule_set_invalid_url)
                 else -> {
-                    save(sources + (label to url.toString()))
+                    val prefix = if (type.checkedRadioButtonId == ips.id) "rsip" else "rssite"
+                    val reference = "$prefix:$url"
+                    save(sources + (label to reference))
                     dialog.dismiss()
-                    if (onSelected == null) manage() else onSelected(url.toString())
+                    if (onSelected == null) manage() else onSelected(reference)
                 }
             }
         }
     }
 
-    private fun details(name: String, url: String) {
+    private fun typeLabel(reference: String) = context.getString(
+        if (reference.startsWith("rsip:")) R.string.route_rule_set_ip_type
+        else R.string.route_rule_set_domain_type
+    )
+
+    private fun details(name: String, reference: String) {
         MaterialAlertDialogBuilder(context)
             .setTitle(name)
-            .setMessage(url)
-            .setPositiveButton(R.string.route_rule_set_check) { _, _ -> checkSource(name, url) }
+            .setMessage("${typeLabel(reference)}\n${reference.substringAfter(':')}")
+            .setPositiveButton(R.string.route_rule_set_check) { _, _ -> checkSource(name, reference) }
             .setNeutralButton(R.string.route_rule_set_remove) { _, _ ->
                 save(entries() - name)
                 manage()
@@ -118,11 +146,11 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             .show()
     }
 
-    private fun checkSource(name: String, url: String) {
+    private fun checkSource(name: String, reference: String) {
         owner.lifecycleScope.launch {
             val status = withContext(Dispatchers.IO) {
                 try {
-                    val request = Request.Builder().url(url).build()
+                    val request = Request.Builder().url(reference.substringAfter(':')).build()
                     client.newCall(request).execute().use { response ->
                         if (response.isSuccessful && response.body?.source()?.request(1) == true) {
                             R.string.route_rule_set_reachable
@@ -139,7 +167,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             MaterialAlertDialogBuilder(context)
                 .setTitle(name)
                 .setMessage(status)
-                .setPositiveButton(android.R.string.ok) { _, _ -> details(name, url) }
+                .setPositiveButton(android.R.string.ok) { _, _ -> details(name, reference) }
                 .show()
         }
     }

@@ -622,4 +622,7 @@
     <string name="profile_list_empty">暫無設定</string>
     <string name="profile_search_empty">沒有相符的設定</string>
     <string name="logcat_latest">回到最新</string>
+    <string name="route_rule_set_choose">選擇已儲存的規則集</string>
+    <string name="route_rule_set_domain_type">網域集</string>
+    <string name="route_rule_set_ip_type">IP 集</string>
 </resources>
