@@ -20,11 +20,11 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| Actions 稳定候选 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 验证通过，待实机验收 |
+| GitHub 最新稳定版 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 与实机验证已通过 |
 | Actions 前一稳定候选 | 1.0.3-STABLE | 25800 | ARM64，`539f754`，实测覆盖安装及配置保留通过，「关于」页显示 DEBUG |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案已通过实机验收 |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
-| GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
+| GitHub 历史稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
 | GitHub 预发布版 | 1.0.3-beta.3 DEBUG | 25745 | ARM64，`6720338`，应用内升级已通过实机验证 |
 | GitHub 历史预发布版 | 1.0.3-beta.2 DEBUG | 25715 | ARM64，`712445f`，applicationId 为 `top.lauritz.jc.uipreview.debug` |
 | Actions 签名测试包 | 1.0.3-beta.2 DEBUG | 25725 | ARM64，`396b98e`，已通过实机回归 |
@@ -86,12 +86,14 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 构建显示 `1.0.3-STABLE` 的签名候选 25800。
 - [x] 实机验证 25780 → 25800 覆盖安装、配置保留和 Android 系统版本显示。
 - [x] 构建 25810 Release 候选，验证包名、签名、版本号及 APK 未开启调试。
-- [ ] 从 25800 覆盖安装 25810，确认「关于」页显示 `1.0.3-STABLE`、构建号 25810，订阅、节点和路由规则保留，再发布。
+- [x] 验证 25800 → 25810 覆盖安装。「关于」显示 `1.0.3-STABLE`、构建号 25810，无 `DEBUG`，配置保留，VPN 正常连接。
+- [x] 将同一份已验收 APK 发布为 GitHub 最新稳定版。
 
 ## 8. GitHub Actions 与 Release 状态
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
+| [1.0.3 正式发布](https://github.com/LauritzWu/Veyr/actions/runs/44576152224) | 发布包与 CI APK 的 SHA-256 一致；已验证为最新稳定版 | [v1.0.3-stable.25810](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-stable.25810) |
 | [CI #62](https://github.com/LauritzWu/Veyr/actions/runs/44573687065) | 成功。1.0.3-STABLE（25810），签名、包名、版本及非调试属性校验通过 | [Release 候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44573687065/artifacts/14555717962) |
 | [CI #60](https://github.com/LauritzWu/Veyr/actions/runs/44570837995) | 成功。1.0.3-STABLE（25800），ARM64 签名、包名和构建号校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44570837995/artifacts/14555320309) |
 | [CI #56](https://github.com/LauritzWu/Veyr/actions/runs/44566873866) | 成功。1.0.3（25780），ARM64 签名与对齐校验通过 | [文案更新候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44566873866/artifacts/14552262272) |
