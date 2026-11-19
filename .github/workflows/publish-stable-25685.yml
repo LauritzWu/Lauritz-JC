@@ -1,0 +1,26 @@
+name: Publish Veyr 1.0.2
+on:
+  push:
+    branches: [release/stable-25685]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publish and verify the tested APK
+        run: |
+          tag=v1.0.2-stable.25685
+          asset=veyr-preview-arm64-v8a.apk
+          gh run download 44538122191 --name veyr-1.0.2-candidate-arm64-v8a
+          mv veyr-1.0.2-candidate-arm64-v8a.apk "$asset"
+          sha256sum "$asset" > SHA256SUMS
+          gh release create "$tag" "$asset" --target dc73a2c780ba61eccfc415f890e769d1a5cde665 --latest --title 'Veyr 1.0.2' --notes 'Android 組建編號 25685，ARM64-v8a。新增網域診斷，可查看近期 DNS 選擇、路由命中與實際出站。同一連線的重複出站記錄只顯示一次。補齊「關於」與「檢查更新」的繁體中文介面。'
+          mkdir verified
+          gh release download "$tag" --pattern "$asset" --dir verified
+          (cd verified && sha256sum --check ../SHA256SUMS)
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$tag"
