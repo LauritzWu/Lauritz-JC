@@ -1,0 +1,40 @@
+name: Publish Veyr 1.0.3-beta.2
+on:
+  push:
+    branches: [release/beta-25715]
+    paths: [.github/workflows/publish-beta-25715.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publish the tested ARM64 APK
+        run: |
+          set -euo pipefail
+          tag=v1.0.3-beta.2.25715
+          commit=712445fa7f4ad8aae5ace0e2def9a605b644f0f7
+          asset=veyr-1.0.3-beta.2-candidate-arm64-v8a.apk
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14540883341/zip" \
+            --output candidate.zip
+          echo '2f63b1d3fc5b1ea73d558cf24037fbd8060f2139eee0bfcd307831c0a6b25b96  candidate.zip' | sha256sum --check
+          unzip -j candidate.zip "$asset"
+          sha256sum "$asset" > SHA256SUMS
+          cat > release-notes.md <<'EOF'
+          ARM64-v8a · Android 組建編號 25715
+
+          - 支援在記錄檔依應用程式查看近期連線，並補齊相關繁體中文介面。
+          - 實機驗證 YouTube 與 Chrome Beta 的連線歸屬，以及 Wi-Fi 與行動網路雙向切換。
+          - 實機確認從 1.0.2（25685）覆蓋安裝後，訂閱、節點與路由規則均保留。
+          EOF
+          gh release create "$tag" "$asset" SHA256SUMS --target "$commit" \
+            --prerelease --latest=false --title 'Veyr 1.0.3-beta.2 (25715)' --notes-file release-notes.md
+          gh release download "$tag" --pattern "$asset" --dir verified
+          (cd verified && sha256sum --check ../SHA256SUMS)
+          test "$(gh release view "$tag" --json isPrerelease --jq .isPrerelease)" = true
