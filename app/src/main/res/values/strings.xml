@@ -799,4 +799,9 @@
     <string name="logcat_domain_hint">Enter a domain, e.g. baidu.com</string>
     <string name="logcat_domain_invalid">Enter a valid domain name</string>
     <string name="logcat_domain_empty">No recent DNS or connection records for this domain. Visit the domain and try again.</string>
+    <string name="logcat_domain_summary">Latest recorded events</string>
+    <string name="logcat_domain_dns">DNS selection: %1$s</string>
+    <string name="logcat_domain_route">Route match: %1$s</string>
+    <string name="logcat_domain_outbound">Outbound: %1$s</string>
+    <string name="logcat_domain_details">Log details</string>
 </resources>
