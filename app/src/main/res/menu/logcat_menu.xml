@@ -25,4 +25,8 @@
         android:id="@+id/action_domain_diagnostics"
         android:title="@string/logcat_domain_diagnostics"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_app_diagnostics"
+        android:title="@string/logcat_app_diagnostics"
+        app:showAsAction="never" />
 </menu>
