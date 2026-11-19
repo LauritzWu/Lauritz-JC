@@ -133,20 +133,20 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     }
 
     private fun readLogTail(cacheDir: File): String? {
-    val file = File(cacheDir, "neko.log")
-    return try {
-        RandomAccessFile(file, "r").use { reader ->
-            val length = reader.length()
-            val start = (length - 50 * 1024L).coerceAtLeast(0)
-            reader.seek(start)
-            val bytes = ByteArray((length - start).toInt())
-            val count = reader.read(bytes).coerceAtLeast(0)
-            val tail = String(bytes, 0, count, Charsets.UTF_8)
-            if (start > 0) tail.substringAfter('\n', tail) else tail
+        val file = File(cacheDir, "neko.log")
+        return try {
+            RandomAccessFile(file, "r").use { reader ->
+                val length = reader.length()
+                val start = (length - 50 * 1024L).coerceAtLeast(0)
+                reader.seek(start)
+                val bytes = ByteArray((length - start).toInt())
+                val count = reader.read(bytes).coerceAtLeast(0)
+                val tail = String(bytes, 0, count, Charsets.UTF_8)
+                if (start > 0) tail.substringAfter('\n', tail) else tail
+            }
+        } catch (_: java.io.IOException) {
+            null
         }
-    } catch (_: java.io.IOException) {
-        null
-    }
     }
 
     private fun showDomainDiagnostics() {
