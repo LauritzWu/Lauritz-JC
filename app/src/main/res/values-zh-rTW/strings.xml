@@ -639,4 +639,18 @@
     <string name="logcat_domain_route">路由命中：%1$s</string>
     <string name="logcat_domain_outbound">實際出站：%1$s</string>
     <string name="logcat_domain_details">日誌詳細資料</string>
+    <string name="github_update_channel">更新頻道</string>
+    <string name="github_update_stable">穩定版</string>
+    <string name="github_update_beta">Beta 測試版</string>
+    <string name="github_update_check">檢查更新</string>
+    <string name="github_update_checking">正在檢查 GitHub…</string>
+    <string name="github_update_no_release">目前沒有可用版本。</string>
+    <string name="github_update_no_stable">目前沒有穩定版。</string>
+    <string name="github_update_current">目前頻道沒有更新。已安裝：%1$d，可用：%2$d。</string>
+    <string name="github_update_available">發現 %1$s，已安裝的組建編號：%2$d。\n\n%3$s</string>
+    <string name="github_update_unsupported">%1$s 提供 ARM64 安裝套件。</string>
+    <string name="github_update_release_page">版本發布頁面</string>
+    <string name="github_update_download">下載 APK</string>
+    <string name="github_update_failed">檢查更新失敗，請稍後再試。</string>
+    <string name="github_update_build">%1$s · 組建編號 %2$d</string>
 </resources>
