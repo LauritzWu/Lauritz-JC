@@ -160,14 +160,18 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     val item = releases.getJSONObject(index)
                     if (item.optBoolean("draft") || (!beta && item.optBoolean("prerelease"))) continue
                     val tag = item.getString("tag_name")
-                    val code = RELEASE_TAG.matchEntire(tag)?.groupValues?.get(1)?.toLongOrNull() ?: continue
+                    val match = RELEASE_TAG.matchEntire(tag) ?: continue
+                    val code = match.groupValues[2].toLongOrNull() ?: continue
+                    val betaVersion = match.groups[1]?.value
                     if (code <= (latest?.code ?: 0)) continue
                     val assets = item.getJSONArray("assets")
                     val uploadedNames = (0 until assets.length())
                         .map(assets::getJSONObject)
                         .filter { it.optString("state") == "uploaded" }
                         .map { it.optString("name") }
-                    val apkName = ARM64_APKS.firstOrNull { it in uploadedNames } ?: continue
+                    val apkNames = if (betaVersion == null) ARM64_APKS else
+                        listOf("veyr-$betaVersion-candidate-arm64-v8a.apk") + ARM64_APKS
+                    val apkName = apkNames.firstOrNull { it in uploadedNames } ?: continue
                     val title = item.optString("name", "").takeIf { it.isNotBlank() } ?: tag
                     latest = Release(tag, title, code, item.optString("body").take(4000), apkName)
                 }
@@ -180,7 +184,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             const val PROJECT_URL = "https://github.com/LauritzWu/Veyr"
             const val RELEASES_API = "https://api.github.com/repos/LauritzWu/Veyr/releases"
             val ARM64_APKS = listOf("veyr-preview-arm64-v8a.apk", "lauritz-jc-preview-arm64-v8a.apk")
-            val RELEASE_TAG = Regex("""v[0-9]+\.[0-9]+\.[0-9]+-(?:preview|stable)\.([0-9]+)""")
+            val RELEASE_TAG = Regex("""v(?:(\d+\.\d+\.\d+-beta\.\d+)|\d+\.\d+\.\d+-(?:preview|stable))\.(\d+)""")
             val updateClient = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
         }
 
