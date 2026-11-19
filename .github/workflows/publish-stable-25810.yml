@@ -1,0 +1,44 @@
+name: Publish Veyr 1.0.3 stable
+on:
+  push:
+    branches: [release/stable-25810]
+    paths: [.github/workflows/publish-stable-25810.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and publish the tested ARM64 APK
+        run: |
+          set -euo pipefail
+          tag=v1.0.3-stable.25810
+          asset=veyr-preview-arm64-v8a.apk
+          candidate=veyr-1.0.3-STABLE-candidate-arm64-v8a.apk
+          test "$(gh run view 44573687065 --json conclusion,headSha --jq '.conclusion + ":" + .headSha')" = "success:5d4537f6e740fb8640427aefeb608a4f8912879c"
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14555717962/zip" \
+            --output candidate.zip
+          echo 'dd74233f13880563fa13eeafb3f1f515879d0a3a535739d3393187f090f0fb92  candidate.zip' | sha256sum --check
+          unzip -p candidate.zip "$candidate" > "$asset"
+          sha256sum "$asset" > SHA256SUMS
+          cat > release-notes.md <<'EOF'
+          ARM64-v8a · Android 組建編號 25810
+
+          - 記錄檔可依應用程式查看近期連線，並補齊相關繁體中文介面。
+          - 修正 Beta 版更新檢查，讓應用程式能辨識並下載新版 ARM64 安裝包。
+          - 版本顯示為 1.0.3-STABLE。已實機驗證覆蓋安裝後保留訂閱、節點和路由規則，VPN 可正常連線。
+
+          下載 Assets 中的 `veyr-preview-arm64-v8a.apk` 即可安裝此穩定版。檔名沿用既有格式，以相容舊版的應用內更新。
+          EOF
+          gh release create "$tag" "$asset" SHA256SUMS --target "5d4537f6e740fb8640427aefeb608a4f8912879c" \
+            --draft --title 'Veyr 1.0.3-STABLE (25810)' --notes-file release-notes.md
+          gh release download "$tag" --pattern "$asset" --dir verified
+          (cd verified && sha256sum --check ../SHA256SUMS)
+          gh release edit "$tag" --draft=false --latest
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$tag"
