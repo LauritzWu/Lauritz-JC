@@ -14,7 +14,7 @@ Veyr 是基于 NekoBox for Android、SagerNet 和 sing-box 的 Android 代理客
 | `nb4a.properties` | 基础版本和包名；CI 对候选构建覆盖这些值 |
 | `.github/workflows/` | 构建、产物校验和发布流程 |
 
-GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊断开发分支为 `feature/app-diagnostics`（候选源码 `712445f`）。`main` 也是现存分支。核对时仓库没有可见的 Pull Requests 或 Issues；下文的问题来自实机反馈与代码核对。[分支](https://github.com/LauritzWu/Veyr/branches) · [Pull Requests](https://github.com/LauritzWu/Veyr/pulls) · [Issues](https://github.com/LauritzWu/Veyr/issues)
+GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊断开发分支为 `feature/app-diagnostics`（已验证候选源码 `396b98e`）。`main` 也是现存分支。核对时仓库没有可见的 Pull Requests 或 Issues；下文的问题来自实机反馈与代码核对。[分支](https://github.com/LauritzWu/Veyr/branches) · [Pull Requests](https://github.com/LauritzWu/Veyr/pulls) · [Issues](https://github.com/LauritzWu/Veyr/issues)
 
 ## 2. 当前版本与构建状态
 
@@ -22,6 +22,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 | --- | --- | ---: | --- |
 | GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
 | GitHub 预发布版 | 1.0.3-beta.2 DEBUG | 25715 | ARM64，`712445f`，applicationId 为 `top.lauritz.jc.uipreview.debug` |
+| Actions 签名测试包 | 1.0.3-beta.2 DEBUG | 25725 | ARM64，`396b98e`，已通过实机回归 |
 
 开发分支的 `nb4a.properties` 基础值为 `VERSION_NAME=1.0.1-beta.1`、`VERSION_CODE=46`。CI #43 覆盖版本与包名，再执行 `app:assembleOssDebug`。ARM64 APK 的版本号、签名与对齐均由 CI 校验。该流程使用 JDK 17、Android SDK Platform 35、Build Tools 35.0.1 和 NDK 25.0.8775105。实机“关于”页显示 sing-box `1.14.4-neko-1`。
 
@@ -33,7 +34,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 | 按域名查看近期 DNS、规则命中与出站 | 稳定版发布说明已记录；25715 的独立域名诊断入口待专门回归 |
 | 日志搜索和高亮 | 提交 `7bd0d1a` 已实现；25715 的专项测试待补 |
 | 订阅、节点、DNS、路由规则 | README 与源码已有对应功能；覆盖安装已核对已有资料，订阅刷新及完整 DNS／规则矩阵待验证 |
-| GitHub 稳定／Beta 更新检查 | 代码已实现；本轮已复现 Beta 无法识别 25715，见第 5 节 |
+| GitHub 稳定／Beta 更新检查 | 代码已实现；25715 复现识别问题，25725 已通过渠道识别与无降级提示回归 |
 
 ## 4. 已验证的测试结果
 
@@ -46,35 +47,39 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 | 覆盖安装与资料保留 | 25685 → 25715 | 通过。维护者确认直接覆盖安装后，原有订阅、节点、路由规则均保留 |
 | 已装新版本时检查稳定渠道 | 25715 | 通过该用例。界面显示已安装 25715、可用 25685、当前渠道没有更新 |
 | Beta 渠道发现预发布版 | 25715 | 失败。维护者确认 Beta 也显示可用 25685；截图记录对应提示，源码核对确认 25715 会被筛掉 |
+| 检查更新与无降级提示 | 25725 | 通过。维护者确认 Beta 显示可用 25715，稳定渠道显示可用 25685，两个渠道均显示没有更新 |
+| 覆盖安装与应用诊断回归 | 25715 → 25725 | 通过。维护者确认订阅、节点及路由规则保留，YouTube 和 Chrome 的连接归属正常 |
 
 ## 5. 已知 Bug 与待修复问题
 
-**P1 · Beta 更新渠道识别不到已发布的 25715。** `AboutFragment.kt` 仅接受以 `-preview.<build>` 或 `-stable.<build>` 结尾的标签，当前预发布标签为 `v1.0.3-beta.2.25715`。预发布 APK 的文件名也不在更新器的 ARM64 资产白名单中。两项筛选都会导致该发布被跳过。稳定渠道排除预发布版符合本次预期。修复已提交至诊断分支 [396b98e](https://github.com/LauritzWu/Veyr/commit/396b98ef2462ff1ce949dcc636486158857b79ed)，保留旧标签和 APK 名称，并按 Beta 标签识别版本对应的 ARM64 安装包。根据 GitHub Release 数据核对筛选结果，Beta 选中 25715，稳定渠道选中 25685。Android 实机验证待完成。
+**P1 · Beta 更新渠道识别不到已发布的 25715。** `AboutFragment.kt` 仅接受以 `-preview.<build>` 或 `-stable.<build>` 结尾的标签，当前预发布标签为 `v1.0.3-beta.2.25715`。预发布 APK 的文件名也不在更新器的 ARM64 资产白名单中。两项筛选都会导致该发布被跳过。稳定渠道排除预发布版符合本次预期。修复已提交至诊断分支 [396b98e](https://github.com/LauritzWu/Veyr/commit/396b98ef2462ff1ce949dcc636486158857b79ed)，保留旧标签和 APK 名称，并按 Beta 标签识别版本对应的 ARM64 安装包。根据 GitHub Release 数据核对筛选结果，Beta 选中 25715，稳定渠道选中 25685。25725 已通过 Android 实机回归。发现高于已安装版本的 Beta 并进入下载仍待端到端测试。
 
 - [x] 核对标签和资产命名约定，并提交兼容历史版本的修复。
-- [ ] 回归旧构建发现较新 Beta、当前构建不提示降级，以及稳定渠道排除预发布版。
+- [x] 实机验证 25725 的 Beta／稳定渠道识别和无降级提示。
+- [ ] 验证已修复的构建能发现更高 versionCode 的 Beta。
 - [ ] 校验 Beta 下载入口指向正确的 ARM64 APK。
 
 ## 6. 待开发功能与优先级
 
 | 优先级 | 尚未交付项 | 验收标准 |
 | --- | --- | --- |
-| P1 | 识别当前 Beta 标签与资产（修复已提交，待实机验收） | Beta 渠道选中符合约定且更新的版本；历史稳定／预览发布仍可识别 |
+| P1 | 从已修复的版本发现并下载较新 Beta（待端到端验证） | Beta 渠道选中符合约定且更新的版本；历史稳定／预览发布仍可识别 |
 | P2 | 更新候选筛选的自动化回归 | 覆盖渠道、标签、资产名称和 versionCode 比较 |
 
 ## 7. 下一阶段开发路线图
 
 - [x] 复现并修复更新候选筛选。
-- [ ] 用新候选回归更新检查、应用诊断及覆盖安装。
+- [x] 用 25725 回归更新检查、应用诊断及覆盖安装。
+- [ ] 实机验证从 25725 发现并下载较新 Beta。
 - [ ] 补测域名诊断、日志搜索／高亮、清除日志后采集新连接，以及订阅刷新。
-- [ ] 准备 1.0.3 稳定候选；验证与 25715 的 applicationId 和签名兼容，且 versionCode 大于 25715。
+- [ ] 准备 1.0.3 稳定候选；验证与 25725 的 applicationId 和签名兼容，且 versionCode 大于 25725。
 - [ ] 用稳定候选实机覆盖安装，核对配置保留与更新渠道，再发布同一份已验证的 APK。
 
 ## 8. GitHub Actions 与 Release 状态
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
-| [CI #45](https://github.com/LauritzWu/Veyr/actions/runs/44556469063) | 成功。1.0.3-beta.2 DEBUG（25725），ARM64 签名与对齐验证通过 | [修复候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44556469063/artifacts/14544419251)，待实机验收 |
+| [CI #45](https://github.com/LauritzWu/Veyr/actions/runs/44556469063) | 成功。1.0.3-beta.2 DEBUG（25725），ARM64 签名与对齐验证通过 | [修复候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44556469063/artifacts/14544419251)，已通过实机回归 |
 | [CI #43](https://github.com/LauritzWu/Veyr/actions/runs/44546508392) | 成功。LibCore、OSS APK、ARM64 签名和对齐检查通过 | [原始候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44546508392/artifacts/14540883341) |
 | [Beta 发布](https://github.com/LauritzWu/Veyr/actions/runs/44554631626) | 成功。重新下载的 APK 与候选 APK 的 SHA-256 一致 | [v1.0.3-beta.2.25715](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-beta.2.25715) |
 | [稳定版发布](https://github.com/LauritzWu/Veyr/actions/runs/44541336712) | 成功 | [v1.0.2-stable.25685](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.2-stable.25685) |
