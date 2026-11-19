@@ -8,9 +8,13 @@ mkdir -p $DIR
 cd $DIR
 
 get_latest_release() {
-  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-    grep '"tag_name":' |                                            # Get tag line
-    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+  local headers=()
+  if [[ -n "${GH_TOKEN:-}" ]]; then
+    headers=(-H "Authorization: Bearer $GH_TOKEN")
+  fi
+  curl --fail --silent --show-error --retry 3 "${headers[@]}" \
+    "https://api.github.com/repos/$1/releases/latest" |
+    jq -er '.tag_name | strings | select(length > 0)'
 }
 
 ####
