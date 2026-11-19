@@ -1,0 +1,27 @@
+name: Remove duplicate Veyr 1.0.1 APK
+on:
+  push:
+    branches: [release/remove-legacy-25580]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and remove the legacy-named duplicate
+        run: |
+          tag=v1.0.1-stable.25580
+          legacy=lauritz-jc-preview-arm64-v8a.apk
+          primary=veyr-preview-arm64-v8a.apk
+          assets=$(gh release view "$tag" --json assets)
+          primary_digest=$(jq -er --arg name "$primary" '.assets[] | select(.name == $name and .state == "uploaded") | .digest' <<< "$assets")
+          legacy_digest=$(jq -er --arg name "$legacy" '.assets[] | select(.name == $name and .state == "uploaded") | .digest' <<< "$assets")
+          [[ "$primary_digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+          test "$primary_digest" = "$legacy_digest"
+          gh release delete-asset "$tag" "$legacy" --yes
+          gh release view "$tag" --json assets --jq '.assets[].name' | tee remaining-assets.txt
+          grep -Fx "$primary" remaining-assets.txt
+          ! grep -Fx "$legacy" remaining-assets.txt
