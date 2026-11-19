@@ -113,13 +113,13 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     } else if (release.code <= installed) {
                         dialog.setMessage(getString(R.string.github_update_current, installed, release.code))
                     } else {
-                        dialog.setMessage(getString(R.string.github_update_available, release.tag, installed, release.notes))
+                        dialog.setMessage(getString(R.string.github_update_available, release.title, installed, release.notes))
                         if ("arm64-v8a" in Build.SUPPORTED_ABIS) {
                             dialog.setPositiveButton(R.string.github_update_download) { _, _ ->
                                 context.launchCustomTab("$PROJECT_URL/releases/download/${release.tag}/${release.apkName}")
                             }
                         } else {
-                            dialog.setMessage(getString(R.string.github_update_unsupported, release.tag))
+                            dialog.setMessage(getString(R.string.github_update_unsupported, release.title))
                         }
                         dialog.setNeutralButton(R.string.github_update_release_page) { _, _ ->
                             context.launchCustomTab("$PROJECT_URL/releases/tag/${release.tag}")
@@ -136,7 +136,13 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             }
         }
 
-        private data class Release(val tag: String, val code: Long, val notes: String, val apkName: String)
+        private data class Release(
+            val tag: String,
+            val title: String,
+            val code: Long,
+            val notes: String,
+            val apkName: String,
+        )
 
         private fun latestRelease(beta: Boolean): Release? {
             var latest: Release? = null
@@ -162,7 +168,8 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         .filter { it.optString("state") == "uploaded" }
                         .map { it.optString("name") }
                     val apkName = ARM64_APKS.firstOrNull { it in uploadedNames } ?: continue
-                    latest = Release(tag, code, item.optString("body").take(4000), apkName)
+                    val title = item.optString("name", "").takeIf { it.isNotBlank() } ?: tag
+                    latest = Release(tag, title, code, item.optString("body").take(4000), apkName)
                 }
                 page++
             } while (releases.length() == 100)
