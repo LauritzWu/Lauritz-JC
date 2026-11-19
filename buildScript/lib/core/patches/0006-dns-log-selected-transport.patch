@@ -1,0 +1,71 @@
+From 4ca4695a1909151817ab5eeb652f85ea0833ae4c Mon Sep 17 00:00:00 2001
+From: Veyr <build@veyr.invalid>
+Date: Thu, 19 Nov 2026 05:53:41 +0100
+Subject: [PATCH] dns: log query and selected transport on one line
+
+---
+ dns/router.go | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/dns/router.go b/dns/router.go
+index 40107d9..b030873 100644
+--- a/dns/router.go
++++ b/dns/router.go
+@@ -330,6 +330,7 @@ func (r *Router) matchDNS(ctx context.Context, rules []adapter.DNSRule, allowFak
+ 					options.ClientSubnet = netip.Prefix{}
+ 					options.RemoveClientSubnet = true
+ 				}
++				r.logDNSSelection(ctx, metadata.Domain, currentRule, transport)
+ 				return transport, currentRule, currentRuleIndex
+ 			case *R.RuleActionDNSRouteOptions:
+ 				if action.Strategy != C.DomainStrategyAsIS {
+@@ -360,6 +361,7 @@ func (r *Router) matchDNS(ctx context.Context, rules []adapter.DNSRule, allowFak
+ 		}
+ 	}
+ 	transport := r.transport.Default()
++	r.logDNSSelection(ctx, metadata.Domain, nil, transport)
+ 	return transport, nil, -1
+ }
+ 
+@@ -413,6 +415,14 @@ func (r *Router) resolveDNSRoute(server string, routeOptions R.RuleActionDNSRout
+ 	return transport, dnsRouteStatusResolved
+ }
+ 
++func (r *Router) logDNSSelection(ctx context.Context, domain string, rule adapter.DNSRule, transport adapter.DNSTransport) {
++	if rule == nil {
++		r.logger.DebugContext(ctx, "selected ", domain, " => ", transport.Tag(), " (default)")
++		return
++	}
++	r.logger.DebugContext(ctx, "selected ", domain, " => ", transport.Tag(), " (", rule, ")")
++}
++
+ func (r *Router) logRuleMatch(ctx context.Context, ruleIndex int, currentRule adapter.DNSRule) {
+ 	if ruleDescription := currentRule.String(); ruleDescription != "" {
+ 		r.logger.DebugContext(ctx, "match[", ruleIndex, "] ", currentRule, " => ", currentRule.Action())
+@@ -727,6 +737,7 @@ func (r *Router) walkDNSRules(ctx context.Context, rules []adapter.DNSRule, mess
+ 				}
+ 				return exchangeWithRulesResult{}, &dnsWalkSuspension{drain: true}
+ 			}
++			r.logDNSSelection(ctx, metadata.Domain, currentRule, transport)
+ 			if state.terminalFuture != nil && state.terminalIndex == state.ruleIndex {
+ 				return exchangeWithRulesResult{}, &dnsWalkSuspension{pending: &dnsPendingExchange{transport: state.terminalFuture.transport, future: state.terminalFuture}}
+ 			}
+@@ -759,7 +770,9 @@ func (r *Router) walkDNSRules(ctx context.Context, rules []adapter.DNSRule, mess
+ 	if len(state.armedRules) > 0 {
+ 		return exchangeWithRulesResult{}, &dnsWalkSuspension{drain: true}
+ 	}
+-	return exchangeWithRulesResult{}, &dnsWalkSuspension{pending: &dnsPendingExchange{transport: r.transport.Default(), options: state.effectiveOptions}}
++	transport := r.transport.Default()
++	r.logDNSSelection(ctx, metadata.Domain, nil, transport)
++	return exchangeWithRulesResult{}, &dnsWalkSuspension{pending: &dnsPendingExchange{transport: transport, options: state.effectiveOptions}}
+ }
+ 
+ func (r *Router) exchangeWithRules(ctx context.Context, rules []adapter.DNSRule, message *mDNS.Msg, options adapter.DNSQueryOptions, allowFakeIP bool) exchangeWithRulesResult {
+@@ -871,6 +884,7 @@ func (r *Router) sweepArmedDNSRules(ctx context.Context, message *mDNS.Msg, stat
+ 			case dnsRouteStatusSkipped:
+ 				continue
+ 			}
++			r.logDNSSelection(ctx, metadata.Domain, armed.rule, transport)
+ 			return exchangeWithRulesResult{}, &dnsPendingExchange{transport: transport, options: queryOptions}, true
+ 		case *R.RuleActionReject:
+ 			switch action.Method {
