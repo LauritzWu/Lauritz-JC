@@ -101,7 +101,7 @@ jobs:
           unset GH_TOKEN
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == release/1.0.2-beta.1-candidate ]]; then
             sed -i 's/^VERSION_NAME=.*/VERSION_NAME=1.0.2-beta.1/' nb4a.properties
-            sed -i 's/^VERSION_CODE=.*/VERSION_CODE=5120/' nb4a.properties
+            sed -i 's/^VERSION_CODE=.*/VERSION_CODE=5135/' nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
             : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
@@ -127,7 +127,7 @@ jobs:
           grep -Fx "application-label:'Veyr'" apk-badging.txt
           grep -F "versionName='1.0.2-beta.1'" apk-badging.txt
           build_code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" apk-badging.txt)
-          test "$build_code" -eq 25600
+          test "$build_code" -eq 25675
           "$tools/apksigner" verify --print-certs "${apks[0]}" > apk-signing.txt
           grep -Fiqx "Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56" apk-signing.txt
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
