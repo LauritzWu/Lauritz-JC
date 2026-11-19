@@ -101,7 +101,7 @@ jobs:
           unset GH_TOKEN
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == release/1.0.2-beta.1-candidate ]]; then
             sed -i 's/^VERSION_NAME=.*/VERSION_NAME=1.0.2-beta.1/' nb4a.properties
-            sed -i 's/^VERSION_CODE=.*/VERSION_CODE=25600/' nb4a.properties
+            sed -i 's/^VERSION_CODE=.*/VERSION_CODE=5120/' nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
             : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
