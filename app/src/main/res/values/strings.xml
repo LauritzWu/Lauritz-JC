@@ -795,4 +795,8 @@
     <string name="logcat_search_hint">Domain, IP address, or keyword</string>
     <string name="logcat_search_clear">Clear filter</string>
     <string name="logcat_search_empty">No matches in recent logs.</string>
+    <string name="logcat_domain_diagnostics">Domain diagnostics</string>
+    <string name="logcat_domain_hint">Enter a domain, e.g. baidu.com</string>
+    <string name="logcat_domain_invalid">Enter a valid domain name</string>
+    <string name="logcat_domain_empty">No recent DNS or connection records for this domain. Visit the domain and try again.</string>
 </resources>
