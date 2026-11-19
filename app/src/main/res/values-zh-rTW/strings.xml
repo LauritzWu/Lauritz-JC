@@ -630,4 +630,8 @@
     <string name="logcat_search_hint">網域、IP 位址或關鍵字</string>
     <string name="logcat_search_clear">清除篩選</string>
     <string name="logcat_search_empty">最近的日誌中沒有符合項目。</string>
+    <string name="logcat_domain_diagnostics">網域診斷</string>
+    <string name="logcat_domain_hint">輸入網域，例如 baidu.com</string>
+    <string name="logcat_domain_invalid">請輸入有效網域</string>
+    <string name="logcat_domain_empty">近期日誌中沒有這個網域的 DNS 或連線記錄。請造訪該網域後再試。</string>
 </resources>
