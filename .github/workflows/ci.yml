@@ -43,6 +43,8 @@ jobs:
         run: ./run lib core
   build:
     name: Build OSS APK
+    env:
+      CANDIDATE_VERSION: 1.0.3-beta.3
     runs-on: ubuntu-latest
     needs:
       - libcore
@@ -100,7 +102,7 @@ jobs:
           ./run init action gradle
           unset GH_TOKEN
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == feature/app-diagnostics ]]; then
-            sed -i 's/^VERSION_NAME=.*/VERSION_NAME=1.0.3-beta.2/' nb4a.properties
+            sed -i "s/^VERSION_NAME=.*/VERSION_NAME=$CANDIDATE_VERSION/" nb4a.properties
             sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5100 + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
@@ -125,17 +127,17 @@ jobs:
           "$tools/aapt" dump badging "${apks[0]}" > apk-badging.txt
           grep -F "package: name='top.lauritz.jc.uipreview.debug'" apk-badging.txt
           grep -Fx "application-label:'Veyr'" apk-badging.txt
-          grep -F "versionName='1.0.3-beta.2'" apk-badging.txt
+          grep -F "versionName='$CANDIDATE_VERSION'" apk-badging.txt
           build_code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" apk-badging.txt)
           test "$build_code" -eq "$((5 * (5100 + GITHUB_RUN_NUMBER)))"
-          test "$build_code" -gt 25685
+          test "$build_code" -gt 25725
           "$tools/apksigner" verify --print-certs "${apks[0]}" > apk-signing.txt
           grep -Fiqx "Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56" apk-signing.txt
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
-          cp "${apks[0]}" veyr-1.0.3-beta.2-candidate-arm64-v8a.apk
+          cp "${apks[0]}" "veyr-$CANDIDATE_VERSION-candidate-arm64-v8a.apk"
       - uses: actions/upload-artifact@v5
         if: github.event_name == 'push' && github.ref_name == 'feature/app-diagnostics'
         with:
-          name: veyr-1.0.3-beta.2-candidate-arm64-v8a
-          path: veyr-1.0.3-beta.2-candidate-arm64-v8a.apk
+          name: veyr-${{ env.CANDIDATE_VERSION }}-candidate-arm64-v8a
+          path: veyr-${{ env.CANDIDATE_VERSION }}-candidate-arm64-v8a.apk
           if-no-files-found: error
