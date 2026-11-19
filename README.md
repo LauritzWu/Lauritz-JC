@@ -2,8 +2,6 @@
 
 Veyr 是基于 sing-box 的 Android 代理客户端，支持 Sub-Store 订阅、规则集与 DNS 分流，以及可搜索的连接日志。
 
-项目维护：[LauritzWu](https://github.com/LauritzWu)。
-
 **[下载稳定版 · ARM64](https://github.com/LauritzWu/Veyr/releases/latest)** · [查看测试版](https://github.com/LauritzWu/Veyr/releases?q=prerelease%3Atrue)
 
 打开稳定版发布页，在 **Assets** 中下载 `veyr-preview-arm64-v8a.apk`。
@@ -211,7 +209,7 @@ Veyr 是基于 sing-box 的 Android 代理客户端，支持 Sub-Store 订阅、
 
 Only resolving outbound, i.e. nodes, is supported. Information such as diversion rules are ignored.
 
-## 上游致谢 / Credits
+## Credits
 
 Core:
 
@@ -228,7 +226,7 @@ Web Dashboard:
 
 ## 来源与许可
 
-Veyr 基于 NekoBox for Android 及其上游 SagerNet 持续开发。感谢上游项目及其贡献者。版权声明与许可见 [AUTHORS](AUTHORS) 和 [LICENSE](LICENSE)。
+Veyr 基于 NekoBox for Android 及其上游 SagerNet 持续开发。原项目和贡献者的版权声明见 [AUTHORS](AUTHORS) 和 [LICENSE](LICENSE)。
 
 - [MatsuriDayo/NekoBoxForAndroid](https://github.com/MatsuriDayo/NekoBoxForAndroid)
 - [starifly/NekoBoxForAndroid](https://github.com/starifly/NekoBoxForAndroid)
