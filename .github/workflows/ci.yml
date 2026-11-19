@@ -94,6 +94,7 @@ jobs:
       - name: Gradle Build
         env:
           BUILD_PLUGIN: none
+          GH_TOKEN: ${{ github.token }}
           JC_PREVIEW_KEYSTORE: ${{ secrets.JC_PREVIEW_KEYSTORE }}
           JC_PREVIEW_KEYSTORE_PASS: ${{ secrets.JC_PREVIEW_KEYSTORE_PASS }}
           JC_PREVIEW_KEY_ALIAS: ${{ secrets.JC_PREVIEW_KEY_ALIAS }}
@@ -103,6 +104,7 @@ jobs:
           echo "ndk.dir=${ANDROID_HOME}/ndk/25.0.8775105" >> local.properties
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
+          unset GH_TOKEN
           if [[ "$GITHUB_EVENT_NAME" == push && ( "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 || "$GITHUB_REF_NAME" == feature/domain-diagnostics ) ]]; then
             sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5095 + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
