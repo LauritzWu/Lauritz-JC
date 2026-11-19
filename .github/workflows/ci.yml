@@ -6,6 +6,7 @@ on:
     branches:
       - '*'
       - 'lauritz/starifly-core-1.14'
+      - 'feature/domain-diagnostics'
   pull_request:
 jobs:
   libcore:
@@ -102,7 +103,7 @@ jobs:
           echo "ndk.dir=${ANDROID_HOME}/ndk/25.0.8775105" >> local.properties
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
-          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == push && ( "$GITHUB_REF_NAME" == lauritz/starifly-core-1.14 || "$GITHUB_REF_NAME" == feature/domain-diagnostics ) ]]; then
             sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5095 + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
@@ -119,7 +120,7 @@ jobs:
           fi
           ./gradlew app:assembleOssDebug
       - name: Verify parallel-install ARM64 preview
-        if: github.event_name == 'push' && github.ref_name == 'lauritz/starifly-core-1.14'
+        if: github.event_name == 'push' && (github.ref_name == 'lauritz/starifly-core-1.14' || github.ref_name == 'feature/domain-diagnostics')
         run: |
           mapfile -t apks < <(find app/build/outputs/apk/oss/debug -name '*arm64-v8a*.apk')
           test "${#apks[@]}" -eq 1
@@ -132,7 +133,7 @@ jobs:
           "$tools/zipalign" -c -P 16 4 "${apks[0]}"
           cp "${apks[0]}" veyr-preview-arm64-v8a.apk
       - uses: actions/upload-artifact@v5
-        if: github.event_name == 'push' && github.ref_name == 'lauritz/starifly-core-1.14'
+        if: github.event_name == 'push' && (github.ref_name == 'lauritz/starifly-core-1.14' || github.ref_name == 'feature/domain-diagnostics')
         with:
           name: veyr-preview-arm64-v8a
           path: veyr-preview-arm64-v8a.apk
