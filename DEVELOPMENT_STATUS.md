@@ -20,7 +20,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| Actions 稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案已通过实机验收 |
+| Actions 稳定候选 | 1.0.3-STABLE | 25800 | ARM64，`539f754`，CI 验证通过，待实机覆盖安装 |
+| Actions 前一稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案已通过实机验收 |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
 | GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
 | GitHub 预发布版 | 1.0.3-beta.3 DEBUG | 25745 | ARM64，`6720338`，应用内升级已通过实机验证 |
@@ -81,12 +82,14 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 构建 1.0.3 稳定候选 25770。CI 核对与 25745 相同的 applicationId 和签名证书，且 versionCode 高于 25745。
 - [x] 实机验证 25745 → 25770 覆盖安装、配置保留与更新渠道。
 - [x] 实机验收 25780 的繁中更新频道文案（「穩定版」和「Beta 版」）。
-- [ ] 确定 1.0.3 的版本显示格式，完成正式发布。
+- [x] 构建显示 `1.0.3-STABLE` 的签名候选 25800。
+- [ ] 从 25780 覆盖安装 25800，确认 Android 应用信息显示 `1.0.3-STABLE` 且配置保留，再发布已验收的 APK。
 
 ## 8. GitHub Actions 与 Release 状态
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
+| [CI #60](https://github.com/LauritzWu/Veyr/actions/runs/44570837995) | 成功。1.0.3-STABLE（25800），ARM64 签名、包名和构建号校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44570837995/artifacts/14555320309) |
 | [CI #56](https://github.com/LauritzWu/Veyr/actions/runs/44566873866) | 成功。1.0.3（25780），ARM64 签名与对齐校验通过 | [文案更新候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44566873866/artifacts/14552262272) |
 | [CI #54](https://github.com/LauritzWu/Veyr/actions/runs/44563328107) | 成功。1.0.3（25770），包名、构建号、ARM64 签名与对齐校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44563328107/artifacts/14551053416)，已通过实机覆盖安装 |
 | [CI #49](https://github.com/LauritzWu/Veyr/actions/runs/44559517827) | 成功。1.0.3-beta.3（25745），通过 ARM64 签名与对齐校验 | [候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44559517827/artifacts/14548422195) |
