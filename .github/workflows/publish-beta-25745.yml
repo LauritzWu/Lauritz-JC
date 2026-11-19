@@ -1,0 +1,41 @@
+name: Publish Veyr 1.0.3-beta.3
+on:
+  push:
+    branches: [release/beta-25745]
+    paths: [.github/workflows/publish-beta-25745.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and publish the signed ARM64 candidate
+        run: |
+          set -euo pipefail
+          tag=v1.0.3-beta.3.25745
+          asset=veyr-1.0.3-beta.3-candidate-arm64-v8a.apk
+          test "$(gh run view 44559517827 --json conclusion,headSha --jq '.conclusion + ":" + .headSha')" = "success:6720338fbf15473168d4d6255c0f4c6243df353f"
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14548422195/zip" \
+            --output candidate.zip
+          echo 'a9349ddb7261dbbba6473985e1d17f3ba02d1fb48b1fbb85f3c6e1da4c1d9404  candidate.zip' | sha256sum --check
+          unzip -j candidate.zip "$asset"
+          sha256sum "$asset" > SHA256SUMS
+          cat > release-notes.md <<'EOF'
+          ARM64-v8a · Android 组建编号 25745
+
+          - 修复 Beta 更新渠道识别预发布标签和对应 ARM64 安装包的问题。
+          - 用于验证从 25725 通过应用内检查更新发现、下载并覆盖安装 Beta.3。
+          EOF
+          gh release create "$tag" "$asset" SHA256SUMS --target "6720338fbf15473168d4d6255c0f4c6243df353f" \
+            --draft --prerelease --latest=false --title 'Veyr 1.0.3-beta.3 (25745)' --notes-file release-notes.md
+          test "$(gh release view "$tag" --json assets --jq ".assets[] | select(.name == \"$asset\") | .name")" = "$asset"
+          gh release download "$tag" --pattern "$asset" --dir verified
+          (cd verified && sha256sum --check ../SHA256SUMS)
+          gh release edit "$tag" --draft=false --prerelease --latest=false
+          test "$(gh release view "$tag" --json isDraft,isPrerelease --jq '(.isDraft | not) and .isPrerelease')" = true
