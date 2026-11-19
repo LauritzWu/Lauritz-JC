@@ -20,7 +20,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| Actions 稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验通过，待实机验收 |
+| Actions 稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
 | GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
 | GitHub 预发布版 | 1.0.3-beta.3 DEBUG | 25745 | ARM64，`6720338`，应用内升级已通过实机验证 |
 | GitHub 历史预发布版 | 1.0.3-beta.2 DEBUG | 25715 | ARM64，`712445f`，applicationId 为 `top.lauritz.jc.uipreview.debug` |
@@ -51,6 +51,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 | Beta 渠道发现预发布版 | 25715 | 失败。维护者确认 Beta 也显示可用 25685；截图记录对应提示，源码核对确认 25715 会被筛掉 |
 | 检查更新与无降级提示 | 25725 | 通过。维护者确认 Beta 显示可用 25715，稳定渠道显示可用 25685，两个渠道均显示没有更新 |
 | Beta 渠道端到端升级 | 25725 → 25745 | 通过。维护者确认从应用内 Beta 渠道下载并覆盖安装，原有订阅、节点和路由规则均保留 |
+| 稳定候选覆盖安装与更新检查 | 25745 → 25770 | 通过。订阅、节点和路由规则保留；稳定渠道可用 25685、Beta 渠道可用 25745，均提示没有更新 |
 | 检查更新渠道识别 | 25745 | 通过。Beta 渠道识别 25745；稳定渠道显示已安装 25745、可用 25685 |
 | 覆盖安装与应用诊断回归 | 25715 → 25725 | 通过。维护者确认订阅、节点及路由规则保留，YouTube 和 Chrome 的连接归属正常 |
 
@@ -77,13 +78,14 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 从 25725 的 Beta 更新提示下载并覆盖安装 25745，确认订阅、节点和路由规则保留。
 - [ ] 补测域名诊断、日志搜索／高亮、清除日志后采集新连接，以及订阅刷新。
 - [x] 构建 1.0.3 稳定候选 25770。CI 核对与 25745 相同的 applicationId 和签名证书，且 versionCode 高于 25745。
-- [ ] 用稳定候选实机覆盖安装，核对配置保留与更新渠道，再发布同一份已验证的 APK。
+- [x] 实机验证 25745 → 25770 覆盖安装、配置保留与更新渠道。
+- [ ] 确认新版繁中更新频道显示「穩定版」和「Beta 版」，再发布已验收的候选 APK。
 
 ## 8. GitHub Actions 与 Release 状态
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
-| [CI #54](https://github.com/LauritzWu/Veyr/actions/runs/44563328107) | 成功。1.0.3（25770），包名、构建号、ARM64 签名与对齐校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44563328107/artifacts/14551053416)，待实机覆盖安装 |
+| [CI #54](https://github.com/LauritzWu/Veyr/actions/runs/44563328107) | 成功。1.0.3（25770），包名、构建号、ARM64 签名与对齐校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44563328107/artifacts/14551053416)，已通过实机覆盖安装 |
 | [CI #49](https://github.com/LauritzWu/Veyr/actions/runs/44559517827) | 成功。1.0.3-beta.3（25745），通过 ARM64 签名与对齐校验 | [候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44559517827/artifacts/14548422195) |
 | [Beta.3 发布](https://github.com/LauritzWu/Veyr/actions/runs/44560975120) | 成功。发布 APK 的 SHA-256 与候选 APK 一致 | [v1.0.3-beta.3.25745](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-beta.3.25745) |
 | [CI #45](https://github.com/LauritzWu/Veyr/actions/runs/44556469063) | 成功。1.0.3-beta.2 DEBUG（25725），ARM64 签名与对齐验证通过 | [修复候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44556469063/artifacts/14544419251)，已通过实机回归 |
@@ -95,6 +97,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | Commit | 内容 |
 | --- | --- |
+| [`83880d5`](https://github.com/LauritzWu/Veyr/commit/83880d519423cf9e2d3e439f741f3fa2124fcdb8) | 繁中更新频道缩短为「Beta 版」 |
 | [`68de6ad`](https://github.com/LauritzWu/Veyr/commit/68de6adf9550314658e05335883a3a9a2ce81a8e) | 在 `release/1.0.3-candidate` 构建稳定候选，沿用已验收的 Beta.3 应用代码 |
 | [`6720338`](https://github.com/LauritzWu/Veyr/commit/6720338fbf15473168d4d6255c0f4c6243df353f) | 配置 Beta.3 签名构建，通过同一版本变量生成校验值和产物名称 |
 | [`396b98e`](https://github.com/LauritzWu/Veyr/commit/396b98ef2462ff1ce949dcc636486158857b79ed) | 修复 Beta 标签和对应 ARM64 APK 的筛选 |
