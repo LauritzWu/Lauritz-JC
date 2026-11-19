@@ -93,20 +93,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         val previous = displayedLog
         val query = searchQuery
         val rendered = withContext(Dispatchers.IO) {
-            val file = File(current.root.context.cacheDir, "neko.log")
-            val raw = try {
-                RandomAccessFile(file, "r").use { reader ->
-                    val length = reader.length()
-                    val start = (length - 50 * 1024L).coerceAtLeast(0)
-                    reader.seek(start)
-                    val bytes = ByteArray((length - start).toInt())
-                    val count = reader.read(bytes).coerceAtLeast(0)
-                    val tail = String(bytes, 0, count, Charsets.UTF_8)
-                    if (start > 0) tail.substringAfter('\n', tail) else tail
-                }
-            } catch (_: java.io.IOException) {
-                return@withContext null
-            }
+            val raw = readLogTail(current.root.context.cacheDir) ?: return@withContext null
             val clean = colorCodes.replace(raw, "").let { log ->
                 if (query.isEmpty()) log
                 else log.lineSequence().filter { it.contains(query, ignoreCase = true) }.joinToString("\n")
@@ -145,6 +132,83 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         }
     }
 
+    private fun readLogTail(cacheDir: File): String? {
+    val file = File(cacheDir, "neko.log")
+    return try {
+        RandomAccessFile(file, "r").use { reader ->
+            val length = reader.length()
+            val start = (length - 50 * 1024L).coerceAtLeast(0)
+            reader.seek(start)
+            val bytes = ByteArray((length - start).toInt())
+            val count = reader.read(bytes).coerceAtLeast(0)
+            val tail = String(bytes, 0, count, Charsets.UTF_8)
+            if (start > 0) tail.substringAfter('\n', tail) else tail
+        }
+    } catch (_: java.io.IOException) {
+        null
+    }
+    }
+
+    private fun showDomainDiagnostics() {
+        val context = requireContext()
+        val input = EditText(context).apply {
+            setSingleLine()
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            setHint(R.string.logcat_domain_hint)
+        }
+        val dialog = MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.logcat_domain_diagnostics)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+        dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+            val domain = runCatching {
+                java.net.IDN.toASCII(input.text.toString().trim().removeSuffix("."))
+            }.getOrDefault("").lowercase()
+            if (!domainPattern.matches(domain)) {
+                input.error = context.getString(R.string.logcat_domain_invalid)
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            viewLifecycleOwner.lifecycleScope.launch {
+                val report = withContext(Dispatchers.IO) {
+                    val raw = readLogTail(context.cacheDir).orEmpty()
+                    domainEvents(colorCodes.replace(raw, ""), domain)
+                }
+                MaterialAlertDialogBuilder(context)
+                    .setTitle(domain)
+                    .setMessage(report.ifEmpty { context.getString(R.string.logcat_domain_empty) })
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun domainEvents(log: String, domain: String): String {
+        val events = log.lineSequence().mapNotNull { eventPattern.matchEntire(it) }.toList()
+        val matchingIds = events.mapNotNull { event ->
+            val host = domainEventPattern.find(event.groupValues[3])
+                ?.groupValues?.get(1)?.trimEnd('.')?.lowercase()
+            event.groupValues[2].takeIf { host == domain || host?.endsWith(".$domain") == true }
+        }.toSet()
+        return events.asSequence()
+            .filter { it.groupValues[2] in matchingIds }
+            .filter { diagnosticEventPattern.containsMatchIn(it.groupValues[3]) }
+            .toList()
+            .takeLast(80)
+            .joinToString("\n\n") { event ->
+                "[%s] [%s] %s".format(event.groupValues[1], event.groupValues[2], event.groupValues[3])
+            }
+    }
+
+    private companion object {
+        val domainPattern = Regex("""(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?""")
+        val eventPattern = Regex("""^[A-Z]+\[(\d+)] \[(\d+)(?: [^\]]+)?] (.+)$""")
+        val domainEventPattern = Regex("""(?:^dns: (?:exchange|exchanged|selected)(?: CNAME| AAAA| A| SOA)? |^router: .*?\bdomain: )([a-zA-Z0-9._-]+)(?=[\s,]|$)""")
+        val diagnosticEventPattern = Regex("""^(?:dns: |router: .*?(?:\bdomain: |=> route\()|outbound/)""")
+    }
+
     private fun showSearch() {
         val input = EditText(requireContext()).apply {
             setSingleLine()
@@ -170,6 +234,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_search_logcat -> showSearch()
+            R.id.action_domain_diagnostics -> showDomainDiagnostics()
 
             R.id.action_clear_logcat -> {
                 viewLifecycleOwner.lifecycleScope.launch {
