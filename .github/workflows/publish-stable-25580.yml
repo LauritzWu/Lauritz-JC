@@ -1,0 +1,29 @@
+name: Publish Veyr 1.0.1
+on:
+  push:
+    branches: [release/stable-25580]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publish and verify the tested APK
+        run: |
+          gh run download 44480558864 --name veyr-1.0.1-candidate-arm64-v8a
+          asset=veyr-preview-arm64-v8a.apk
+          legacy=lauritz-jc-preview-arm64-v8a.apk
+          mv veyr-1.0.1-candidate-arm64-v8a.apk "$asset"
+          echo 'fce46b0d7dd905322464555e2204d948be760fad1f3fa889096168802e2d30bf  veyr-preview-arm64-v8a.apk' | sha256sum --check
+          cp "$asset" "$legacy"
+          gh release create v1.0.1-stable.25580 "$asset" "$legacy" --target 8b4e230fcf9f31688a7b543cb9102af9dfeabd74 --latest --title 'Veyr 1.0.1' --notes 'Android 构建号 25580，ARM64-v8a。APK 内版本名和 GitHub 发布标题统一为 1.0.1。已实测从 25575 覆盖升级，订阅、路由保留，联网正常。两个 APK 内容相同，旧文件名用于兼容应用内更新。'
+          gh release view v1.0.1-stable.25580 --json url,name,isPrerelease,isDraft,assets
+          for apk in "$asset" "$legacy"; do
+            curl -fsSL "https://github.com/$GH_REPO/releases/download/v1.0.1-stable.25580/$apk" -o verified.apk
+            echo 'fce46b0d7dd905322464555e2204d948be760fad1f3fa889096168802e2d30bf  verified.apk' | sha256sum --check
+          done
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = v1.0.1-stable.25580
