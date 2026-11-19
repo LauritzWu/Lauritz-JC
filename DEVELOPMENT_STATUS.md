@@ -20,7 +20,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| Actions 稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
+| Actions 稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案更新，待实机验收 |
+| Actions 前一稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
 | GitHub 最新稳定版 | 1.0.2 | 25685 | ARM64，`dc73a2c` |
 | GitHub 预发布版 | 1.0.3-beta.3 DEBUG | 25745 | ARM64，`6720338`，应用内升级已通过实机验证 |
 | GitHub 历史预发布版 | 1.0.3-beta.2 DEBUG | 25715 | ARM64，`712445f`，applicationId 为 `top.lauritz.jc.uipreview.debug` |
@@ -85,6 +86,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 工作流程 | 结果 | 发布 |
 | --- | --- | --- |
+| [CI #56](https://github.com/LauritzWu/Veyr/actions/runs/44566873866) | 成功。1.0.3（25780），ARM64 签名与对齐校验通过 | [文案更新候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44566873866/artifacts/14552262272) |
 | [CI #54](https://github.com/LauritzWu/Veyr/actions/runs/44563328107) | 成功。1.0.3（25770），包名、构建号、ARM64 签名与对齐校验通过 | [稳定候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44563328107/artifacts/14551053416)，已通过实机覆盖安装 |
 | [CI #49](https://github.com/LauritzWu/Veyr/actions/runs/44559517827) | 成功。1.0.3-beta.3（25745），通过 ARM64 签名与对齐校验 | [候选产物](https://github.com/LauritzWu/Veyr/actions/runs/44559517827/artifacts/14548422195) |
 | [Beta.3 发布](https://github.com/LauritzWu/Veyr/actions/runs/44560975120) | 成功。发布 APK 的 SHA-256 与候选 APK 一致 | [v1.0.3-beta.3.25745](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.3-beta.3.25745) |
