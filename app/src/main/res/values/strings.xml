@@ -804,4 +804,7 @@
     <string name="logcat_domain_route">Route match: %1$s</string>
     <string name="logcat_domain_outbound">Outbound: %1$s</string>
     <string name="logcat_domain_details">Log details</string>
+    <string name="logcat_app_diagnostics">Connections by app</string>
+    <string name="logcat_app_empty">No app names were recorded in the recent logs. Open an app while connected, then try again.</string>
+    <string name="logcat_app_no_connections">No destination or outbound was recorded for this app.</string>
 </resources>
