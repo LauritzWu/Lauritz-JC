@@ -201,9 +201,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
                             appendLine()
                         }
                         appendLine(context.getString(R.string.logcat_domain_details))
-                        append(events.takeLast(80).joinToString("\n\n") { event ->
-                            "[%s] [%s] %s".format(event.groupValues[1], event.groupValues[2], event.groupValues[3])
-                        })
+                        append(formatDiagnosticEvents(events))
                     }
                 }
                 MaterialAlertDialogBuilder(context)
@@ -215,17 +213,83 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         }
     }
 
+    private fun showAppDiagnostics() {
+        val context = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val events = withContext(Dispatchers.IO) {
+                val raw = readLogTail(context.cacheDir).orEmpty()
+                parseEvents(colorCodes.replace(raw, ""))
+            }
+            val packages = events.asReversed().mapNotNull { event ->
+                appEventPattern.matchEntire(event.groupValues[3])?.groupValues?.get(1)
+            }.distinct()
+            if (packages.isEmpty()) {
+                MaterialAlertDialogBuilder(context)
+                    .setTitle(R.string.logcat_app_diagnostics)
+                    .setMessage(R.string.logcat_app_empty)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                return@launch
+            }
+
+            val packageManager = context.packageManager
+            val choices = packages.map { packageName ->
+                val label = runCatching {
+                    packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0))
+                }.getOrNull()?.toString()
+                if (label.isNullOrBlank() || label == packageName) packageName else "$label\n$packageName"
+            }
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.logcat_app_diagnostics)
+                .setItems(choices.toTypedArray()) { _, index ->
+                    val packageName = packages[index]
+                    val matchingIds = events.mapNotNull { event ->
+                        val owner = appEventPattern.matchEntire(event.groupValues[3])?.groupValues?.get(1)
+                        event.groupValues[2].takeIf { owner == packageName }
+                    }.toSet()
+                    val connections = matchingEvents(events, matchingIds) { message ->
+                        appConnectionPattern.containsMatchIn(message)
+                    }
+                    MaterialAlertDialogBuilder(context)
+                        .setTitle(choices[index])
+                        .setMessage(formatDiagnosticEvents(connections).ifEmpty {
+                            context.getString(R.string.logcat_app_no_connections)
+                        })
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun parseEvents(log: String): List<MatchResult> =
+        log.lineSequence().mapNotNull { eventPattern.matchEntire(it) }.toList()
+
+    private fun formatDiagnosticEvents(events: List<MatchResult>): String =
+        events.takeLast(80).joinToString("\n\n") { event ->
+            "[%s] [%s] %s".format(event.groupValues[1], event.groupValues[2], event.groupValues[3])
+        }
+
     private fun domainEvents(log: String, domain: String): List<MatchResult> {
-        val events = log.lineSequence().mapNotNull { eventPattern.matchEntire(it) }.toList()
+        val events = parseEvents(log)
         val matchingIds = events.mapNotNull { event ->
             val host = domainEventPattern.find(event.groupValues[3])
                 ?.groupValues?.get(1)?.trimEnd('.')?.lowercase()
             event.groupValues[2].takeIf { host == domain || host?.endsWith(".$domain") == true }
         }.toSet()
+        return matchingEvents(events, matchingIds) { diagnosticEventPattern.containsMatchIn(it) }
+    }
+
+    private fun matchingEvents(
+        events: List<MatchResult>,
+        matchingIds: Set<String>,
+        include: (String) -> Boolean,
+    ): List<MatchResult> {
         val seenOutbound = mutableSetOf<Pair<String, String>>()
         return events.asReversed().asSequence()
             .filter { it.groupValues[2] in matchingIds }
-            .filter { diagnosticEventPattern.containsMatchIn(it.groupValues[3]) }
+            .filter { include(it.groupValues[3]) }
             .filter { event ->
                 val message = event.groupValues[3]
                 !message.startsWith("outbound/") || seenOutbound.add(event.groupValues[2] to message)
@@ -238,6 +302,8 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         val domainPattern = Regex("""(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?""")
         val eventPattern = Regex("""^[A-Z]+\[(\d+)] \[(\d+)(?: [^\]]+)?] (.+)$""")
         val domainEventPattern = Regex("""(?:^dns: (?:exchange|exchanged|selected)(?: CNAME| AAAA| A| SOA)? |^router: .*?\bdomain: )([a-zA-Z0-9._-]+)(?=[\s,]|$)""")
+        val appEventPattern = Regex("""^router: found package name: ([a-zA-Z0-9_.]+)$""")
+        val appConnectionPattern = Regex("""^(?:inbound/.*?\b(?:packet )?connection to |router: .*?(?:\bdomain: |=> route\()|outbound/)""")
         val diagnosticEventPattern = Regex("""^(?:dns: |router: .*?(?:\bdomain: |=> route\()|outbound/)""")
     }
 
@@ -267,6 +333,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         when (item.itemId) {
             R.id.action_search_logcat -> showSearch()
             R.id.action_domain_diagnostics -> showDomainDiagnostics()
+            R.id.action_app_diagnostics -> showAppDiagnostics()
 
             R.id.action_clear_logcat -> {
                 viewLifecycleOwner.lifecycleScope.launch {
