@@ -722,4 +722,5 @@
     <string name="logcat_app_diagnostics">按应用查看连接</string>
     <string name="logcat_app_empty">近期日志中没有记录应用名称。连接后打开要查看的应用，再试一次。</string>
     <string name="logcat_app_no_connections">近期日志中没有该应用的目标地址或出站记录。</string>
+    <string name="route_region_china">中国</string>
 </resources>
