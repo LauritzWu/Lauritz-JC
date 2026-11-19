@@ -641,7 +641,7 @@
     <string name="logcat_domain_details">日誌詳細資料</string>
     <string name="github_update_channel">更新頻道</string>
     <string name="github_update_stable">穩定版</string>
-    <string name="github_update_beta">Beta 測試版</string>
+    <string name="github_update_beta">Beta 版</string>
     <string name="github_update_check">檢查更新</string>
     <string name="github_update_checking">正在檢查 GitHub…</string>
     <string name="github_update_no_release">目前沒有可用版本。</string>
