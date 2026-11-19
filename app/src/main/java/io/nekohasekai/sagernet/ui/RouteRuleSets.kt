@@ -2,12 +2,12 @@ package io.nekohasekai.sagernet.ui
 
 import android.content.Context
 import android.text.InputType
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.materialswitch.MaterialSwitch
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.ktx.dp2px
 import kotlinx.coroutines.CancellationException
@@ -78,7 +78,7 @@ internal class RouteRuleSets(private val context: Context, private val owner: Li
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
             isSingleLine = true
         }
-        val dnsRouting = MaterialSwitch(context).apply {
+        val dnsRouting = CheckBox(context).apply {
             setText(R.string.route_rule_set_include_dns)
             isChecked = true
         }
