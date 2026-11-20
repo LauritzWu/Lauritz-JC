@@ -160,8 +160,10 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] [草稿 PR #4](https://github.com/LauritzWu/Veyr/pull/4) 实现版本化 APK 文件名：稳定版 `veyr-1.0.6-stable-arm64-v8a.apk`、Beta `veyr-1.0.6-beta.1-arm64-v8a.apk`。更新器优先使用与发布标签一致的新文件名，发布流程同时提供字节一致的旧名兼容附件并校验两者 SHA-256。
 - [x] [文件名与更新频道回归](https://github.com/LauritzWu/Veyr/actions/runs/44687294618)和[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44687294684)通过。
 - [x] 已公开过渡 Beta.1（25870），新旧文件名的签名 APK 逐字节一致，SHA-256 相同；最新稳定版仍为 25865。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.6-beta.1.25870) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44688848843)
-- [ ] S24 Ultra 从 25865 的 Beta 频道实测旧名兼容与覆盖安装；再用 25870 检查下一份新命名的更新包。
-- [ ] 将发布分支的 GeoIP／GeoSite 版本查询修复回移至发版流程，以免后续构建再次使用空版本。
+- [x] S24 Ultra 已安装 `1.0.6-BETA`（25870），订阅、节点和路由规则均保留。
+- [ ] 确认 25870 是从 25865 的 Beta 频道点「下載並安裝」升级，以验收旧文件名兼容。
+- [ ] 用 25870 检查下一份采用新文件名的更新包。
+- [x] 将构建 25870 时验证过的 GeoIP／GeoSite 查询修复移植到 PR #4，待 PR 合并。[提交](https://github.com/LauritzWu/Veyr/commit/17f779add0509db8dbd04f62e8fd6b8385bb3bdb)
 
 ## 下一轮 Beta 更新体验
 
