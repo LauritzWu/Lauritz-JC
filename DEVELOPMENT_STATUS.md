@@ -20,7 +20,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| GitHub 最新稳定版 | 1.0.4-STABLE | 25840 | ARM64，`c7b112b`，S24 Ultra 验收及发布校验通过 |
+| GitHub 最新稳定版 | 1.0.5-STABLE | 25865 | ARM64，`42c5bb5`，S24 Ultra 验收及发布校验通过 |
+| GitHub 历史稳定版 | 1.0.4-STABLE | 25840 | ARM64，`c7b112b`，S24 Ultra 验收及发布校验通过 |
 | GitHub 历史稳定版 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 与实机验证已通过 |
 | Actions 前一稳定候选 | 1.0.3-STABLE | 25800 | ARM64，`539f754`，实测覆盖安装及配置保留通过，「关于」页显示 DEBUG |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案已通过实机验收 |
@@ -174,4 +175,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] [PR #3](https://github.com/LauritzWu/Veyr/pull/3) 完整 APK 构建、更新频道与繁中资源回归通过，已合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/814d7a7b21a99e76073f23694c71ea630d4cab92)
 - [x] 从默认分支提交 `ab15bff` 构建签名 `1.0.5-STABLE` 候选（25865）；包名、构建号、签名、非调试属性与草稿附件 SHA-256 检查通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44683970252) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-08d2e0d7e48180113ec1)
 - [x] S24 Ultra 实测 25860 → 25865 覆盖安装通过。「關於」显示 `1.0.5-STABLE`、組建編號 25865，繁中正常，订阅、节点和路由规则保留，VPN 能连通。
-- [ ] 发布已验收的 25865 草稿；之后用一加 7T 的 25840 验证稳定频道发现、下载与覆盖安装。
+- [x] 已验收的 25865 发布为 GitHub 最新稳定版，APK 文件名保留 `veyr-preview-arm64-v8a.apk`，SHA-256 与草稿一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-stable.25865) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44685952066)
+- [ ] 在一加 7T 的 25840 验证稳定频道发现、应用内下载及覆盖安装，确认配置保留和 VPN 连通。
