@@ -213,3 +213,6 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] [草稿 PR #6](https://github.com/LauritzWu/Veyr/pull/6)：默认缓冲区 256 KiB，保留已保存设置。实时窗口仍为 50 KiB；菜单可按需读取最多 256 KiB 的保留日志，查看历史时暂停自动刷新。
 - [x] 完整 APK 构建通过；`1.0.9-BETA` 单 APK 签名草稿通过附件校验。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-be0c2402d12d5e24e220) · [签名构建](https://github.com/LauritzWu/Veyr/actions/runs/44709269474)
 - [ ] 在 S24 Ultra 对比相同负载下可回看的时间、搜索和滚动体验；检查从历史切回实时后恢复刷新。
+- [x] S24 Ultra 截图确认 YouTube 关键词过滤和高亮可用；历史与实时窗口长度、切回实时仍待对照。
+- [ ] VPN 启动时 Wi-Fi 状态查询在 Android 缺少权限时抛出异常。已在 PR #6 加入权限检查；[修复提交](https://github.com/LauritzWu/Veyr/commit/c1e94e0b6055a8539546a99238dfd18cb69129ab)，待包含修复的新 APK 实测。
+- [ ] 设备选择 Info 后仍看到核心 DEBUG／TRACE；普通生成配置映射为 info，需确认实际生效配置及产生日誌的组件。
