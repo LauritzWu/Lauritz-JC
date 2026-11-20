@@ -1,0 +1,67 @@
+name: Android update channel regression
+on:
+  push:
+    branches: [ci/release-automation]
+    paths:
+      - '.github/workflows/android-update-regression.yml'
+      - 'app/src/main/java/io/nekohasekai/sagernet/ui/AboutFragment.kt'
+      - 'app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt'
+  pull_request:
+    paths:
+      - '.github/workflows/android-update-regression.yml'
+      - 'app/src/main/java/io/nekohasekai/sagernet/ui/AboutFragment.kt'
+      - 'app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt'
+permissions:
+  contents: read
+jobs:
+  update-channel:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test the Kotlin rules used by AboutFragment
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/ReleaseUpdateRegression.kt" <<'KOTLIN'
+          package io.nekohasekai.sagernet.ui
+
+          private data class Release(
+              val tag: String,
+              val draft: Boolean,
+              val prerelease: Boolean,
+              val apks: List<String>
+          )
+
+          private fun select(releases: List<Release>, includeBeta: Boolean): ReleaseUpdate.Candidate? =
+              releases.fold<Release, ReleaseUpdate.Candidate?>(null) { best, item ->
+                  ReleaseUpdate.candidate(item.tag, item.draft, item.prerelease, includeBeta, best?.code ?: 0) {
+                      item.apks
+                  } ?: best
+              }
+
+          fun main() {
+              val stableApk = "veyr-preview-arm64-v8a.apk"
+              val betaApk = "veyr-1.0.4-beta.1-candidate-arm64-v8a.apk"
+              val stable = Release("v1.0.3-stable.25810", false, false, listOf(stableApk))
+              val beta = Release("v1.0.4-beta.1.25820", true, true, listOf(betaApk))
+              for (includeBeta in listOf(false, true)) {
+                  check(select(listOf(beta, stable), includeBeta) == ReleaseUpdate.Candidate(25810, stableApk))
+              }
+
+              val published = beta.copy(draft = false)
+              check(select(listOf(published, stable), false) == ReleaseUpdate.Candidate(25810, stableApk))
+              check(select(listOf(published, stable), true) == ReleaseUpdate.Candidate(25820, betaApk))
+              check(select(listOf(stable, published), true) == ReleaseUpdate.Candidate(25820, betaApk))
+              check(select(listOf(stable, published.copy(apks = listOf("x86.apk"))), true)?.code == 25810)
+              val legacy = Release("v1.0.2-preview.25685", false, true, listOf("lauritz-jc-preview-arm64-v8a.apk"))
+              check(select(listOf(legacy), true)?.code == 25685L)
+              check(select(listOf(legacy), false) == null)
+              check(ReleaseUpdate.isUpgrade(25820, 25810))
+              check(!ReleaseUpdate.isUpgrade(25820, 25820))
+              check(!ReleaseUpdate.isUpgrade(25810, 25820))
+              println("Android update channel regression passed")
+          }
+          KOTLIN
+          kotlinc app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt \
+            "$RUNNER_TEMP/ReleaseUpdateRegression.kt" -include-runtime -d "$RUNNER_TEMP/release-update-tests.jar"
+          java -jar "$RUNNER_TEMP/release-update-tests.jar"
