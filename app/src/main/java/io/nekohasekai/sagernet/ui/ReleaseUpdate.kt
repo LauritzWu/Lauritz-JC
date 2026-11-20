@@ -23,7 +23,10 @@ internal object ReleaseUpdate {
         if (code <= currentBest) return null
         val releaseVersion = match.groupValues[1]
         val names = uploadedNames()
-        val apkName = "veyr-$releaseVersion-arm64-v8a.apk".takeIf { it in names }
+        val apkName = releaseVersion.takeIf { it.endsWith("-beta.1") }
+            ?.let { "veyr-${it.removeSuffix(".1")}-arm64-v8a.apk" }
+            ?.takeIf { it in names }
+            ?: "veyr-$releaseVersion-arm64-v8a.apk".takeIf { it in names }
             ?: "veyr-$releaseVersion-candidate-arm64-v8a.apk"
                 .takeIf { "-beta." in releaseVersion && it in names }
             ?: legacyArm64Apks.firstOrNull { it in names }
