@@ -157,7 +157,9 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] S24 Ultra 实机通过 25825 → 25830 应用内下载与覆盖安装。订阅、节点和路由规则均保留。
 - [x] S24 Ultra 实测通过 25830 → 25835；确认「關於」、更新頻道及連線診斷恢复繁体中文。[Beta.4](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.4-beta.4.25835)
 - [x] PR #2 在签名构建、完整 APK 构建和更新频道回归通过后合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/ae2ddc435cfdb483a9019c2e992c8373caa58fbf)
-- [ ] 增加清晰 APK 文件名兼容后，再迁移公开下载文件名。
+- [x] [草稿 PR #4](https://github.com/LauritzWu/Veyr/pull/4) 实现版本化 APK 文件名：稳定版 `veyr-1.0.6-stable-arm64-v8a.apk`、Beta `veyr-1.0.6-beta.1-arm64-v8a.apk`。更新器优先使用与发布标签一致的新文件名，发布流程同时提供字节一致的旧名兼容附件并校验两者 SHA-256。
+- [x] [文件名与更新频道回归](https://github.com/LauritzWu/Veyr/actions/runs/44687294618)和[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44687294684)通过。
+- [ ] 生成过渡 Beta 并验证两个下载附件；25865 实机通过旧名升级后，再验证新版更新器能选用新文件名。
 
 ## 下一轮 Beta 更新体验
 
