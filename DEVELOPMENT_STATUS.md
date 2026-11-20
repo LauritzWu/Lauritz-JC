@@ -169,4 +169,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [ ] 复测主动取消：25845 主动取消下载时也显示下载失败。已在 PR #3 [修复](https://github.com/LauritzWu/Veyr/commit/9b96967adce86c934f3f1af4bd48c82cb41112e0)，待新签名包实测确认主动取消静默返回，真实错误仍可重试。
 - [x] 已构建签名 Beta.3（25855），包含主动取消修复；草稿附件 SHA-256 复核通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44680499788) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-a5f20abb37c549d317ba)
 - [x] S24 Ultra 完成 25850 → 25855 覆盖安装。「關於」显示組建編號 25855，订阅、节点及路由规则保留。
+- [x] 发布签名 Beta.4（25860）供 25855 复测，草稿附件 SHA-256 校验通过，最新稳定版仍为 25840。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-beta.4.25860) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44682269796)
 - [ ] 保留 25855 作为起点，用更高 Beta 实测主动取消静默返回和真实下载失败可重试。
