@@ -63,6 +63,18 @@ jobs:
               check(ReleaseUpdate.isUpgrade(25820, 25810))
               check(!ReleaseUpdate.isUpgrade(25820, 25820))
               check(!ReleaseUpdate.isUpgrade(25810, 25820))
+              val namedStableApk = "veyr-1.0.6-stable-arm64-v8a.apk"
+              val namedStable = Release("v1.0.6-stable.25875", false, false, listOf(namedStableApk))
+              check(select(listOf(namedStable), false) == ReleaseUpdate.Candidate(25875, namedStableApk))
+              check(select(listOf(namedStable.copy(apks = listOf(stableApk, namedStableApk))), false)?.apkName == namedStableApk)
+              check(select(listOf(namedStable.copy(apks = listOf("veyr-1.0.7-stable-arm64-v8a.apk"))), false) == null)
+
+              val namedBetaApk = "veyr-1.0.6-beta.1-arm64-v8a.apk"
+              val betaCompatibilityApk = "veyr-1.0.6-beta.1-candidate-arm64-v8a.apk"
+              val namedBeta = Release("v1.0.6-beta.1.25870", false, true, listOf(namedBetaApk))
+              check(select(listOf(namedBeta), true) == ReleaseUpdate.Candidate(25870, namedBetaApk))
+              check(select(listOf(namedBeta.copy(apks = listOf(betaCompatibilityApk, namedBetaApk))), true)?.apkName == namedBetaApk)
+              check(select(listOf(namedBeta), false) == null)
               println("Android update channel regression passed")
           }
           KOTLIN
