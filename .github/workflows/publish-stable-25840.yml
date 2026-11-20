@@ -1,0 +1,40 @@
+name: Publish verified Veyr 1.0.4 stable draft
+on:
+  push:
+    branches: [release/stable-25840]
+    paths: [.github/workflows/publish-stable-25840.yml]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and publish the existing draft
+        run: |
+          set -euo pipefail
+          tag=v1.0.4-stable.25840
+          endpoint="repos/$GH_REPO/releases/452257084"
+          asset=veyr-preview-arm64-v8a.apk
+          draft=$(gh api "$endpoint")
+          jq -e --arg tag "$tag" --arg asset "$asset" --arg digest 'sha256:c474286cb3eaeca53f8a6d2ecb46c687465e92163cd14be3fd79c59b684122a0' \
+            '.draft and (.prerelease | not) and .tag_name == $tag and .target_commitish == "c7b112b2e1ca45f2dc98588ea6792f96c4d86812" and any(.assets[]; .name == $asset and .state == "uploaded" and .digest == $digest)' <<< "$draft" >/dev/null
+          gh release download "$tag" --pattern "$asset" --pattern SHA256SUMS --dir verified
+          (cd verified && sha256sum --check SHA256SUMS)
+          echo 'c474286cb3eaeca53f8a6d2ecb46c687465e92163cd14be3fd79c59b684122a0  verified/veyr-preview-arm64-v8a.apk' | sha256sum --check
+          cat > release-notes.md <<'EOF'
+          **[下载 ARM64 APK](https://github.com/LauritzWu/Veyr/releases/download/v1.0.4-stable.25840/veyr-preview-arm64-v8a.apk)** · [SHA-256](https://github.com/LauritzWu/Veyr/releases/download/v1.0.4-stable.25840/SHA256SUMS)
+
+          Veyr 1.0.4-STABLE · Android 构建号 25840
+
+          - 应用内可下载并校验更新，再打开 Android 系统安装确认页。
+          - 恢复「檢查更新」、更新頻道、組建編號、連線診斷及規則集的繁体中文文案。
+          - 已在 S24 Ultra 验证覆盖安装后订阅、节点和路由规则保留，VPN 可正常连接。
+
+          [签名构建记录](https://github.com/LauritzWu/Veyr/actions/runs/44672030353)
+          EOF
+          gh api --method PATCH "$endpoint" -F draft=false -F prerelease=false -f make_latest=true \
+            -f name='Veyr 1.0.4-STABLE (25840)' -F body=@release-notes.md >/dev/null
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$tag"
