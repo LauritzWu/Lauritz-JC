@@ -205,4 +205,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 将 1.0.8-BETA（25890）推进至签名 `1.0.8-STABLE` 候选（25895）；草稿只有版本化 APK 和 SHA256SUMS，构建、签名与附件校验通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44702438731) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-b2c29d14b2a0d357543c)
 - [x] S24 Ultra 实测从 25890 覆盖安装 25895。「關於」显示 `1.0.8-STABLE`、組建編號 25895，繁中界面正常，订阅、节点和路由规则保留，VPN 可连通。
 - [x] 已验收的 25895 发布为 GitHub 最新稳定版，唯一 APK 为 `veyr-1.0.8-stable-arm64-v8a.apk`，SHA-256 与实测草稿一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.8-stable.25895) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44704884061)
-- [ ] 用一加 7T 的 25880 从穩定版频道发现、下载并覆盖安装 25895，复核设置保留和 VPN。
+- [x] 一加 7T 已升级至 `1.0.8-STABLE`（25895），订阅、节点和路由规则保留，VPN 可连通。
+- [ ] 确认一加 7T 是否从 25880 的穩定版频道点「下載並安裝」完成升级，以验收单 APK 的稳定频道更新路径。
