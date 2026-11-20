@@ -146,5 +146,6 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 手动发版模板正文首行包含 ARM64 APK 和 SHA-256 下载链接。链接在 Release 正式发布后可用。
 - [x] 应用内下载、校验包名／构建号／签名并打开 Android 安装确认页已在 [PR #2](https://github.com/LauritzWu/Veyr/pull/2) 实现。[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44663472610)与[频道回归](https://github.com/LauritzWu/Veyr/actions/runs/44663472469)通过。
 - [x] 已从 PR #2 分支手动构建 `1.0.4-BETA`（25825，Beta.2）。签名验证和草稿附件哈希核对通过，草稿正文首行已生成 APK 与 SHA-256 链接。[构建记录](https://github.com/LauritzWu/Veyr/actions/runs/44664088544)
-- [ ] 实机覆盖安装 25825，再用更高构建号验证应用内下载和 Android 安装确认。
+- [x] S24 Ultra 实机覆盖安装 25810 → 25825。显示 `1.0.4-BETA` 与构建号 25825，原有订阅、节点和路由规则均保留。
+- [ ] 从已安装的 25825 检查更高 Beta 构建号，验证应用内下载、APK 校验和 Android 安装确认。
 - [ ] 增加清晰 APK 文件名兼容后，再迁移公开下载文件名。
