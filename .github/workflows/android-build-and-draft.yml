@@ -219,6 +219,10 @@ jobs:
             release_args+=(--prerelease)
           fi
 
+          release_title="Veyr $version_name"
+          if [[ "$CHANNEL" == beta && "$BETA_ITERATION" != 1 ]]; then
+            release_title="$release_title.$BETA_ITERATION"
+          fi
           latest_before=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)
           max_build=$(gh api --paginate "repos/$GH_REPO/releases?per_page=100" |
             jq -s '[.[][] | .tag_name | select(test("^v[0-9]+[.][0-9]+[.][0-9]+-(stable|preview|beta[.][0-9]+)[.][0-9]+$")) | split(".") | last | tonumber] | max // 0')
@@ -266,7 +270,7 @@ jobs:
           } > release-notes.md
 
           gh release create "$draft_tag" "$asset" SHA256SUMS --target "$source_sha" \
-            --draft "${release_args[@]}" --title "Veyr $version_name" \
+            --draft "${release_args[@]}" --title "$release_title" \
             --notes-file release-notes.md
           gh release download "$draft_tag" --pattern "$asset" --dir verified
           (cd verified && sha256sum --check ../SHA256SUMS)
