@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -177,6 +178,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                             }
                         }
                     )
+                    ensureActive()
                     openingInstaller = true
                     UpdateApk.install(context, apk)
                     null
@@ -190,6 +192,8 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                 } finally {
                     progress.dismiss()
                 }
+                // Interrupted network reads can surface as I/O errors after the user cancels.
+                ensureActive()
                 if (failure != null) {
                     MaterialAlertDialogBuilder(context)
                         .setMessage(failure)
