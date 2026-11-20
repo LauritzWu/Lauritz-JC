@@ -141,7 +141,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 从默认分支手动构建 `1.0.4-STABLE`（25840）：ARM64 APK 签名、版本、非调试属性及草稿附件 SHA-256 校验通过。最新公开稳定版仍是 25810。[构建记录](https://github.com/LauritzWu/Veyr/actions/runs/44672030353) · [Release 草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-661a8ff32ecba6875b92)
 - [x] S24 Ultra 实机通过 25835 → 25840 覆盖安装。「關於」显示 `1.0.4-STABLE`、組建編號 25840；繁中界面正常，订阅、节点和路由规则保留，VPN 可连通。
 - [x] 发布已验收的 25840 为 GitHub 最新稳定版，保留 `veyr-preview-arm64-v8a.apk`，附件 SHA-256 与草稿一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.4-stable.25840) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44673641147)
-- [ ] 在一加 7T 上从 25810 的「穩定版」頻道发现并下载 25840，覆盖安装后复核配置和 VPN。
+- [x] 一加 7T 实测升级到 `1.0.4-STABLE`（25840）。订阅、节点和路由规则均保留，VPN 可连通。
+- [ ] 单独确认一加 7T 从 25810 的「穩定版」频道发现 25840，并从更新提示进入下载。
 - [x] 用真实签名 Beta（`1.0.4-BETA`，25820）验证从构建到草稿。APK 与草稿附件的 SHA-256 一致，最新公开稳定版仍为 25810。[工作流](https://github.com/LauritzWu/Veyr/actions/runs/44658581003)
 
 ## 下载入口与安装体验
