@@ -168,4 +168,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] S24 Ultra 实测 25845 → 25850：实际下载失败显示重试；下载完成显示「正在驗證安裝套件」，随后打开 Android 安装确认页。覆盖安装后订阅、节点和路由规则保留。
 - [ ] 复测主动取消：25845 主动取消下载时也显示下载失败。已在 PR #3 [修复](https://github.com/LauritzWu/Veyr/commit/9b96967adce86c934f3f1af4bd48c82cb41112e0)，待新签名包实测确认主动取消静默返回，真实错误仍可重试。
 - [x] 已构建签名 Beta.3（25855），包含主动取消修复；草稿附件 SHA-256 复核通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44680499788) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-a5f20abb37c549d317ba)
-- [ ] 先在 S24 Ultra 上覆盖安装 25855，再用更高 Beta 实测主动取消和真实下载失败。
+- [x] S24 Ultra 完成 25850 → 25855 覆盖安装。「關於」显示組建編號 25855，订阅、节点及路由规则保留。
+- [ ] 保留 25855 作为起点，用更高 Beta 实测主动取消静默返回和真实下载失败可重试。
