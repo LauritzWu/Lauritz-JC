@@ -299,13 +299,15 @@ func (w *boxPlatformInterfaceWrapper) Write(p []byte) (n int, err error) {
 // 日志
 
 type boxPlatformLogWriterWrapper struct {
+	maxLevel sblog.Level
 }
-
-var boxPlatformLogWriter sblog.PlatformWriter = &boxPlatformLogWriterWrapper{}
 
 func (w *boxPlatformLogWriterWrapper) DisableColors() bool { return true }
 
-func (w *boxPlatformLogWriterWrapper) WriteMessage(level uint8, message string) {
+func (w *boxPlatformLogWriterWrapper) WriteMessage(level sblog.Level, message string) {
+	if level > w.maxLevel {
+		return
+	}
 	if !strings.HasSuffix(message, "\n") {
 		message += "\n"
 	}

@@ -40,6 +40,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     private val logAccess = Mutex()
     private var displayedLog: String? = null
     private var searchQuery = ""
+    private var viewingHistory = false
     private val colorCodes = Regex("""(?:\u001B\[|\[(?=[0-9;]+m))[0-9;]*m""")
 
     @SuppressLint("RestrictedApi", "WrongConstant")
@@ -59,6 +60,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         ViewCompat.setOnApplyWindowInsetsListener(binding.root, ListListener)
 
         displayedLog = null
+        viewingHistory = false
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 while (true) {
@@ -89,20 +91,26 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
 
     private suspend fun reloadSession(force: Boolean = false) = logAccess.withLock {
         val current = binding
-        if (!force && current.scroolview.canScrollVertically(1)) return@withLock
+        if (!force && (viewingHistory || current.scroolview.canScrollVertically(1))) return@withLock
         val previous = displayedLog
         val query = searchQuery
+        val history = viewingHistory
+        val readLimit = if (history) 256 * 1024L else 50 * 1024L
         val rendered = withContext(Dispatchers.IO) {
             val file = File(current.root.context.cacheDir, "neko.log")
             val raw = try {
                 RandomAccessFile(file, "r").use { reader ->
                     val length = reader.length()
-                    val start = (length - 50 * 1024L).coerceAtLeast(0)
+                    val start = (length - readLimit).coerceAtLeast(0)
+                    val beginsMidLine = start > 0 && run {
+                        reader.seek(start - 1)
+                        reader.read() != '\n'.code
+                    }
                     reader.seek(start)
                     val bytes = ByteArray((length - start).toInt())
                     val count = reader.read(bytes).coerceAtLeast(0)
                     val tail = String(bytes, 0, count, Charsets.UTF_8)
-                    if (start > 0) tail.substringAfter('\n', tail) else tail
+                    if (beginsMidLine) tail.substringAfter('\n', "") else tail
                 }
             } catch (_: java.io.IOException) {
                 return@withContext null
@@ -136,7 +144,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
             }
             clean to span
         } ?: return@withLock
-        if (query != searchQuery || (!force && current.scroolview.canScrollVertically(1))) return@withLock
+        if (query != searchQuery || history != viewingHistory || (!force && current.scroolview.canScrollVertically(1))) return@withLock
 
         displayedLog = rendered.first
         current.textview.text = rendered.second
@@ -198,7 +206,13 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
                 }
             }
 
+            R.id.action_logcat_history -> {
+                viewingHistory = true
+                viewLifecycleOwner.lifecycleScope.launch { reloadSession(force = true) }
+            }
+
             R.id.action_logcat_latest -> {
+                viewingHistory = false
                 viewLifecycleOwner.lifecycleScope.launch { reloadSession(force = true) }
             }
         }

@@ -33,6 +33,7 @@ import moe.matsuri.nb4a.net.LocalResolverImpl
 import moe.matsuri.nb4a.utils.JavaUtil
 import moe.matsuri.nb4a.utils.cleanWebview
 import java.io.File
+import java.io.RandomAccessFile
 import androidx.work.Configuration as WorkConfiguration
 
 class SagerNet : Application(),
@@ -59,6 +60,7 @@ class SagerNet : Application(),
         if (isMainProcess || isBgProcess) {
             externalAssets.mkdirs()
             Seq.setContext(this)
+            discardLegacyConfigurationLogs()
             Libcore.initCore(
                 process,
                 cacheDir.absolutePath + "/",
@@ -101,6 +103,22 @@ class SagerNet : Application(),
                     .penaltyLog()
                     .build()
             )
+        }
+    }
+
+    private fun discardLegacyConfigurationLogs() {
+        val marker = File(noBackupFilesDir, "log-privacy-migration-v1")
+        RandomAccessFile(marker, "rw").use { state ->
+            // The UI and VPN processes share the same log file.
+            state.channel.lock().use {
+                if (state.length() == 0L) {
+                    val legacyLog = File(cacheDir, "neko.log")
+                    if (!legacyLog.delete() && legacyLog.exists()) {
+                        RandomAccessFile(legacyLog, "rw").use { it.setLength(0) }
+                    }
+                    state.write(1)
+                }
+            }
         }
     }
 

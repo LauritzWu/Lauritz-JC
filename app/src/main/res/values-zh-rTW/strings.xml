@@ -675,4 +675,6 @@
     <string name="github_update_verify_failed">安裝套件未通過驗證。</string>
     <string name="github_update_install_failed">無法開啟 Android 安裝程式。</string>
     <string name="github_update_retry">重試</string>
+    <string name="logcat_history">查看保留的日誌（最多 256 KiB）</string>
+    <string name="log_buffer_size">日誌緩衝區大小（KiB）</string>
 </resources>

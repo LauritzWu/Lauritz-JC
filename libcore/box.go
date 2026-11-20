@@ -21,6 +21,7 @@ import (
 
 	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/constant"
+	sblog "github.com/sagernet/sing-box/log"
 	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing/service"
 	"github.com/sagernet/sing/service/pause"
@@ -96,11 +97,21 @@ func NewSingBoxInstance(config string, localTransport LocalDNSTransport) (b *Box
 		return nil, fmt.Errorf("decode config: %v", err)
 	}
 
+	// Platform logs need the same threshold as the box's regular output.
+	platformLevel := sblog.LevelTrace
+	if options.Log != nil && options.Log.Level != "" {
+		platformLevel, err = sblog.ParseLevel(options.Log.Level)
+		if err != nil {
+			cancel()
+			return nil, fmt.Errorf("parse log level: %w", err)
+		}
+	}
+
 	// create box
 	instance, err := box.New(box.Options{
 		Options:           options,
 		Context:           ctx,
-		PlatformLogWriter: boxPlatformLogWriter,
+		PlatformLogWriter: &boxPlatformLogWriterWrapper{maxLevel: platformLevel},
 	})
 	if err != nil {
 		cancel()
