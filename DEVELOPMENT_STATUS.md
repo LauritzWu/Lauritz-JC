@@ -197,4 +197,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] [草稿 PR #5](https://github.com/LauritzWu/Veyr/pull/5) 从新发布移除兼容附件，简化标题及首轮 Beta 文件名；保留历史下载识别。完整 APK 构建及频道回归通过。
 - [x] 签名 `1.0.7-BETA`（25885）草稿仅包含一个 APK `veyr-1.0.7-beta-arm64-v8a.apk` 和 SHA256SUMS。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-8f037e7d2a36a34c4313) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44697571532)
 - [x] S24 Ultra 实测从 25880 手动覆盖安装单 APK 草稿 25885。「關於」显示 `1.0.7-BETA`、組建編號 25885；订阅、节点和路由规则保留，VPN 可连通。
-- [ ] 从 25885 的 Beta 频道发现并应用内安装下一份单 APK 版本，验证简化文件名的更新路径。
+- [x] 发布单 APK `1.0.8-BETA`（25890），唯一 APK 为 `veyr-1.0.8-beta-arm64-v8a.apk`，签名及草稿附件 SHA-256 校验通过；最新稳定版仍为 25880。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.8-beta.1.25890) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44699727714)
+- [ ] 从 25885 的 Beta 频道发现、下载并覆盖安装 25890，验收简化文件名与配置保留。
