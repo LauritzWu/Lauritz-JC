@@ -250,9 +250,20 @@ jobs:
           "$tools/zipalign" -c -P 16 4 "$asset"
           sha256sum "$asset" > SHA256SUMS
 
+          # GitHub resolves the tag-based download links once the draft is published.
+          download_base="https://github.com/$GH_REPO/releases/download/$release_tag"
+          {
+            printf '**[下载 ARM64 APK](%s/%s)** · [SHA-256](%s/SHA256SUMS)\n\n' "$download_base" "$asset" "$download_base"
+            printf 'Veyr %s · Android 构建号 %s · %s\n\n' "$version_name" "$BUILD_CODE" "$CHANNEL"
+            printf '已有 Veyr 的用户可以直接覆盖安装。\n\n'
+            printf '## 更新内容\n\n'
+            printf '<!-- 发布前在这里填写本次更新内容。 -->\n\n'
+            printf '[构建记录](https://github.com/%s/actions/runs/%s)\n' "$GH_REPO" "$run_id"
+          } > release-notes.md
+
           gh release create "$draft_tag" "$asset" SHA256SUMS --target "$source_sha" \
             --draft "${release_args[@]}" --title "Veyr $version_name ($BUILD_CODE) — draft" \
-            --notes "Verified ARM64 APK from Actions run $run_id. Review release notes before publishing."
+            --notes-file release-notes.md
           gh release download "$draft_tag" --pattern "$asset" --dir verified
           (cd verified && sha256sum --check ../SHA256SUMS)
           test "$(gh release view "$draft_tag" --json isDraft --jq .isDraft)" = true
