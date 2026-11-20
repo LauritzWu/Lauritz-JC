@@ -20,7 +20,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| GitHub 最新稳定版 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 与实机验证已通过 |
+| GitHub 最新稳定版 | 1.0.4-STABLE | 25840 | ARM64，`c7b112b`，S24 Ultra 验收及发布校验通过 |
+| GitHub 历史稳定版 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 与实机验证已通过 |
 | Actions 前一稳定候选 | 1.0.3-STABLE | 25800 | ARM64，`539f754`，实测覆盖安装及配置保留通过，「关于」页显示 DEBUG |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25780 | ARM64，`83880d5`，繁中频道文案已通过实机验收 |
 | Actions 前一稳定候选 | 1.0.3 DEBUG | 25770 | ARM64，`68de6ad`，CI 签名校验和实机覆盖安装通过 |
@@ -139,7 +140,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] PR #1 的回归与完整 APK 构建通过，已合并至默认分支。GitHub Actions 页面已验证显示 Run workflow 入口。[手动工作流](https://github.com/LauritzWu/Veyr/actions/workflows/android-build-and-draft.yml)
 - [x] 从默认分支手动构建 `1.0.4-STABLE`（25840）：ARM64 APK 签名、版本、非调试属性及草稿附件 SHA-256 校验通过。最新公开稳定版仍是 25810。[构建记录](https://github.com/LauritzWu/Veyr/actions/runs/44672030353) · [Release 草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-661a8ff32ecba6875b92)
 - [x] S24 Ultra 实机通过 25835 → 25840 覆盖安装。「關於」显示 `1.0.4-STABLE`、組建編號 25840；繁中界面正常，订阅、节点和路由规则保留，VPN 可连通。
-- [ ] 正式发布已验收的 25840 草稿；保留兼容旧版的 APK 文件名。发布后在一加 7T 上从 25810 的穩定版频道验证升级。
+- [x] 发布已验收的 25840 为 GitHub 最新稳定版，保留 `veyr-preview-arm64-v8a.apk`，附件 SHA-256 与草稿一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.4-stable.25840) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44673641147)
+- [ ] 在一加 7T 上从 25810 的「穩定版」頻道发现并下载 25840，覆盖安装后复核配置和 VPN。
 - [x] 用真实签名 Beta（`1.0.4-BETA`，25820）验证从构建到草稿。APK 与草稿附件的 SHA-256 一致，最新公开稳定版仍为 25810。[工作流](https://github.com/LauritzWu/Veyr/actions/runs/44658581003)
 
 ## 下载入口与安装体验
