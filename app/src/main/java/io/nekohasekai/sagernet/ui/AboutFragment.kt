@@ -110,7 +110,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     val release = withContext(Dispatchers.IO) { latestRelease(beta) }
                     if (release == null) {
                         dialog.setMessage(if (beta) R.string.github_update_no_release else R.string.github_update_no_stable)
-                    } else if (release.code <= installed) {
+                    } else if (!ReleaseUpdate.isUpgrade(release.code, installed)) {
                         dialog.setMessage(getString(R.string.github_update_current, installed, release.code))
                     } else {
                         dialog.setMessage(getString(R.string.github_update_available, release.title, installed, release.notes))
@@ -158,22 +158,22 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                 }
                 for (index in 0 until releases.length()) {
                     val item = releases.getJSONObject(index)
-                    if (item.optBoolean("draft") || (!beta && item.optBoolean("prerelease"))) continue
-                    val tag = item.getString("tag_name")
-                    val match = RELEASE_TAG.matchEntire(tag) ?: continue
-                    val code = match.groupValues[2].toLongOrNull() ?: continue
-                    val betaVersion = match.groups[1]?.value
-                    if (code <= (latest?.code ?: 0)) continue
-                    val assets = item.getJSONArray("assets")
-                    val uploadedNames = (0 until assets.length())
-                        .map(assets::getJSONObject)
-                        .filter { it.optString("state") == "uploaded" }
-                        .map { it.optString("name") }
-                    val apkNames = if (betaVersion == null) ARM64_APKS else
-                        listOf("veyr-$betaVersion-candidate-arm64-v8a.apk") + ARM64_APKS
-                    val apkName = apkNames.firstOrNull { it in uploadedNames } ?: continue
+                    val tag = item.optString("tag_name")
+                    val candidate = ReleaseUpdate.candidate(
+                        tag,
+                        item.optBoolean("draft"),
+                        item.optBoolean("prerelease"),
+                        beta,
+                        latest?.code ?: 0
+                    ) {
+                        val assets = item.getJSONArray("assets")
+                        (0 until assets.length())
+                            .map(assets::getJSONObject)
+                            .filter { it.optString("state") == "uploaded" }
+                            .map { it.optString("name") }
+                    } ?: continue
                     val title = item.optString("name", "").takeIf { it.isNotBlank() } ?: tag
-                    latest = Release(tag, title, code, item.optString("body").take(4000), apkName)
+                    latest = Release(tag, title, candidate.code, item.optString("body").take(4000), candidate.apkName)
                 }
                 page++
             } while (releases.length() == 100)
@@ -183,8 +183,6 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         private companion object {
             const val PROJECT_URL = "https://github.com/LauritzWu/Veyr"
             const val RELEASES_API = "https://api.github.com/repos/LauritzWu/Veyr/releases"
-            val ARM64_APKS = listOf("veyr-preview-arm64-v8a.apk", "lauritz-jc-preview-arm64-v8a.apk")
-            val RELEASE_TAG = Regex("""v(?:(\d+\.\d+\.\d+-beta\.\d+)|\d+\.\d+\.\d+-(?:preview|stable))\.(\d+)""")
             val updateClient = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
         }
 
