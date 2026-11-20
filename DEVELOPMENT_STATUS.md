@@ -236,4 +236,4 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 用户确认实测 APK 来自 `1.0.9-STABLE` 发布草稿（25920）；截图显示附件 `veyr-1.0.9-stable-arm64-v8a.apk` 与 `SHA256SUMS`。
 - [x] 签名构建来自默认分支 `lauritz/starifly-core-1.14` 的 `1abc714`，构建号 25920，ARM64 签名候选验证与草稿验证通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44732704088) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-b80c2c23da21e85e3928)
 - [x] `1.0.9-STABLE`（25920）已发布，用户确认旧版设备通过下载完成升级。[正式发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.9-stable.25920)
-- [ ] 待确认旧版设备是否通过应用内「稳定版」频道发现并安装此次更新。
+- [x] 用户确认旧版设备通过 Veyr 应用内「检查更新 → 稳定版 → 下载并安装」成功升级到 `1.0.9-STABLE`（25920），稳定频道应用内升级验证通过。
