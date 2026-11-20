@@ -773,7 +773,6 @@
     <string name="github_update_available">%1$s is available. Installed build: %2$d.\n\n%3$s</string>
     <string name="github_update_unsupported">%1$s is available for ARM64 devices.</string>
     <string name="github_update_release_page">Release page</string>
-    <string name="github_update_download">Download APK</string>
     <string name="github_update_failed">Could not check for updates. Please try again.</string>
     <string name="github_update_build">%1$s · Build %2$d</string>
     <string name="route_rule_sets">Rule sets</string>
@@ -795,4 +794,7 @@
     <string name="logcat_search_hint">Domain, IP address, or keyword</string>
     <string name="logcat_search_clear">Clear filter</string>
     <string name="logcat_search_empty">No matches in recent logs.</string>
+    <string name="github_update_download">Download and install</string>
+    <string name="github_update_downloading">Downloading and verifying the APK…</string>
+    <string name="github_update_install_failed">Could not prepare the update. Try again or open the release page.</string>
 </resources>
