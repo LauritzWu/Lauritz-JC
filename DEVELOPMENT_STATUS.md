@@ -218,4 +218,6 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [ ] 设备选择 Info 后仍看到核心 DEBUG／TRACE；普通生成配置映射为 info，原因已确认：核心 PlatformWriter 未按日志级别过滤。PR #6 的原生 writer 按实例有效级别过滤，待实机确认。
 - [x] 两项修复已纳入签名 `1.0.9-BETA.2` 草稿，完整构建、签名及 SHA-256 校验通过。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-6cf247af4ca884ddfeea) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44714332034)
 - [x] S24 Ultra 在 1.0.9-BETA.2 的 Info 测试截图中确认新核心输出为 INFO，未见 DEBUG／TRACE。截图可见 `[0058]` 至 `[0091]`，未确认是否为同一次历史快照。
-- [ ] 复测 VPN 启动时是否仍有 ACCESS_WIFI_STATE 堆栈，以及历史切回实时后是否恢复刷新。
+- [x] S24 Ultra 复测 1.0.9-BETA.2：所提供的 VPN 启动日志中未见 `ACCESS_WIFI_STATE` 异常堆栈。启动时短暂提示 `missing default interface`，随后发现移动网络接口并继续处理 DNS 流量。
+- [x] 用户确认从「查看保留的日誌」切回「最新」并播放后，新日志继续出现。
+- [ ] 仍待在同一负载下对比历史与实时窗口的保留时长。
