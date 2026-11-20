@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -116,7 +117,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         dialog.setMessage(getString(R.string.github_update_available, release.title, installed, release.notes))
                         if ("arm64-v8a" in Build.SUPPORTED_ABIS) {
                             dialog.setPositiveButton(R.string.github_update_download) { _, _ ->
-                                context.launchCustomTab("$PROJECT_URL/releases/download/${release.tag}/${release.apkName}")
+                                downloadAndInstall(release)
                             }
                         } else {
                             dialog.setMessage(getString(R.string.github_update_unsupported, release.title))
@@ -133,6 +134,39 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     progress.dismiss()
                 }
                 dialog.setNegativeButton(android.R.string.ok, null).show()
+            }
+        }
+
+        private fun downloadAndInstall(release: Release) {
+            if (updateCheck?.isActive == true) return
+            val context = requireContext()
+            val progress = MaterialAlertDialogBuilder(context)
+                .setMessage(R.string.github_update_downloading)
+                .create()
+            progress.setOnCancelListener { updateCheck?.cancel() }
+            progress.show()
+            updateCheck = viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val url = PROJECT_URL.toHttpUrl().newBuilder()
+                        .addPathSegments("releases/download")
+                        .addPathSegment(release.tag)
+                        .addPathSegment(release.apkName)
+                        .build()
+                    val apk = UpdateApk.download(context.applicationContext, url, release.code)
+                    UpdateApk.install(context, apk)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    MaterialAlertDialogBuilder(context)
+                        .setMessage(R.string.github_update_install_failed)
+                        .setNeutralButton(R.string.github_update_release_page) { _, _ ->
+                            context.launchCustomTab("$PROJECT_URL/releases/tag/${release.tag}")
+                        }
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                } finally {
+                    progress.dismiss()
+                }
             }
         }
 

@@ -630,4 +630,7 @@
     <string name="logcat_search_hint">網域、IP 位址或關鍵字</string>
     <string name="logcat_search_clear">清除篩選</string>
     <string name="logcat_search_empty">最近的日誌中沒有符合項目。</string>
+    <string name="github_update_download">下載並安裝</string>
+    <string name="github_update_downloading">正在下載並驗證安裝套件…</string>
+    <string name="github_update_install_failed">無法準備更新。請重試或開啟發行頁面。</string>
 </resources>
