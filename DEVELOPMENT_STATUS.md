@@ -215,4 +215,6 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [ ] 在 S24 Ultra 对比相同负载下可回看的时间、搜索和滚动体验；检查从历史切回实时后恢复刷新。
 - [x] S24 Ultra 截图确认 YouTube 关键词过滤和高亮可用；历史与实时窗口长度、切回实时仍待对照。
 - [ ] VPN 启动时 Wi-Fi 状态查询在 Android 缺少权限时抛出异常。已在 PR #6 加入权限检查；[修复提交](https://github.com/LauritzWu/Veyr/commit/c1e94e0b6055a8539546a99238dfd18cb69129ab)，待包含修复的新 APK 实测。
-- [ ] 设备选择 Info 后仍看到核心 DEBUG／TRACE；普通生成配置映射为 info，需确认实际生效配置及产生日誌的组件。
+- [ ] 设备选择 Info 后仍看到核心 DEBUG／TRACE；普通生成配置映射为 info，原因已确认：核心 PlatformWriter 未按日志级别过滤。PR #6 的原生 writer 按实例有效级别过滤，待实机确认。
+- [x] 两项修复已纳入签名 `1.0.9-BETA.2` 草稿，完整构建、签名及 SHA-256 校验通过。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-6cf247af4ca884ddfeea) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44714332034)
+- [ ] S24 Ultra 安装 1.0.9-BETA.2 后以 Info 级别重连 VPN，确认新核心日志无 DEBUG／TRACE、启动无 ACCESS_WIFI_STATE 堆栈，历史与实时可正常切换。
