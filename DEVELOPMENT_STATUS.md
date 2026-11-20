@@ -135,7 +135,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - 依据应用更新规则和 GitHub Release 数据进行模拟：现有稳定和 Beta 渠道均选中 25810；加入模拟 Beta 25815 后，只有 Beta 渠道选中它。Android 更新器的 Kotlin 规则已接入 CI：[回归通过](https://github.com/LauritzWu/Veyr/actions/runs/44660823023)。覆盖草稿过滤、稳定／Beta 分流、ARM64 文件选择、历史预览格式及防降级。
 - [x] 在独立分支让构建端与发版草稿复用版本、渠道和 Beta 轮次配置。
 - [x] 将签名构建及草稿工作流改为手动触发。修改后普通提交仅运行更新回归，Beta 25820 继续保留为草稿。
-- [x] 从默认分支单独移植更新规则、回归测试和手动发版工作流。[草稿 PR #1](https://github.com/LauritzWu/Veyr/pull/1) · [PR 回归通过](https://github.com/LauritzWu/Veyr/actions/runs/44661161037)
-- [ ] 审查并合并 PR #1，之后从默认分支验证手动工作流入口。
+- [x] 从默认分支单独移植更新规则、回归测试和手动发版工作流。[PR #1](https://github.com/LauritzWu/Veyr/pull/1) · [PR 回归通过](https://github.com/LauritzWu/Veyr/actions/runs/44661161037)
+- [x] PR #1 的回归与完整 APK 构建通过，已合并至默认分支。GitHub Actions 页面已验证显示 Run workflow 入口。[手动工作流](https://github.com/LauritzWu/Veyr/actions/workflows/android-build-and-draft.yml)
+- [ ] 下次制作候选包时，从默认分支手动触发签名构建与草稿流程。
 - [x] 用真实签名 Beta（`1.0.4-BETA`，25820）验证从构建到草稿。APK 与草稿附件的 SHA-256 一致，最新公开稳定版仍为 25810。[工作流](https://github.com/LauritzWu/Veyr/actions/runs/44658581003)
 
