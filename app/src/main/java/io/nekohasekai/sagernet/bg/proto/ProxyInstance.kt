@@ -23,8 +23,6 @@ class ProxyInstance(profile: ProxyEntity, var service: BaseService.Interface? = 
     override fun buildConfig() {
         super.buildConfig()
         lastSelectorGroupId = super.config.selectorGroupId
-        //
-        if (notTmp) Logs.d(config.config)
         if (notTmp && BuildConfig.DEBUG) Logs.d(JavaUtil.gson.toJson(config.trafficMap))
     }
 
@@ -32,14 +30,6 @@ class ProxyInstance(profile: ProxyEntity, var service: BaseService.Interface? = 
     fun buildConfigTmp() {
         notTmp = false
         buildConfig()
-    }
-
-    override suspend fun init() {
-        super.init()
-        pluginConfigs.forEach { (_, plugin) ->
-            val (_, content) = plugin
-            Logs.d(content)
-        }
     }
 
     override suspend fun loadConfig() {
