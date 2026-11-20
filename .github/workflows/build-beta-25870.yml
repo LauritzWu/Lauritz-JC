@@ -2,7 +2,7 @@ name: Build and publish Veyr Beta 25870 filename transition
 on:
   push:
     branches: [release/beta-25870]
-    paths: [.github/workflows/build-beta-25870.yml]
+    paths: [.github/workflows/build-beta-25870.yml, buildScript/lib/assets.sh]
 permissions:
   contents: read
 concurrency:
