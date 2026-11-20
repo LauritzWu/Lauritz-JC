@@ -1,11 +1,14 @@
 package moe.matsuri.nb4a
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.bg.ServiceNotification
 import io.nekohasekai.sagernet.database.DataStore
@@ -93,8 +96,13 @@ class NativeInterface : BoxPlatformInterface, NB4AInterface {
 
     // TODO: 'getter for connectionInfo: WifiInfo!' is deprecated
     override fun wifiState(): String {
+        val context = app.applicationContext
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_WIFI_STATE) !=
+            PackageManager.PERMISSION_GRANTED
+        ) return ""
+
         val wifiManager =
-            app.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+            context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
                 ?: return ""
         return try {
             val connectionInfo = wifiManager.connectionInfo
