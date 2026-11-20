@@ -1,8 +1,6 @@
 name: Build signed Android APK and prepare draft
 on:
-  push:
-    branches: [ci/release-automation]
-    paths: [.github/workflows/android-build-and-draft.yml]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -112,26 +110,23 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           unset GH_TOKEN
-          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == ci/release-automation ]]; then
-            sed -i "s/^VERSION_NAME=.*/VERSION_NAME=$BASE_VERSION-${CHANNEL^^}/" nb4a.properties
-            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((VERSION_CODE_BASE + GITHUB_RUN_NUMBER))/" nb4a.properties
-            : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
-            : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
-            : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
-            : "${JC_PREVIEW_KEY_PASS:?Missing preview key password}"
-            umask 077
-            printf '%s' "$JC_PREVIEW_KEYSTORE" | base64 --decode > release.keystore
-            trap 'rm -f release.keystore' EXIT
-            unset LOCAL_PROPERTIES
-            export KEYSTORE_PASS="$JC_PREVIEW_KEYSTORE_PASS"
-            export ALIAS_NAME="$JC_PREVIEW_KEY_ALIAS"
-            export ALIAS_PASS="$JC_PREVIEW_KEY_PASS"
-            sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview.debug/' nb4a.properties
-          fi
+          sed -i "s/^VERSION_NAME=.*/VERSION_NAME=$BASE_VERSION-${CHANNEL^^}/" nb4a.properties
+          sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((VERSION_CODE_BASE + GITHUB_RUN_NUMBER))/" nb4a.properties
+          : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
+          : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
+          : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
+          : "${JC_PREVIEW_KEY_PASS:?Missing preview key password}"
+          umask 077
+          printf '%s' "$JC_PREVIEW_KEYSTORE" | base64 --decode > release.keystore
+          trap 'rm -f release.keystore' EXIT
+          unset LOCAL_PROPERTIES
+          export KEYSTORE_PASS="$JC_PREVIEW_KEYSTORE_PASS"
+          export ALIAS_NAME="$JC_PREVIEW_KEY_ALIAS"
+          export ALIAS_PASS="$JC_PREVIEW_KEY_PASS"
+          sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=top.lauritz.jc.uipreview.debug/' nb4a.properties
           ./gradlew app:assembleOssRelease
       - name: Verify signed ARM64 upgrade candidate
         id: verify
-        if: github.event_name == 'push' && github.ref_name == 'ci/release-automation'
         run: |
           mapfile -t apks < <(find app/build/outputs/apk/oss/release -name '*arm64-v8a*.apk')
           test "${#apks[@]}" -eq 1
@@ -154,7 +149,6 @@ jobs:
           cp "${apks[0]}" veyr-candidate-arm64-v8a.apk
       - uses: actions/upload-artifact@v5
         id: upload
-        if: github.event_name == 'push' && github.ref_name == 'ci/release-automation'
         with:
           name: veyr-candidate-arm64-v8a
           path: veyr-candidate-arm64-v8a.apk
