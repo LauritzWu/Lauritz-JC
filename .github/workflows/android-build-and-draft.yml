@@ -11,6 +11,7 @@ env:
   BASE_VERSION: '1.0.4'
   CHANNEL: beta
   BETA_ITERATION: '1'
+  VERSION_CODE_BASE: '5162'
 jobs:
   libcore:
     name: Native Build (LibCore)
@@ -113,7 +114,7 @@ jobs:
           unset GH_TOKEN
           if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_NAME" == ci/release-automation ]]; then
             sed -i "s/^VERSION_NAME=.*/VERSION_NAME=$BASE_VERSION-${CHANNEL^^}/" nb4a.properties
-            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((5100 + GITHUB_RUN_NUMBER))/" nb4a.properties
+            sed -i "s/^VERSION_CODE=.*/VERSION_CODE=$((VERSION_CODE_BASE + GITHUB_RUN_NUMBER))/" nb4a.properties
             : "${JC_PREVIEW_KEYSTORE:?Missing preview keystore}"
             : "${JC_PREVIEW_KEYSTORE_PASS:?Missing preview keystore password}"
             : "${JC_PREVIEW_KEY_ALIAS:?Missing preview key alias}"
@@ -140,7 +141,7 @@ jobs:
           grep -Fx "application-label:'Veyr'" apk-badging.txt
           grep -F "versionName='$BASE_VERSION-${CHANNEL^^}'" apk-badging.txt
           build_code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" apk-badging.txt)
-          test "$build_code" -eq "$((5 * (5100 + GITHUB_RUN_NUMBER)))"
+          test "$build_code" -eq "$((5 * (VERSION_CODE_BASE + GITHUB_RUN_NUMBER)))"
           test "$build_code" -gt 25800
           if grep -Fxq 'application-debuggable' apk-badging.txt; then
             echo 'Stable candidate must not be debuggable' >&2
