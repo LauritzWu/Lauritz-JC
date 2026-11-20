@@ -4,7 +4,7 @@
 
 ## 1. 项目基本信息
 
-Veyr 是基于 NekoBox for Android、SagerNet 和 sing-box 的 Android 代理客户端。功能覆盖 Sub-Store 订阅、路由规则、DNS 分流和连接日志。[仓库 README](README.md) · [许可证](LICENSE)
+Veyr 是 Starifly NekoBoxF 的 Android fork，Starifly NekoBoxF 源自 MatsuriDayo NekoBox for Android。SagerNet 维护 sing-box 核心及其官方 Android 客户端。功能覆盖 Sub-Store 订阅、路由规则、DNS 分流和连接日志。[仓库 README](README.md) · [许可证](LICENSE)
 
 | 路径 | 用途 |
 | --- | --- |
@@ -237,3 +237,11 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 签名构建来自默认分支 `lauritz/starifly-core-1.14` 的 `1abc714`，构建号 25920，ARM64 签名候选验证与草稿验证通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44732704088) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-b80c2c23da21e85e3928)
 - [x] `1.0.9-STABLE`（25920）已发布，用户确认旧版设备通过下载完成升级。[正式发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.9-stable.25920)
 - [x] 用户确认旧版设备通过 Veyr 应用内「检查更新 → 稳定版 → 下载并安装」成功升级到 `1.0.9-STABLE`（25920），稳定频道应用内升级验证通过。
+
+## 上游对照回归（待测）
+
+对照对象为 Veyr `1.0.9-STABLE` 和 Starifly NekoBoxF。先在一加 7T 实测，记录两款客户端及核心版本。使用相同订阅、节点、网络、日志级别、视频和画质，每次只运行一款 VPN。
+
+- [ ] 各播放同一段 YouTube 视频 2 分钟，检查打开日志页、滚动和回到最新记录是否流畅。
+- [ ] 各刷新一次相同的 Sub-Store 订阅，记录节点列表及原有路由行为，再断开并重新连接，确认网页可访问。
+- [ ] 如可通过 ADB 采样，记录 VPN 进程和界面进程的 PSS，并分别标注空闲、播放、打开日志页时的读数。
