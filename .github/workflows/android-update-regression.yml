@@ -52,7 +52,7 @@ jobs:
               check(select(listOf(published, stable), false) == ReleaseUpdate.Candidate(25810, stableApk))
               check(select(listOf(published, stable), true) == ReleaseUpdate.Candidate(25820, betaApk))
               check(select(listOf(stable, published), true) == ReleaseUpdate.Candidate(25820, betaApk))
-              check(select(listOf(stable, published.copy(apks = listOf("x86.apk"))), true)?.code == 25810)
+              check(select(listOf(stable, published.copy(apks = listOf("x86.apk"))), true)?.code == 25810L)
               val legacy = Release("v1.0.2-preview.25685", false, true, listOf("lauritz-jc-preview-arm64-v8a.apk"))
               check(select(listOf(legacy), true)?.code == 25685L)
               check(select(listOf(legacy), false) == null)
