@@ -20,7 +20,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 | 渠道 | 显示版本 | Android versionCode | 构建与源码 |
 | --- | --- | ---: | --- |
-| GitHub 最新稳定版 | 1.0.5-STABLE | 25865 | ARM64，`42c5bb5`，S24 Ultra 验收及发布校验通过 |
+| GitHub 最新稳定版 | 1.0.6-STABLE | 25880 | ARM64，S24 Ultra 实机与发布校验通过 |
+| GitHub 历史稳定版 | 1.0.5-STABLE | 25865 | ARM64，`42c5bb5`，S24 Ultra 验收及发布校验通过 |
 | GitHub 历史稳定版 | 1.0.4-STABLE | 25840 | ARM64，`c7b112b`，S24 Ultra 验收及发布校验通过 |
 | GitHub 历史稳定版 | 1.0.3-STABLE | 25810 | ARM64，`5d4537f`，Release 构建，CI 与实机验证已通过 |
 | Actions 前一稳定候选 | 1.0.3-STABLE | 25800 | ARM64，`539f754`，实测覆盖安装及配置保留通过，「关于」页显示 DEBUG |
@@ -188,4 +189,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 一加 7T 实测从 25840 的「檢查更新 → 穩定版 → 下載並安裝」发现、下载并覆盖安装 25865，稳定频道升级全流程通过。
 - [x] 从默认分支构建签名 `1.0.6-STABLE`（25880）；版本化 APK 与旧名兼容附件逐字节一致，SHA-256 相同；草稿尚未公开。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44693058466) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-af58e36d748a31b966e5)
 - [x] S24 Ultra 实测 25875 → 25880 覆盖安装通过。「關於」显示 `1.0.6-STABLE`、組建編號 25880，繁中界面正常，订阅、节点和路由规则保留，VPN 可连通。
-- [ ] 正式发布已验收的 25880 草稿，保留版本化和旧名兼容 APK。发布后用一加 7T 的 25865 验证稳定频道发现、下载及覆盖安装。
+- [x] 已验收的 25880 发布为 GitHub 最新稳定版；主下载使用版本化文件名，保留旧名附件；两个 APK 的 SHA-256 一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.6-stable.25880) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44695196146)
+- [ ] 在一加 7T 从 25865 的穩定版频道发现、下载并覆盖安装 25880，核对设置保留和 VPN 连通。
