@@ -207,3 +207,9 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 已验收的 25895 发布为 GitHub 最新稳定版，唯一 APK 为 `veyr-1.0.8-stable-arm64-v8a.apk`，SHA-256 与实测草稿一致。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.8-stable.25895) · [发布校验](https://github.com/LauritzWu/Veyr/actions/runs/44704884061)
 - [x] 一加 7T 已升级至 `1.0.8-STABLE`（25895），订阅、节点和路由规则保留，VPN 可连通。
 - [x] 一加 7T 从 25880 的「檢查更新 → 穩定版 → 下載並安裝」发现、下载并覆盖安装 25895，单一版本化 APK 的稳定频道升级全流程通过。
+
+## 日志保留与历史查看
+
+- [x] [草稿 PR #6](https://github.com/LauritzWu/Veyr/pull/6)：默认缓冲区 256 KiB，保留已保存设置。实时窗口仍为 50 KiB；菜单可按需读取最多 256 KiB 的保留日志，查看历史时暂停自动刷新。
+- [x] 完整 APK 构建通过；`1.0.9-BETA` 单 APK 签名草稿通过附件校验。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-be0c2402d12d5e24e220) · [签名构建](https://github.com/LauritzWu/Veyr/actions/runs/44709269474)
+- [ ] 在 S24 Ultra 对比相同负载下可回看的时间、搜索和滚动体验；检查从历史切回实时后恢复刷新。
