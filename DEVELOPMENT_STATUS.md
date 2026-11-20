@@ -164,4 +164,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 关键繁中更新、诊断和规则集资源加入 CI，检查缺失、重复及占位符。[回归构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481432)与[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481337)通过。
 - [x] 通过独立发布分支从 PR #3 构建 `1.0.5-BETA`（25845、Beta.1），签名和草稿附件 SHA-256 校验通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44676275188) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-cc605e778be92410d787)
 - [x] S24 Ultra 覆盖安装 `1.0.5-BETA`（25845）通过。「關於」显示正确版本和組建編號，订阅、节点和路由规则均保留。
+- [x] 已发布签名 Beta.2（25850）作为 25845 的实测目标。校验草稿附件 SHA-256 后公开，最新稳定版仍为 25840。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-beta.2.25850) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44678456851)
 - [ ] 在 25845 的 Beta 频道用更高构建号验证下载进度、取消、重试、失败提示和系统安装确认。
