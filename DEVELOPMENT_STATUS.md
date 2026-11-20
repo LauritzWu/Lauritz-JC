@@ -231,4 +231,4 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] `1.0.9-BETA.3`（25915）已发布为 Pre-release。发布页显示来源提交 `ac0a17d`、单一 ARM64 APK 与 `SHA256SUMS`。[发布页](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.9-beta.3.25915)
 - [x] 发布后实机反馈：「關於」显示 `1.0.9-BETA.3`，订阅、节点和路由规则均保留，VPN 可连通。
 - [x] 用户确认稳定频道未推荐 `1.0.9-BETA.3`。
-- [ ] 待确认本次升级是否通过应用内 Beta 频道发现、下载并覆盖安装。
+- [x] 用户确认通过 Veyr 应用内 Beta 频道的「下載並安裝」完成 `1.0.9-BETA.3` 升级。版本显示正确，订阅、节点和路由规则保留，VPN 可连通。
