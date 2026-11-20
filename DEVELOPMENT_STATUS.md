@@ -222,4 +222,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 用户确认从「查看保留的日誌」切回「最新」并播放后，新日志继续出现。
 - [x] S24 Ultra 在同一轮 YouTube 播放测试中确认，`1.0.9-BETA.2` 的「最新」截图顶部为 `INFO[0012]`，保留视图可回看启动配置及 `INFO[0000]`，按核心相对时间计多回看约 12 秒。此结果为当次实测，实际时长随日志量变化。
 - [x] 代码核对确认 `ProxyInstance` 在常规启动路径写入完整配置 JSON，`SendLog` 导出直接拼接 `logcat -d` 与完整 `neko.log`，未进行字段脱敏。当前实机截图仅确认配置 JSON 可见，未检查含有效凭据的导出样本。
-- [ ] 移除完整配置日志，处理旧缓存仍可能包含配置的情况，并用虚拟节点验证历史视图和导出文件不含凭据，同时确认常规连接、DNS 和错误诊断仍可读。
+- [x] PR #6 移除 Android 启动时的完整 sing-box 与插件配置输出；升级后首次初始化在 UI 和 VPN 进程之间加锁清理旧 `neko.log`。[配置日志提交](https://github.com/LauritzWu/Veyr/commit/12022a2a59a105bb33f72d72e31c5fb5f31b4999) · [缓存迁移提交](https://github.com/LauritzWu/Veyr/commit/ac0a17dff9f28dcf899a64e1fd843deffa412976)
+- [ ] 待签名构建和实机验证：用虚拟节点测试覆盖升级，检查历史视图与新导出文件无测试凭据，并确认连接、DNS 和错误诊断仍可读。
