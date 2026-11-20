@@ -172,3 +172,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 发布签名 Beta.4（25860）供 25855 复测，草稿附件 SHA-256 校验通过，最新稳定版仍为 25840。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-beta.4.25860) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44682269796)
 - [x] S24 Ultra 实测 25855 → 25860：主动取消静默返回；实际下载失败显示「無法下載安裝套件」及「重試」按钮；可打开 Android 安装确认页，升级后配置保留。
 - [x] [PR #3](https://github.com/LauritzWu/Veyr/pull/3) 完整 APK 构建、更新频道与繁中资源回归通过，已合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/814d7a7b21a99e76073f23694c71ea630d4cab92)
+- [x] 从默认分支提交 `ab15bff` 构建签名 `1.0.5-STABLE` 候选（25865）；包名、构建号、签名、非调试属性与草稿附件 SHA-256 检查通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44683970252) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-08d2e0d7e48180113ec1)
+- [ ] 在 S24 Ultra 上从 25860 覆盖安装 25865，验证繁中、配置保留和 VPN。正式发布后在一加 7T 从 25840 的稳定频道实测应用内下载和安装。
