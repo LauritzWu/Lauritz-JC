@@ -157,14 +157,15 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] S24 Ultra 实机通过 25825 → 25830 应用内下载与覆盖安装。订阅、节点和路由规则均保留。
 - [x] S24 Ultra 实测通过 25830 → 25835；确认「關於」、更新頻道及連線診斷恢复繁体中文。[Beta.4](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.4-beta.4.25835)
 - [x] PR #2 在签名构建、完整 APK 构建和更新频道回归通过后合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/ae2ddc435cfdb483a9019c2e992c8373caa58fbf)
-- [x] [草稿 PR #4](https://github.com/LauritzWu/Veyr/pull/4) 实现版本化 APK 文件名：稳定版 `veyr-1.0.6-stable-arm64-v8a.apk`、Beta `veyr-1.0.6-beta.1-arm64-v8a.apk`。更新器优先使用与发布标签一致的新文件名，发布流程同时提供字节一致的旧名兼容附件并校验两者 SHA-256。
+- [x] [PR #4](https://github.com/LauritzWu/Veyr/pull/4) 实现版本化 APK 文件名：稳定版 `veyr-1.0.6-stable-arm64-v8a.apk`、Beta `veyr-1.0.6-beta.1-arm64-v8a.apk`。更新器优先使用与发布标签一致的新文件名，发布流程同时提供字节一致的旧名兼容附件并校验两者 SHA-256。
 - [x] [文件名与更新频道回归](https://github.com/LauritzWu/Veyr/actions/runs/44687294618)和[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44687294684)通过。
 - [x] 已公开过渡 Beta.1（25870），新旧文件名的签名 APK 逐字节一致，SHA-256 相同；最新稳定版仍为 25865。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.6-beta.1.25870) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44688848843)
 - [x] S24 Ultra 已安装 `1.0.6-BETA`（25870），订阅、节点和路由规则均保留。
 - [x] S24 Ultra 从 25865 的「檢查更新 → Beta 版 → 下載並安裝」发现、下载并覆盖安装 25870。旧文件名兼容实测通过，订阅、节点和路由规则保留。
 - [x] 已发布 Beta.2（25875），仅提供 `veyr-1.0.6-beta.2-arm64-v8a.apk` 和 SHA256SUMS，签名及草稿附件校验通过；稳定版仍为 25865。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.6-beta.2.25875) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44690989074)
-- [ ] 在 S24 Ultra 从 25870 的 Beta 频道发现、下载并覆盖安装 25875，核对配置保留，以实测验证新文件名。
-- [x] 将构建 25870 时验证过的 GeoIP／GeoSite 查询修复移植到 PR #4，待 PR 合并。[提交](https://github.com/LauritzWu/Veyr/commit/17f779add0509db8dbd04f62e8fd6b8385bb3bdb)
+- [x] S24 Ultra 实测从 25870 的 Beta 频道下载并覆盖安装 25875。Beta.2 只提供版本化 APK，确认新版更新器能识别该文件名，且订阅、节点和路由规则保留。
+- [x] 完整构建与更新频道回归通过，PR #4 已合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/3a2b2223dbe787a69abe72a3c2aa1c545d5c15a6)
+- [x] 将构建 25870 时验证过的 GeoIP／GeoSite 查询修复移植到 PR #4 并随 PR 合并。[提交](https://github.com/LauritzWu/Veyr/commit/17f779add0509db8dbd04f62e8fd6b8385bb3bdb)
 
 ## 下一轮 Beta 更新体验
 
