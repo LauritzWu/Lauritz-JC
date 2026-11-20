@@ -1,0 +1,42 @@
+name: Remove six completed Veyr test drafts
+on:
+  push:
+    branches: [release/remove-completed-drafts]
+    paths: [.github/workflows/remove-completed-drafts.yml]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and delete only the approved drafts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = 'v1.0.8-stable.25895'
+          targets=(
+            '452408530:v1.0.7-beta.1.25885'
+            '452305598:v1.0.5-beta.3.25855'
+            '452281753:v1.0.5-beta.1.25845'
+            '452213578:v1.0.4-beta.2.25825'
+            '452190347:v1.0.4-beta.1.25820'
+            '452178807:rehearsal-v1.0.3-stable.25810'
+          )
+          for target in "${targets[@]}"; do
+            id=${target%%:*}
+            tag=${target#*:}
+            gh api "repos/$GH_REPO/releases/$id" |
+              jq -e --arg tag "$tag" '.draft == true and .tag_name == $tag and .published_at == null' >/dev/null
+          done
+          for target in "${targets[@]}"; do
+            id=${target%%:*}
+            tag=${target#*:}
+            gh api "repos/$GH_REPO/releases/$id" |
+              jq -e --arg tag "$tag" '.draft == true and .tag_name == $tag and .published_at == null' >/dev/null
+            gh api --method DELETE "repos/$GH_REPO/releases/$id"
+            printf 'Deleted draft %s\n' "$tag"
+          done
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = 'v1.0.8-stable.25895'
