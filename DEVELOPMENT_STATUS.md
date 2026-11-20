@@ -224,4 +224,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] 代码核对确认 `ProxyInstance` 在常规启动路径写入完整配置 JSON，`SendLog` 导出直接拼接 `logcat -d` 与完整 `neko.log`，未进行字段脱敏。当前实机截图仅确认配置 JSON 可见，未检查含有效凭据的导出样本。
 - [x] PR #6 移除 Android 启动时的完整 sing-box 与插件配置输出；升级后首次初始化在 UI 和 VPN 进程之间加锁清理旧 `neko.log`。[配置日志提交](https://github.com/LauritzWu/Veyr/commit/12022a2a59a105bb33f72d72e31c5fb5f31b4999) · [缓存迁移提交](https://github.com/LauritzWu/Veyr/commit/ac0a17dff9f28dcf899a64e1fd843deffa412976)
 - [x] 用户实测覆盖安装后，「關於」显示 `1.0.9-BETA.3`，订阅、节点和路由规则均保留。
-- [ ] `1.0.9-BETA.3` 用户反馈未看到旧配置和新日志。待清除搜索并切回「最新」复核新日志，再用虚拟节点核对历史视图与导出是否含测试凭据。
+- [x] `1.0.9-BETA.3` 用户反馈历史视图未见旧配置，应用内搜索未找到虚拟节点测试密码。核对完整导出文件，确认包含虚拟节点的连接拒绝记录，未找到测试密码或 `ProxyInstance` 完整配置输出。
+- [ ] 清除搜索并切回「最新」，确认界面会显示新日志。
