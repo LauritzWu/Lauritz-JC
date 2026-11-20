@@ -157,3 +157,9 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] S24 Ultra 实测通过 25830 → 25835；确认「關於」、更新頻道及連線診斷恢复繁体中文。[Beta.4](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.4-beta.4.25835)
 - [x] PR #2 在签名构建、完整 APK 构建和更新频道回归通过后合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/ae2ddc435cfdb483a9019c2e992c8373caa58fbf)
 - [ ] 增加清晰 APK 文件名兼容后，再迁移公开下载文件名。
+
+## 下一轮 Beta 更新体验
+
+- [x] [草稿 PR #3](https://github.com/LauritzWu/Veyr/pull/3) 增加可取消的下载百分比和验证阶段提示，区分下载、校验和打开系统安装器失败，提供重试和发布页入口。
+- [x] 关键繁中更新、诊断和规则集资源加入 CI，检查缺失、重复及占位符。[回归构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481432)与[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481337)通过。
+- [ ] 通过手动工作流构建签名 Beta。先安装包含新版界面的候选包，再用更高构建号验证下载进度、取消重试、失败提示和安装确认。
