@@ -161,7 +161,7 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] [文件名与更新频道回归](https://github.com/LauritzWu/Veyr/actions/runs/44687294618)和[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44687294684)通过。
 - [x] 已公开过渡 Beta.1（25870），新旧文件名的签名 APK 逐字节一致，SHA-256 相同；最新稳定版仍为 25865。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.6-beta.1.25870) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44688848843)
 - [x] S24 Ultra 已安装 `1.0.6-BETA`（25870），订阅、节点和路由规则均保留。
-- [ ] 确认 25870 是从 25865 的 Beta 频道点「下載並安裝」升级，以验收旧文件名兼容。
+- [x] S24 Ultra 从 25865 的「檢查更新 → Beta 版 → 下載並安裝」发现、下载并覆盖安装 25870。旧文件名兼容实测通过，订阅、节点和路由规则保留。
 - [ ] 用 25870 检查下一份采用新文件名的更新包。
 - [x] 将构建 25870 时验证过的 GeoIP／GeoSite 查询修复移植到 PR #4，待 PR 合并。[提交](https://github.com/LauritzWu/Veyr/commit/17f779add0509db8dbd04f62e8fd6b8385bb3bdb)
 
