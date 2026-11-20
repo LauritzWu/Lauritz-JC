@@ -24,7 +24,15 @@ internal object UpdateApk {
         .callTimeout(3, TimeUnit.MINUTES)
         .build()
 
-    suspend fun download(context: Context, url: HttpUrl, build: Long): File =
+    class VerificationException(cause: Exception) : IOException("APK verification failed", cause)
+
+    suspend fun download(
+        context: Context,
+        url: HttpUrl,
+        build: Long,
+        onProgress: (Int) -> Unit,
+        onVerifying: () -> Unit
+    ): File =
         runInterruptible(Dispatchers.IO) {
             val directory = File(context.cacheDir, "app-updates")
             directory.mkdirs()
@@ -35,13 +43,15 @@ internal object UpdateApk {
             try {
                 client.newCall(Request.Builder().url(url).build()).execute().use { response ->
                     val body = response.body ?: throw IOException("Empty APK response")
-                    if (!response.isSuccessful || !response.request.url.isHttps || body.contentLength() > MAX_BYTES) {
+                    val length = body.contentLength()
+                    if (!response.isSuccessful || !response.request.url.isHttps || length > MAX_BYTES) {
                         throw IOException("Invalid APK response")
                     }
                     body.byteStream().use { input ->
                         apk.outputStream().use { output ->
                             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                             var total = 0L
+                            var lastPercent = -1
                             while (true) {
                                 if (Thread.currentThread().isInterrupted) throw InterruptedException()
                                 val count = input.read(buffer)
@@ -49,11 +59,24 @@ internal object UpdateApk {
                                 total += count
                                 if (total > MAX_BYTES) throw IOException("APK exceeds download limit")
                                 output.write(buffer, 0, count)
+                                if (length > 0) {
+                                    val percent = (total * 100 / length).coerceAtMost(100).toInt()
+                                    if (percent != lastPercent) {
+                                        lastPercent = percent
+                                        onProgress(percent)
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                verify(context, apk, build)
+                if (Thread.currentThread().isInterrupted) throw InterruptedException()
+                onVerifying()
+                try {
+                    verify(context, apk, build)
+                } catch (e: Exception) {
+                    throw VerificationException(e)
+                }
                 verified = true
                 apk
             } finally {

@@ -1,16 +1,20 @@
 name: Android update channel regression
 on:
   push:
-    branches: [lauritz/starifly-core-1.14, ci/integrate-release-automation]
+    branches: [lauritz/starifly-core-1.14, ci/integrate-release-automation, feature/update-experience]
     paths:
       - '.github/workflows/android-update-regression.yml'
       - 'app/src/main/java/io/nekohasekai/sagernet/ui/AboutFragment.kt'
       - 'app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt'
+      - 'app/src/main/res/values/strings.xml'
+      - 'app/src/main/res/values-zh-rTW/strings.xml'
   pull_request:
     paths:
       - '.github/workflows/android-update-regression.yml'
       - 'app/src/main/java/io/nekohasekai/sagernet/ui/AboutFragment.kt'
       - 'app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt'
+      - 'app/src/main/res/values/strings.xml'
+      - 'app/src/main/res/values-zh-rTW/strings.xml'
 permissions:
   contents: read
 jobs:
@@ -65,3 +69,39 @@ jobs:
           kotlinc app/src/main/java/io/nekohasekai/sagernet/ui/ReleaseUpdate.kt \
             "$RUNNER_TEMP/ReleaseUpdateRegression.kt" -include-runtime -d "$RUNNER_TEMP/release-update-tests.jar"
           java -jar "$RUNNER_TEMP/release-update-tests.jar"
+      - name: Check Traditional Chinese update and diagnostic resources
+        run: |
+          python3 - <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import re
+          import xml.etree.ElementTree as ET
+
+          resource_dir = Path("app/src/main/res")
+          prefixes = ("github_update_", "diagnostic_", "route_rule_set")
+          placeholders = re.compile(r"%(?:\d+\$)?[a-zA-Z]")
+
+          def strings(locale):
+              result = {}
+              for item in ET.parse(resource_dir / locale / "strings.xml").getroot().findall("string"):
+                  name = item.attrib["name"]
+                  if not name.startswith(prefixes):
+                      continue
+                  if name in result:
+                      raise SystemExit(f"{locale}: duplicate {name}")
+                  result[name] = "".join(item.itertext())
+              return result
+
+          default = strings("values")
+          traditional = strings("values-zh-rTW")
+          failures = []
+          for name, value in sorted(default.items()):
+              translated = traditional.get(name, "")
+              if not translated.strip():
+                  failures.append(f"{name}: missing Traditional Chinese translation")
+              elif Counter(placeholders.findall(value)) != Counter(placeholders.findall(translated)):
+                  failures.append(f"{name}: format placeholders differ")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print(f"Verified {len(default)} Traditional Chinese strings")
+          PY

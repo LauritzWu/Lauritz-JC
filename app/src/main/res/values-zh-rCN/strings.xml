@@ -710,6 +710,11 @@
     <string name="logcat_search_clear">清除筛选</string>
     <string name="logcat_search_empty">最近的日志中没有匹配项。</string>
     <string name="github_update_download">下载并安装</string>
-    <string name="github_update_downloading">正在下载并校验安装包…</string>
-    <string name="github_update_install_failed">无法准备更新。请重试或打开发布页面。</string>
+    <string name="github_update_downloading">正在下载安装包…</string>
+    <string name="github_update_download_progress">正在下载安装包… %1$d%%</string>
+    <string name="github_update_verifying">正在校验安装包…</string>
+    <string name="github_update_download_failed">无法下载安装包。</string>
+    <string name="github_update_verify_failed">安装包未通过校验。</string>
+    <string name="github_update_install_failed">无法打开 Android 安装程序。</string>
+    <string name="github_update_retry">重试</string>
 </resources>

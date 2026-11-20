@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.util.Linkify
@@ -142,30 +144,63 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             val context = requireContext()
             val progress = MaterialAlertDialogBuilder(context)
                 .setMessage(R.string.github_update_downloading)
+                .setNegativeButton(android.R.string.cancel) { _, _ -> updateCheck?.cancel() }
                 .create()
             progress.setOnCancelListener { updateCheck?.cancel() }
             progress.show()
+
+            val main = Handler(Looper.getMainLooper())
             updateCheck = viewLifecycleOwner.lifecycleScope.launch {
-                try {
+                var openingInstaller = false
+                val failure = try {
                     val url = PROJECT_URL.toHttpUrl().newBuilder()
                         .addPathSegments("releases/download")
                         .addPathSegment(release.tag)
                         .addPathSegment(release.apkName)
                         .build()
-                    val apk = UpdateApk.download(context.applicationContext, url, release.code)
+                    val apk = UpdateApk.download(
+                        context.applicationContext,
+                        url,
+                        release.code,
+                        onProgress = { percent ->
+                            main.post {
+                                if (progress.isShowing) {
+                                    progress.setMessage(getString(R.string.github_update_download_progress, percent))
+                                }
+                            }
+                        },
+                        onVerifying = {
+                            main.post {
+                                if (progress.isShowing) {
+                                    progress.setMessage(getString(R.string.github_update_verifying))
+                                }
+                            }
+                        }
+                    )
+                    openingInstaller = true
                     UpdateApk.install(context, apk)
+                    null
                 } catch (e: CancellationException) {
                     throw e
+                } catch (_: UpdateApk.VerificationException) {
+                    R.string.github_update_verify_failed
                 } catch (_: Exception) {
+                    if (openingInstaller) R.string.github_update_install_failed
+                    else R.string.github_update_download_failed
+                } finally {
+                    progress.dismiss()
+                }
+                if (failure != null) {
                     MaterialAlertDialogBuilder(context)
-                        .setMessage(R.string.github_update_install_failed)
+                        .setMessage(failure)
                         .setNeutralButton(R.string.github_update_release_page) { _, _ ->
                             context.launchCustomTab("$PROJECT_URL/releases/tag/${release.tag}")
                         }
-                        .setPositiveButton(android.R.string.ok, null)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.github_update_retry) { _, _ ->
+                            downloadAndInstall(release)
+                        }
                         .show()
-                } finally {
-                    progress.dismiss()
                 }
             }
         }
