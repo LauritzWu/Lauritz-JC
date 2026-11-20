@@ -212,12 +212,13 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 - [x] [草稿 PR #6](https://github.com/LauritzWu/Veyr/pull/6)：默认缓冲区 256 KiB，保留已保存设置。实时窗口仍为 50 KiB；菜单可按需读取最多 256 KiB 的保留日志，查看历史时暂停自动刷新。
 - [x] 完整 APK 构建通过；`1.0.9-BETA` 单 APK 签名草稿通过附件校验。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-be0c2402d12d5e24e220) · [签名构建](https://github.com/LauritzWu/Veyr/actions/runs/44709269474)
-- [ ] 在 S24 Ultra 对比相同负载下可回看的时间、搜索和滚动体验；检查从历史切回实时后恢复刷新。
-- [x] S24 Ultra 截图确认 YouTube 关键词过滤和高亮可用；历史与实时窗口长度、切回实时仍待对照。
+- [ ] 在 S24 Ultra 复测高流量下的长列表滚动流畅度。
+- [x] S24 Ultra 截图确认 YouTube 关键词过滤和高亮可用。
 - [ ] VPN 启动时 Wi-Fi 状态查询在 Android 缺少权限时抛出异常。已在 PR #6 加入权限检查；[修复提交](https://github.com/LauritzWu/Veyr/commit/c1e94e0b6055a8539546a99238dfd18cb69129ab)，待包含修复的新 APK 实测。
 - [ ] 设备选择 Info 后仍看到核心 DEBUG／TRACE；普通生成配置映射为 info，原因已确认：核心 PlatformWriter 未按日志级别过滤。PR #6 的原生 writer 按实例有效级别过滤，待实机确认。
 - [x] 两项修复已纳入签名 `1.0.9-BETA.2` 草稿，完整构建、签名及 SHA-256 校验通过。[草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-6cf247af4ca884ddfeea) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44714332034)
 - [x] S24 Ultra 在 1.0.9-BETA.2 的 Info 测试截图中确认新核心输出为 INFO，未见 DEBUG／TRACE。截图可见 `[0058]` 至 `[0091]`，未确认是否为同一次历史快照。
 - [x] S24 Ultra 复测 1.0.9-BETA.2：所提供的 VPN 启动日志中未见 `ACCESS_WIFI_STATE` 异常堆栈。启动时短暂提示 `missing default interface`，随后发现移动网络接口并继续处理 DNS 流量。
 - [x] 用户确认从「查看保留的日誌」切回「最新」并播放后，新日志继续出现。
-- [ ] 仍待在同一负载下对比历史与实时窗口的保留时长。
+- [x] S24 Ultra 在同一轮 YouTube 播放测试中确认，`1.0.9-BETA.2` 的「最新」截图顶部为 `INFO[0012]`，保留视图可回看启动配置及 `INFO[0000]`，按核心相对时间计多回看约 12 秒。此结果为当次实测，实际时长随日志量变化。
+- [ ] 核对 Android `ProxyInstance` 启动配置日志与导出路径。截图可见配置 JSON 片段，待检查完整内容是否包含应脱敏的字段。
