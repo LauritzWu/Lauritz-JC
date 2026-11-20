@@ -717,4 +717,6 @@
     <string name="github_update_verify_failed">安装包未通过校验。</string>
     <string name="github_update_install_failed">无法打开 Android 安装程序。</string>
     <string name="github_update_retry">重试</string>
+    <string name="logcat_history">查看保留的日志（最多 256 KiB）</string>
+    <string name="log_buffer_size">日志缓冲区大小（KiB）</string>
 </resources>

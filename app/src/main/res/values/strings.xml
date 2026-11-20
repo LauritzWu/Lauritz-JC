@@ -802,4 +802,6 @@
     <string name="github_update_verify_failed">The APK did not pass verification.</string>
     <string name="github_update_install_failed">Could not open the Android installer.</string>
     <string name="github_update_retry">Retry</string>
+    <string name="logcat_history">View retained log (up to 256 KiB)</string>
+    <string name="log_buffer_size">Log buffer size (KiB)</string>
 </resources>
