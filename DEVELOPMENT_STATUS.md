@@ -140,3 +140,8 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [ ] 下次制作候选包时，从默认分支手动触发签名构建与草稿流程。
 - [x] 用真实签名 Beta（`1.0.4-BETA`，25820）验证从构建到草稿。APK 与草稿附件的 SHA-256 一致，最新公开稳定版仍为 25810。[工作流](https://github.com/LauritzWu/Veyr/actions/runs/44658581003)
 
+## 下载入口与安装体验
+
+- [x] README 提供最新稳定版 ARM64 APK 直链、当前公开 Beta APK 直链以及 Beta 发布列表。发布新 Beta 时同步更新 README 的固定版本直链。
+- [x] 手动发版模板正文首行包含 ARM64 APK 和 SHA-256 下载链接。链接在 Release 正式发布后可用。
+- [ ] 用下一个候选包验收新版 Release 正文。应用内下载并打开安装确认页、清晰文件名兼容仍待实现。
