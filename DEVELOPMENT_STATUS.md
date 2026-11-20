@@ -127,3 +127,12 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 3. 每次完成开发、修复 Bug、通过测试或发布版本时，同步更新本文。记录分支、Commit、Actions run、Release、versionCode、测试环境与结果。
 4. 分开记录源码已实现、CI 验证、实机通过、失败及待验证。每项通过结果标明所测构建和证据，更新路线图与已知问题，保留相关历史链接。
 5. 新 Work 对话可从这里开始：“请读取 LauritzWu/Veyr 默认分支的 DEVELOPMENT_STATUS.md，核对当前分支和发布状态，从最高优先级未完成项继续。”
+
+## 发版自动化演练
+
+- 独立分支 `ci/release-automation` 增加 Android 发布草稿工作流。它使用同一组输入生成版本显示名、发布标签和下载文件名。
+- 用已发布的 25810 进行演练，校验 APK 包名、签名、ARM64、构建号、非调试属性及 SHA-256，并校验重新下载的草稿附件。最新稳定版仍为 25810。[演练工作流](https://github.com/LauritzWu/Veyr/actions/runs/44658007821)
+- 依据应用更新规则和 GitHub Release 数据进行模拟：现有稳定和 Beta 渠道均选中 25810；加入模拟 Beta 25815 后，只有 Beta 渠道选中它。Android 自动化回归仍待接入。
+- [ ] 将工作流接入主线，并让构建端复用版本配置。
+- [ ] 用真实 Beta 构建验证草稿流程。
+
