@@ -1,0 +1,42 @@
+name: Publish verified Veyr 1.0.6 stable draft
+on:
+  push:
+    branches: [release/stable-25880]
+    paths: [.github/workflows/publish-stable-25880.yml]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify and publish the existing draft
+        run: |
+          set -euo pipefail
+          tag=v1.0.6-stable.25880
+          endpoint="repos/$GH_REPO/releases/452380057"
+          asset=veyr-1.0.6-stable-arm64-v8a.apk
+          alias=veyr-preview-arm64-v8a.apk
+          draft=$(gh api "$endpoint")
+          jq -e --arg tag "$tag" --arg asset "$asset" --arg alias "$alias" --arg digest 'sha256:5c54a88f2949433b0c909808367d5542a03a1ddb0f92a2ac58c1de0b6b55de3b' \
+            '.draft and (.prerelease | not) and .tag_name == $tag and .target_commitish == "3babe2cfe788d5db1f98142710a0021650128e11" and any(.assets[]; .name == $asset and .state == "uploaded" and .digest == $digest) and any(.assets[]; .name == $alias and .state == "uploaded" and .digest == $digest)' <<< "$draft" >/dev/null
+          gh release download "$tag" --pattern "$asset" --pattern "$alias" --pattern SHA256SUMS --dir verified
+          (cd verified && sha256sum --check SHA256SUMS)
+          cmp "verified/$asset" "verified/$alias"
+          echo '5c54a88f2949433b0c909808367d5542a03a1ddb0f92a2ac58c1de0b6b55de3b  verified/veyr-1.0.6-stable-arm64-v8a.apk' | sha256sum --check
+          cat > release-notes.md <<'EOF'
+          **[下载 ARM64 APK](https://github.com/LauritzWu/Veyr/releases/download/v1.0.6-stable.25880/veyr-1.0.6-stable-arm64-v8a.apk)** · [SHA-256](https://github.com/LauritzWu/Veyr/releases/download/v1.0.6-stable.25880/SHA256SUMS)
+
+          Veyr 1.0.6-STABLE · Android 构建号 25880
+
+          - 主下载使用版本化 APK 檔名。更新器優先辨識新檔名。
+          - 舊檔名 `veyr-preview-arm64-v8a.apk` 保留給舊版更新器，與主下載檔是同一份簽名 APK。
+          - 已在 S24 Ultra 验证覆盖安装后订阅、节点和路由规则保留，VPN 可正常连接。
+
+          [签名构建记录](https://github.com/LauritzWu/Veyr/actions/runs/44693058466)
+          EOF
+          gh api --method PATCH "$endpoint" -F draft=false -F prerelease=false -f make_latest=true \
+            -f name='Veyr 1.0.6-STABLE (25880)' -F body=@release-notes.md >/dev/null
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$tag"
