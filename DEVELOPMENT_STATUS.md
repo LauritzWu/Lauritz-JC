@@ -225,4 +225,4 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] PR #6 移除 Android 启动时的完整 sing-box 与插件配置输出；升级后首次初始化在 UI 和 VPN 进程之间加锁清理旧 `neko.log`。[配置日志提交](https://github.com/LauritzWu/Veyr/commit/12022a2a59a105bb33f72d72e31c5fb5f31b4999) · [缓存迁移提交](https://github.com/LauritzWu/Veyr/commit/ac0a17dff9f28dcf899a64e1fd843deffa412976)
 - [x] 用户实测覆盖安装后，「關於」显示 `1.0.9-BETA.3`，订阅、节点和路由规则均保留。
 - [x] `1.0.9-BETA.3` 用户反馈历史视图未见旧配置，应用内搜索未找到虚拟节点测试密码。核对完整导出文件，确认包含虚拟节点的连接拒绝记录，未找到测试密码或 `ProxyInstance` 完整配置输出。
-- [ ] 清除搜索并切回「最新」，确认界面会显示新日志。
+- [x] `1.0.9-BETA.3` 实机确认：点击工具栏向下箭头回到最新视图并打开网页后，可见新增 INFO DNS 和出站连接日志。
