@@ -1,0 +1,125 @@
+name: Verify Android APK and prepare release draft
+on:
+  push:
+    branches: [ci/release-automation]
+    paths: [.github/workflows/android-release-draft.yml]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Base Android version such as 1.0.4
+        required: true
+        type: string
+      channel:
+        description: Release channel
+        required: true
+        type: choice
+        options: [stable, beta]
+      beta_iteration:
+        description: Beta iteration (beta channel only)
+        type: string
+      build_code:
+        description: Android versionCode
+        required: true
+        type: string
+      artifact_id:
+        description: Verified GitHub Actions artifact ID
+        required: true
+        type: string
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: android-release-draft
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      EVENT_NAME: ${{ github.event_name }}
+      BASE_VERSION: ${{ inputs.version }}
+      CHANNEL: ${{ inputs.channel }}
+      BETA_ITERATION: ${{ inputs.beta_iteration }}
+      BUILD_CODE: ${{ inputs.build_code }}
+      ARTIFACT_ID: ${{ inputs.artifact_id }}
+    steps:
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: build-tools;35.0.1
+      - name: Verify APK and prepare a draft
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == push ]]; then
+            BASE_VERSION=1.0.3
+            CHANNEL=stable
+            BUILD_CODE=25810
+            ARTIFACT_ID=14555717962
+          fi
+          [[ "$BASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$BUILD_CODE" =~ ^[1-9][0-9]{0,9}$ && "$BUILD_CODE" -le 2100000000 ]]
+          [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+
+          release_args=()
+          if [[ "$CHANNEL" == stable ]]; then
+            [[ -z "$BETA_ITERATION" ]]
+            version_name="$BASE_VERSION-STABLE"
+            release_tag="v$BASE_VERSION-stable.$BUILD_CODE"
+            asset=veyr-preview-arm64-v8a.apk
+          else
+            [[ "$CHANNEL" == beta && "$BETA_ITERATION" =~ ^[1-9][0-9]*$ ]]
+            version_name="$BASE_VERSION-BETA"
+            release_tag="v$BASE_VERSION-beta.$BETA_ITERATION.$BUILD_CODE"
+            asset="veyr-$BASE_VERSION-beta.$BETA_ITERATION-candidate-arm64-v8a.apk"
+            release_args+=(--prerelease)
+          fi
+
+          latest_before=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)
+          max_build=$(gh api --paginate "repos/$GH_REPO/releases?per_page=100" |
+            jq -s '[.[][] | .tag_name | select(test("^v[0-9]+[.][0-9]+[.][0-9]+-(stable|preview|beta[.][0-9]+)[.][0-9]+$")) | split(".") | last | tonumber] | max // 0')
+          if [[ "$EVENT_NAME" == push ]]; then
+            draft_tag="rehearsal-$release_tag"
+          else
+            (( BUILD_CODE > max_build ))
+            draft_tag="$release_tag"
+          fi
+
+          metadata=$(gh api "repos/$GH_REPO/actions/artifacts/$ARTIFACT_ID")
+          jq -e '.expired == false' <<< "$metadata" > /dev/null
+          artifact_digest=$(jq -er '.digest | select(test("^sha256:[a-f0-9]{64}$"))' <<< "$metadata")
+          source_sha=$(jq -er '.workflow_run.head_sha' <<< "$metadata")
+          run_id=$(jq -er '.workflow_run.id' <<< "$metadata")
+          test "$(gh run view "$run_id" --json conclusion --jq .conclusion)" = success
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/$ARTIFACT_ID/zip" --output candidate.zip
+          echo "${artifact_digest#sha256:}  candidate.zip" | sha256sum --check
+          entries=$(unzip -Z1 candidate.zip)
+          [[ "$entries" =~ ^[A-Za-z0-9._-]+-arm64-v8a\.apk$ ]]
+          unzip -p candidate.zip "$entries" > "$asset"
+
+          tools="$ANDROID_HOME/build-tools/35.0.1"
+          "$tools/aapt" dump badging "$asset" > badging.txt
+          grep -E "^package: name='top[.]lauritz[.]jc[.]uipreview[.]debug' versionCode='$BUILD_CODE' versionName='$version_name'" badging.txt
+          grep -Fx "native-code: 'arm64-v8a'" badging.txt
+          if [[ "$CHANNEL" == stable ]] && grep -Fxq 'application-debuggable' badging.txt; then
+            echo 'Stable APK must not be debuggable' >&2
+            exit 1
+          fi
+          "$tools/apksigner" verify --print-certs "$asset" > signing.txt
+          grep -Fiqx 'Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56' signing.txt
+          "$tools/zipalign" -c -P 16 4 "$asset"
+          sha256sum "$asset" > SHA256SUMS
+
+          if [[ "$EVENT_NAME" == push ]]; then
+            published_digest=$(gh api "repos/$GH_REPO/releases/tags/$release_tag" |
+              jq -er --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest')
+            test "$published_digest" = "sha256:$(cut -d ' ' -f 1 SHA256SUMS)"
+          fi
+          gh release create "$draft_tag" "$asset" SHA256SUMS --target "$source_sha" \
+            --draft "${release_args[@]}" --title "Veyr $version_name ($BUILD_CODE) — draft" \
+            --notes "Verified ARM64 APK from Actions run $run_id. Review release notes before publishing."
+          gh release download "$draft_tag" --pattern "$asset" --dir verified
+          (cd verified && sha256sum --check ../SHA256SUMS)
+          test "$(gh release view "$draft_tag" --json isDraft --jq .isDraft)" = true
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$latest_before"
