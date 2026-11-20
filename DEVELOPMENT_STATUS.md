@@ -160,14 +160,15 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 ## 下一轮 Beta 更新体验
 
-- [x] [草稿 PR #3](https://github.com/LauritzWu/Veyr/pull/3) 增加可取消的下载百分比和验证阶段提示，区分下载、校验和打开系统安装器失败，提供重试和发布页入口。
+- [x] [PR #3](https://github.com/LauritzWu/Veyr/pull/3) 增加可取消的下载百分比和验证阶段提示，区分下载、校验和打开系统安装器失败，提供重试和发布页入口。
 - [x] 关键繁中更新、诊断和规则集资源加入 CI，检查缺失、重复及占位符。[回归构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481432)与[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481337)通过。
 - [x] 通过独立发布分支从 PR #3 构建 `1.0.5-BETA`（25845、Beta.1），签名和草稿附件 SHA-256 校验通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44676275188) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-cc605e778be92410d787)
 - [x] S24 Ultra 覆盖安装 `1.0.5-BETA`（25845）通过。「關於」显示正确版本和組建編號，订阅、节点和路由规则均保留。
 - [x] 已发布签名 Beta.2（25850）作为 25845 的实测目标。校验草稿附件 SHA-256 后公开，最新稳定版仍为 25840。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-beta.2.25850) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44678456851)
 - [x] S24 Ultra 实测 25845 → 25850：实际下载失败显示重试；下载完成显示「正在驗證安裝套件」，随后打开 Android 安装确认页。覆盖安装后订阅、节点和路由规则保留。
-- [ ] 复测主动取消：25845 主动取消下载时也显示下载失败。已在 PR #3 [修复](https://github.com/LauritzWu/Veyr/commit/9b96967adce86c934f3f1af4bd48c82cb41112e0)，待新签名包实测确认主动取消静默返回，真实错误仍可重试。
+- [x] 主动取消修复已通过 25855 实机复测：进度框直接关闭，不再提示下载失败。
 - [x] 已构建签名 Beta.3（25855），包含主动取消修复；草稿附件 SHA-256 复核通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44680499788) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-a5f20abb37c549d317ba)
 - [x] S24 Ultra 完成 25850 → 25855 覆盖安装。「關於」显示組建編號 25855，订阅、节点及路由规则保留。
 - [x] 发布签名 Beta.4（25860）供 25855 复测，草稿附件 SHA-256 校验通过，最新稳定版仍为 25840。[预发布](https://github.com/LauritzWu/Veyr/releases/tag/v1.0.5-beta.4.25860) · [构建](https://github.com/LauritzWu/Veyr/actions/runs/44682269796)
-- [ ] 保留 25855 作为起点，用更高 Beta 实测主动取消静默返回和真实下载失败可重试。
+- [x] S24 Ultra 实测 25855 → 25860：主动取消静默返回；实际下载失败显示「無法下載安裝套件」及「重試」按钮；可打开 Android 安装确认页，升级后配置保留。
+- [x] [PR #3](https://github.com/LauritzWu/Veyr/pull/3) 完整 APK 构建、更新频道与繁中资源回归通过，已合并至默认分支。[合并提交](https://github.com/LauritzWu/Veyr/commit/814d7a7b21a99e76073f23694c71ea630d4cab92)
