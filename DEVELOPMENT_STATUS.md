@@ -201,3 +201,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [x] S24 Ultra 已安装 `1.0.8-BETA`（25890）。订阅、节点和路由规则保留，VPN 可连通。
 - [x] S24 Ultra 通过 25885 的「檢查更新 → Beta 版 → 下載並安裝」发现并覆盖安装 25890；简化文件名的单 APK 升级路径实测通过。
 - [x] PR #5 的完整构建和更新回归通过后已合并到默认分支，后续新发布只生成一份版本化 APK。[合并提交](https://github.com/LauritzWu/Veyr/commit/833623bdbeff447efe3426b6d136250c84bffec1)
+- [x] 将 1.0.8-BETA（25890）推进至签名 `1.0.8-STABLE` 候选（25895）；草稿只有版本化 APK 和 SHA256SUMS，构建、签名与附件校验通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44702438731) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-b2c29d14b2a0d357543c)
+- [ ] 在 S24 Ultra 从 25890 覆盖安装 25895；正式发布后用一加 7T 的 25880 验证稳定频道可直接使用单一版本化 APK。
