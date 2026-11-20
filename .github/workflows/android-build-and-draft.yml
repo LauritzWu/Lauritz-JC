@@ -207,16 +207,22 @@ jobs:
             version_name="$BASE_VERSION-STABLE"
             release_tag="v$BASE_VERSION-stable.$BUILD_CODE"
             asset="veyr-$BASE_VERSION-stable-arm64-v8a.apk"
-            compatibility_asset=veyr-preview-arm64-v8a.apk
           else
             [[ "$CHANNEL" == beta && "$BETA_ITERATION" =~ ^[1-9][0-9]*$ ]]
             version_name="$BASE_VERSION-BETA"
             release_tag="v$BASE_VERSION-beta.$BETA_ITERATION.$BUILD_CODE"
-            asset="veyr-$BASE_VERSION-beta.$BETA_ITERATION-arm64-v8a.apk"
-            compatibility_asset="veyr-$BASE_VERSION-beta.$BETA_ITERATION-candidate-arm64-v8a.apk"
+            if [[ "$BETA_ITERATION" == 1 ]]; then
+              asset="veyr-$BASE_VERSION-beta-arm64-v8a.apk"
+            else
+              asset="veyr-$BASE_VERSION-beta.$BETA_ITERATION-arm64-v8a.apk"
+            fi
             release_args+=(--prerelease)
           fi
 
+          release_title="Veyr $version_name"
+          if [[ "$CHANNEL" == beta && "$BETA_ITERATION" != 1 ]]; then
+            release_title="$release_title.$BETA_ITERATION"
+          fi
           latest_before=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)
           max_build=$(gh api --paginate "repos/$GH_REPO/releases?per_page=100" |
             jq -s '[.[][] | .tag_name | select(test("^v[0-9]+[.][0-9]+[.][0-9]+-(stable|preview|beta[.][0-9]+)[.][0-9]+$")) | split(".") | last | tonumber] | max // 0')
@@ -250,8 +256,7 @@ jobs:
           "$tools/apksigner" verify --print-certs "$asset" > signing.txt
           grep -Fiqx 'Signer #1 certificate SHA-256 digest: 0b316ceb4bfe0c9f3e6f69e3b1444233587276017ecb9cd1e95ef4642eab8c56' signing.txt
           "$tools/zipalign" -c -P 16 4 "$asset"
-          cp "$asset" "$compatibility_asset"
-          sha256sum "$asset" "$compatibility_asset" > SHA256SUMS
+          sha256sum "$asset" > SHA256SUMS
 
           # GitHub resolves the tag-based download links once the draft is published.
           download_base="https://github.com/$GH_REPO/releases/download/$release_tag"
@@ -264,10 +269,10 @@ jobs:
             printf '[构建记录](https://github.com/%s/actions/runs/%s)\n' "$GH_REPO" "$run_id"
           } > release-notes.md
 
-          gh release create "$draft_tag" "$asset" "$compatibility_asset" SHA256SUMS --target "$source_sha" \
-            --draft "${release_args[@]}" --title "Veyr $version_name ($BUILD_CODE) — draft" \
+          gh release create "$draft_tag" "$asset" SHA256SUMS --target "$source_sha" \
+            --draft "${release_args[@]}" --title "$release_title" \
             --notes-file release-notes.md
-          gh release download "$draft_tag" --pattern "$asset" --pattern "$compatibility_asset" --dir verified
+          gh release download "$draft_tag" --pattern "$asset" --dir verified
           (cd verified && sha256sum --check ../SHA256SUMS)
           test "$(gh release view "$draft_tag" --json isDraft --jq .isDraft)" = true
           test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$latest_before"

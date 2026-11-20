@@ -75,6 +75,11 @@ jobs:
               check(select(listOf(namedBeta), true) == ReleaseUpdate.Candidate(25870, namedBetaApk))
               check(select(listOf(namedBeta.copy(apks = listOf(betaCompatibilityApk, namedBetaApk))), true)?.apkName == namedBetaApk)
               check(select(listOf(namedBeta), false) == null)
+              val simpleBetaApk = "veyr-1.0.7-beta-arm64-v8a.apk"
+              val simpleBeta = Release("v1.0.7-beta.1.25885", false, true, listOf(simpleBetaApk))
+              check(select(listOf(simpleBeta), true) == ReleaseUpdate.Candidate(25885, simpleBetaApk))
+              check(select(listOf(simpleBeta), false) == null)
+              check(select(listOf(simpleBeta.copy(tag = "v1.0.7-beta.2.25890")), true) == null)
               println("Android update channel regression passed")
           }
           KOTLIN
