@@ -162,4 +162,5 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 
 - [x] [草稿 PR #3](https://github.com/LauritzWu/Veyr/pull/3) 增加可取消的下载百分比和验证阶段提示，区分下载、校验和打开系统安装器失败，提供重试和发布页入口。
 - [x] 关键繁中更新、诊断和规则集资源加入 CI，检查缺失、重复及占位符。[回归构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481432)与[完整 APK 构建](https://github.com/LauritzWu/Veyr/actions/runs/44675481337)通过。
-- [ ] 通过手动工作流构建签名 Beta。先安装包含新版界面的候选包，再用更高构建号验证下载进度、取消重试、失败提示和安装确认。
+- [x] 通过独立发布分支从 PR #3 构建 `1.0.5-BETA`（25845、Beta.1），签名和草稿附件 SHA-256 校验通过。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44676275188) · [草稿](https://github.com/LauritzWu/Veyr/releases/tag/untagged-cc605e778be92410d787)
+- [ ] 在 S24 Ultra 覆盖安装 25845 并确认配置；随后用更高构建号验证下载进度、取消重试、失败提示和安装确认。
