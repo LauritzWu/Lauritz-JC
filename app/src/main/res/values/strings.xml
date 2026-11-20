@@ -795,6 +795,11 @@
     <string name="logcat_search_clear">Clear filter</string>
     <string name="logcat_search_empty">No matches in recent logs.</string>
     <string name="github_update_download">Download and install</string>
-    <string name="github_update_downloading">Downloading and verifying the APK…</string>
-    <string name="github_update_install_failed">Could not prepare the update. Try again or open the release page.</string>
+    <string name="github_update_downloading">Downloading the APK…</string>
+    <string name="github_update_download_progress">Downloading the APK… %1$d%%</string>
+    <string name="github_update_verifying">Verifying the APK…</string>
+    <string name="github_update_download_failed">Could not download the APK.</string>
+    <string name="github_update_verify_failed">The APK did not pass verification.</string>
+    <string name="github_update_install_failed">Could not open the Android installer.</string>
+    <string name="github_update_retry">Retry</string>
 </resources>

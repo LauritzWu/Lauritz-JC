@@ -631,8 +631,6 @@
     <string name="logcat_search_clear">清除篩選</string>
     <string name="logcat_search_empty">最近的日誌中沒有符合項目。</string>
     <string name="github_update_download">下載並安裝</string>
-    <string name="github_update_downloading">正在下載並驗證安裝套件…</string>
-    <string name="github_update_install_failed">無法準備更新。請重試或開啟發行頁面。</string>
     <string name="github_update_channel">更新頻道</string>
     <string name="github_update_stable">穩定版</string>
     <string name="github_update_beta">Beta 版</string>
@@ -670,4 +668,11 @@
     <string name="diagnostic_active_profile">目前設定：%1$s</string>
     <string name="diagnostic_selected_node">選取的節點：%1$s</string>
     <string name="diagnostic_copy">複製診斷結果</string>
+    <string name="github_update_downloading">正在下載安裝套件…</string>
+    <string name="github_update_download_progress">正在下載安裝套件… %1$d%%</string>
+    <string name="github_update_verifying">正在驗證安裝套件…</string>
+    <string name="github_update_download_failed">無法下載安裝套件。</string>
+    <string name="github_update_verify_failed">安裝套件未通過驗證。</string>
+    <string name="github_update_install_failed">無法開啟 Android 安裝程式。</string>
+    <string name="github_update_retry">重試</string>
 </resources>
