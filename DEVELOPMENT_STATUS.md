@@ -251,4 +251,4 @@ GitHub 默认分支为 `lauritz/starifly-core-1.14`（`62731eb`），应用诊�
 - [ ] 验证独立的单色鹰头侧影、控制项列表的 Veyr 名称，以及连接和断开状态在 One UI 上的显示。磁贴沿用现有 VPN 状态和点击行为。
 - [x] `1.0.10-BETA.1`（25925）在 One UI 的「新增控制項」显示 Veyr 和新图标；用户反馈鹰头辨识度不足。[构建](https://github.com/LauritzWu/Veyr/actions/runs/44881976688)
 - [x] 用户确认采用 `1.0.10-BETA.3`（25935）的缩短鹰嘴版本作为快速设置磁贴图标。[签名构建](https://github.com/LauritzWu/Veyr/actions/runs/44885739057)
-- [ ] 待确认在 One UI 中点击磁贴连接和断开 VPN 均正常。
+- [x] 用户在 One UI 实测 `1.0.10-BETA.3`（25935）：点击快速设置磁贴连接和断开 VPN 均正常。
